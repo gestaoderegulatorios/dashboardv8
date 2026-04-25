@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Construtora Horizonte - Part 5 & 6</title>
+  <!-- Tailwind CDN com plugins (forms, container-queries) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { 'surface-tint': '#4c5e86' } } },
+    }
+  </script>
+  <!-- Inter (pt) e Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+  <!-- ApexCharts (diversos charts) -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+    /* Minimal helper classes para o contexto da página */
+    .card-tilt { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg); }
+    .border-glow { box-shadow: 0 0 0 2px rgba(76,94,134,0.25); }
+  </style>
+</head>
+<body class="bg-background text-on-surface">
+
+  <!-- MOCK DATA COMMENTS -->
+  <!-- MOCK DATA: View 5 & View 6 content will be populated with real data at runtime. -->
+
+  <!-- VIEW 5: LOTEAMENTOS (Layout Drill-down, Perfil Gerencial) -->
+  <section id="view-5" class="view-section grid grid-cols-12 gap-6 p-5" aria-label="View 5: Loteamentos">
+    <!-- KPI Hero (Máximo 1 por view) -->
+    <div class="col-span-12 lg:col-span-3 bg-primary-container border border-slate-200 rounded-xl p-5 shadow-sm card-tilt border-glow">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[0.6875rem] font-bold text-on-primary-container uppercase tracking-wider">Lotes Vendidos</span>
+        <span class="text-[0.6875rem] font-bold text-surface-tint">ver</span>
+      </div>
+      <div class="flex items-end justify-between gap-2">
+        <span class="text-2xl font-extrabold text-white" data-animate-value data-target="127" data-prefix="" data-suffix="/200">127/200</span>
+        <span class="text-sm text-white/80" aria-label="variação">+8.5%</span>
+      </div>
+      <div class="mt-3" aria-label="Sparkline de desempenho" id="spark-hero-land" style="width:100%; height:40px; background:#ffffff22; border-radius:6px"></div>
+    </div>
+
+    <!-- 3 KPIs do bloco Gerencial (Variant C, D, B) -->
+    <div class="col-span-12 lg:col-span-9 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Variant C: Venda Média/Lote com Progress Ring -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
+        <div>
+          <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Venda Média/Lote</span>
+          <div class="flex items-center gap-3 mt-2">
+            <span class="text-2xl font-extrabold text-primary">R$ 285.437</span>
+            <span class="text-xs font-bold text-surface-tint bg-surface-tint/10 px-2 py-0.5 rounded-lg">/lote</span>
+          </div>
+        </div>
+        <!-- Progress Ring (SVG) -->
+        <div class="w-14 h-14 flex-shrink-0" aria-label="Progresso venda média">
+          <svg viewBox="0 0 36 36" width="72" height="72" role="img" aria-label="Progresso: 62%">
+            <path d="M18 2.0845 a15.9155 15.9155 0 1 1 0 31.831" fill="none" stroke="#e5e7eb" stroke-width="3"></path>
+            <path d="M18 2.0845 a15.9155 15.9155 0 1 1 0 31.831" fill="none" stroke="#4c5e86" stroke-width="3" stroke-dasharray="62,100" stroke-linecap="round"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Variant D: Infra Concluída 64,3% + Sparkline -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between gap-2">
+        <div>
+          <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Infra Concluída</span>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-2xl font-extrabold text-primary" data-animate-value data-target="64.3" data-prefix="" data-suffix="%">64.3%</span>
+            <span class="text-xs font-bold text-surface-tint">+12pp</span>
+          </div>
+        </div>
+        <div id="sparkline-infra-land" class="w-full" style="height:40px; background:#f6f7f9; border-radius:6px; margin-top:6px"></div>
+      </div>
+
+      <!-- Variant B: Estoque 73 lotes + info '3 loteamentos' -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between gap-2">
+        <div>
+          <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Estoque</span>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-2xl font-extrabold text-primary" data-animate-value data-target="73" data-prefix="" data-suffix="">
+              73
+            </span>
+            <span class="text-xs font-bold text-surface-tint">lotes</span>
+          </div>
+        </div>
+        <div class="text-sm text-on-surface-variant mt-1">3 loteamentos</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 5: TABELA + DETALHES (Loteamentos) -->
+  <section id="view-5-details" class="view-section grid grid-cols-12 gap-6 p-5" aria-label="View 5 details">
+    <!-- Tabs: 3 loteamentos com comportamento Borg.switchTab() -->
+    <div class="col-span-12 bg-white rounded-xl border border-slate-200 shadow-sm mb-6 p-4" role="tablist" aria-label="Loteamentos tabs">
+      <div class="flex gap-2" aria-label="Loteamentos tab list">
+        <button class="px-4 py-2 rounded-lg text-sm font-semibold" role="tab" aria-selected="true" aria-controls="lote-panel-1" id="tab-lote-1" onclick="Borg.switchTab(this, 'lote-panel-1')">Residencial Parque</button>
+        <button class="px-4 py-2 rounded-lg text-sm font-semibold text-on-surface-variant" role="tab" aria-selected="false" aria-controls="lote-panel-2" id="tab-lote-2" onclick="Borg.switchTab(this, 'lote-panel-2')">Jardim Europa</button>
+        <button class="px-4 py-2 rounded-lg text-sm font-semibold text-on-surface-variant" role="tab" aria-selected="false" aria-controls="lote-panel-3" id="tab-lote-3" onclick="Borg.switchTab(this, 'lote-panel-3')">Horizon Hills</button>
+      </div>
+    </div>
+    <!-- Painéis -->
+    <div id="lote-panel-1" role="tabpanel" aria-labelledby="tab-lote-1" class="col-span-12 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+      <p class="text-sm text-on-surface-variant">Resumo de Residencial Parque. Seção de dados detalhados segue abaixo (donut/tain). </p>
+      <!-- Conteúdo mínimo para manter consistência -->
+    </div>
+    <div id="lote-panel-2" role="tabpanel" aria-labelledby="tab-lote-2" class="col-span-12 hidden p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+      <p class="text-sm text-on-surface-variant">Resumo de Jardim Europa. Conteúdo de dados detalhados pode ser exibido aqui.</p>
+    </div>
+    <div id="lote-panel-3" role="tabpanel" aria-labelledby="tab-lote-3" class="col-span-12 hidden p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+      <p class="text-sm text-on-surface-variant">Resumo de Horizon Hills. Conteúdo adicional do drill-down pode ser incluído.</p>
+    </div>
+    <!-- Cross-filter Donut + Drawer + Table -->
+    <div class="col-span-12 lg:col-span-6">
+      <!-- Donut com filtros cruzados -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm mb-6">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-wider">Loteamentos - Filtro</span>
+          <button id="clear-cross-filter" class="px-2 py-1 text-xs font-medium text-surface-tint bg-white rounded-lg border border-slate-200" onclick="Borg.clearCrossFilter('table-land-expand')">Limpar filtro</button>
+        </div>
+        <div id="chart-donut-land" aria-label="Donut de loteamentos" style="width:100%; height:260px;"></div>
+      </div>
+      <!-- Drawer de Loteamento (perfil Gerencial) -->
+      <div id="drawer-loteamento" class="detail-drawer bg-white border border-slate-200 rounded-xl shadow-lg p-5 hidden" role="region" aria-label="Detalhes do Loteamento">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span class="material-symbols-outlined" aria-hidden="true">map</span>
+            </div>
+            <div>
+              <div id="drawer-loteamento-name" class="text-lg font-bold">[Loteamento]</div>
+              <div id="drawer-loteamento-quadras" class="text-xs text-on-surface-variant">Quadras: [N]</div>
+            </div>
+          </div>
+          <button class="p-2 hover:bg-slate-100 rounded-lg transition-colors" onclick="Borg.closeDrawer('drawer-loteamento')" aria-label="Fechar">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4" aria-label="Resumo do loteamento">
+          <div class="p-3 border rounded-lg">
+            <div class="text-xs font-bold text-on-surface-variant uppercase">Área total</div>
+            <div class="text-sm font-semibold text-primary" data-field="area">[AREA]</div>
+          </div>
+          <div class="p-3 border rounded-lg">
+            <div class="text-xs font-bold text-on-surface-variant uppercase">Infra</div>
+            <div class="text-sm font-semibold text-primary" data-field="infra">[INFRA]</div>
+          </div>
+          <div class="p-3 border rounded-lg">
+            <div class="text-xs font-bold text-on-surface-variant uppercase">Progresso</div>
+            <div class="h-2 w-full bg-slate-200 rounded-full"><span class="block h-full w-[60%] bg-surface-tint rounded-full"></span></div>
+          </div>
+        </div>
+        <div class="border-t border-slate-200 pt-4 mb-2"></div>
+        <div class="grid grid-cols-2 gap-4 text-xs text-on-surface-variant">
+          <div>Quadras: <strong id="drawer-loteamento-quadras-count">[Q]</strong></div>
+          <div>Área total m²: <strong id="drawer-loteamento-area">[AREA_M2]</strong></div>
+        </div>
+      </div>
+    </div>
+    <!-- Tabela com Row Expand -->
+    <div id="table-land-expand" class="col-span-12 lg:col-span-6 bg-white border border-slate-200 rounded-xl shadow-sm p-5" aria-label="Tabela de Loteamentos com detalhes">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-wider">Quadras e Lotes</span>
+      </div>
+      <table class="w-full text-sm text-left" aria-label="Tabela de Loteamentos">
+        <thead class="bg-surface-container-low">
+          <tr>
+            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider">Lote</th>
+            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider">Tipo</th>
+            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider">Status Infra</th>
+            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider">Área m²</th>
+            <th class="px-3 py-2 text-[10px] font-bold uppercase tracking-wider">Preço</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="hover:bg-slate-50 cursor-pointer" onclick="Borg.toggleRowExpand(this, 'row-land-1')" aria-expanded="false">
+            <td class="px-3 py-2">L1-01</td>
+            <td class="px-3 py-2">Tipo A</td>
+            <td class="px-3 py-2">Concluída</td>
+            <td class="px-3 py-2 tabular-nums">350</td>
+            <td class="px-3 py-2 tabular-nums">R$ 320.000</td>
+          </tr>
+          <tr id="row-land-1" class="expand-row hidden"> 
+            <td colspan="5" class="px-3 py-2 text-xs text-on-surface-variant">
+              Quadra: Q1 · Lotes: 12 · Infra: 95%
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50 cursor-pointer" onclick="Borg.toggleRowExpand(this, 'row-land-2')" aria-expanded="false">
+            <td class="px-3 py-2">L1-02</td>
+            <td class="px-3 py-2">Tipo B</td>
+            <td class="px-3 py-2">Em andamento</td>
+            <td class="px-3 py-2 tabular-nums">420</td>
+            <td class="px-3 py-2 tabular-nums">R$ 360.000</td>
+          </tr>
+          <tr id="row-land-2" class="expand-row hidden"> 
+            <td colspan="5" class="px-3 py-2 text-xs text-on-surface-variant">
+              Quadra: Q2 · Lotes: 14 · Infra: 60%
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- VIEW 6: UPLOAD (Importar Dados) -->
+  <section id="view-6" class="view-section grid grid-cols-12 gap-6 p-4" aria-label="View 6: Upload">
+    <div class="col-span-12 bg-white border border-slate-200 rounded-xl shadow-sm p-6" aria-label="Dropzone de upload">
+      <!-- Dropzone Variante A (Apenas HTML estático; usa JS para funcionar) -->
+      <div id="dropzone" class="border-2 border-dashed border-slate-300 rounded-lg p-8 flex flex-col items-center justify-center text-center bg-white hover:bg-slate-50 cursor-pointer" role="button" tabindex="0" aria-label="Área de upload de planilha. Clique para selecionar"> 
+        <div class="w-12 h-12 bg-surface-container-low rounded-[9999px] flex items-center justify-center mb-4">
+          <span class="material-symbols-outlined text-2xl text-surface-tint" aria-hidden="true">upload_file</span>
+        </div>
+        <p class="text-sm font-semibold text-primary mb-1">Arraste e solte o arquivo aqui</p>
+        <p class="text-xs text-on-surface-variant mb-2">ou clique para selecionar</p>
+        <div class="flex gap-3 mt-2">
+          <button class="px-4 py-2 bg-surface-tint text-white rounded-lg text-sm font-medium hover:bg-[#3d4d6d]" onclick="document.getElementById('file-input').click()">Selecionar arquivo</button>
+          <button class="px-4 py-2 text-surface-tint border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50" onclick="Borg.downloadTemplate()">Baixar modelo</button>
+        </div>
+        <input type="file" id="file-input" class="hidden" accept=".csv,.xlsx,.xls,.ods" onchange="Borg.handleFileUpload(this.files[0])">
+      </div>
+    </div>
+
+    <!-- Upload Status (inicialmente oculto) -->
+    <div id="upload-status" class="col-span-12 bg-white border border-slate-200 rounded-xl shadow-sm p-5 hidden" aria-label="Status do upload">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-on-surface-variant uppercase">Arquivo:</span>
+        <span id="filename" class="text-sm font-medium text-primary">Nenhum arquivo selecionado</span>
+      </div>
+      <div id="upload-info" class="text-xs text-on-surface-variant mb-3">Sem informações</div>
+      <div class="flex items-center gap-2">
+        <button class="px-3 py-1.5 text-xs font-medium text-surface-tint hover:bg-slate-50 rounded-lg" onclick="Borg.showDataPreview()">Visualizar dados</button>
+        <button class="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-slate-50 rounded-lg" onclick="Borg.clearUpload()">Remover</button>
+        <button class="ml-auto px-3 py-1.5 text-xs font-medium bg-surface-tint text-white rounded-lg" onclick="Borg.confirmDataLoad()">Confirmar carregamento</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATA SCHEMA (exemplo para medição de obra) -->
+  <script>
+    // Schema de dados para importação (exemplo para medição de obra)
+    var dataSchema = {
+      description: 'Medição de obra',
+      columns: {
+        torre: { label: 'Torre/Bloco', type: 'text', required: true },
+        previsto: { label: 'Previsto', type: 'number', required: true },
+        realizado: { label: 'Realizado', type: 'number', required: true },
+        orcado: { label: 'Orçado', type: 'number', required: true },
+        executado: { label: 'Executado', type: 'number', required: true },
+        responsavel: { label: 'Responsavel', type: 'text', required: true }
+      },
+      defaultSheet: 0,
+      headerRow: 0
+    };
+  </script>
+
+  <!-- EMPTY STATE (View 6) -->
+  <section class="col-span-12 bg-white border border-slate-200 rounded-xl shadow-sm p-6" aria-label="Empty state de upload" style="display:none" id="upload-empty">
+    <div class="flex items-center gap-3 text-center mx-auto justify-center flex-col" style="max-width:420px">
+      <div class="w-12 h-12 bg-surface-container-low rounded-[9999px] flex items-center justify-center mb-2">
+        <span class="material-symbols-outlined text-3xl text-on-surface-variant" aria-hidden="true">cloud_upload</span>
+      </div>
+      <div class="text-lg font-bold text-primary">Nenhum dado importado</div>
+      <p class="text-sm text-on-surface-variant text-center">Insira uma planilha (.csv, .xlsx, .xls, .ods) para começar a visualização dos dados de medição.</p>
+      <button class="mt-2 px-4 py-2 bg-surface-tint text-white rounded-lg text-sm font-medium" onclick="document.getElementById('dropzone').click()">Carregar arquivo</button>
+    </div>
+  </section>
+
+  <!-- DADOS MOCK DE ESTRUTURA (colunas esperadas) -->
+  <!-- MOCK DATA -->
+  <script>
+    // Funções mínimas de suporte para visualização estática
+    window.Borg = window.Borg || {
+      switchView: function(){}, crossFilter: function(){}, clearCrossFilter: function(){},
+      openDrawer: function(id){ document.getElementById(id).classList.remove('hidden'); },
+      closeDrawer: function(id){ document.getElementById(id).classList.add('hidden'); },
+      toggleRowExpand: function(row, detailId){
+        var detail = document.getElementById(detailId);
+        if (!detail) return;
+        var isOpen = !detail.classList.contains('hidden');
+        detail.classList.toggle('hidden');
+        var icon = row.querySelector('.expand-icon');
+        if (icon) icon.classList.toggle('expanded', !isOpen);
+      },
+      downloadTemplate: function(){ /* placeholder */ },
+      handleFileUpload: function(){ /* placeholder */ },
+      showToast: function(msg, type){ /* placeholder */ },
+      clearUpload: function(){ /* placeholder */ },
+      showDataPreview: function(){ /* placeholder */ },
+      confirmDataLoad: function(){ /* placeholder */ }
+    };
+  </script>
+
+  <!-- MOCK DATA FOR VIEW 5 (tell the browser scripts to maintain structure) -->
+  <script>
+    // Placeholder for sparkline data, donut and gauge rendering hooks
+    (function(){
+      // Sparkline placeholder
+      var s = document.getElementById('spark-hero-land');
+      if (s) { s.innerHTML = '<svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline fill="none" stroke="#fff" stroke-width="2" points="0,30 20,24 40,28 60,18 80,22 100,12"/></svg>'; }
+      var infraSpark = document.getElementById('sparkline-infra-land');
+      if (infraSpark) { infraSpark.innerHTML = '<svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline fill="none" stroke="#4c5e86" stroke-width="2" points="0,20 20,14 40,18 60,12 80,16 100,10"/></svg>'; }
+      var heroSpark = document.getElementById('spark-hero-land');
+      if (heroSpark) { heroSpark.innerHTML = '<svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none"><polyline fill="none" stroke="#fff" stroke-width="2" points="0,24 12,20 24,22 36,18 48,16 60,20 72,14 84,16 100,10"/></svg>'; }
+    })();
+  </script>
+
+  <!-- VIEW SWITCH (mock quick navigation) -->
+  <script>
+    function initViews() {
+      // Simple toggles entre views 5 e 6 apenas para demonstração
+      var v5 = document.getElementById('view-5');
+      var v6 = document.getElementById('view-6');
+      if (v5) v5.style.display = 'block';
+      if (v6) v6.style.display = 'block';
+    }
+    document.addEventListener('DOMContentLoaded', initViews);
+  </script>
+</body>
+</html>

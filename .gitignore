@@ -1,0 +1,29 @@
+# Temp / scratch files
+_temp_*.js
+_temp_*.html
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Claude local settings (keep launch.json shared)
+.claude/settings.local.json
+.claude/worktrees/
+
+# Node (V8 will use it)
+node_modules/
+dist/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
