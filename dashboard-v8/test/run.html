@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V8 — Test Runner</title>
+<style>
+  :root { --ok:#16a34a; --fail:#dc2626; --bg:#f8fafc; --fg:#0f172a; --muted:#64748b; }
+  * { box-sizing: border-box; }
+  body { font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; padding: 2rem; max-width: 920px; margin: 0 auto; background: var(--bg); color: var(--fg); }
+  h1 { font-size: 1.25rem; margin: 0 0 .25rem; }
+  .lede { color: var(--muted); margin: 0 0 1.5rem; font-size: .875rem; }
+  .test { padding: .5rem .75rem; border-radius: 6px; margin: .25rem 0; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: .8125rem; display: flex; align-items: flex-start; gap: .5rem; }
+  .test.ok { background: #ecfccb; color: #14532d; }
+  .test.fail { background: #fee2e2; color: #7f1d1d; }
+  .test .icon { font-weight: 700; flex-shrink: 0; }
+  .test .err { display: block; margin-top: .25rem; opacity: .75; font-size: .75rem; }
+  .summary { padding: 1rem 1.25rem; border-radius: 8px; margin-top: 1.5rem; font-weight: 700; font-size: .9375rem; display: flex; align-items: center; justify-content: space-between; }
+  .summary.green { background: var(--ok); color: white; }
+  .summary.red { background: var(--fail); color: white; }
+  .nav { display: flex; gap: .75rem; margin-bottom: 1rem; font-size: .8125rem; }
+  .nav a { color: #0369a1; text-decoration: none; }
+  .nav a:hover { text-decoration: underline; }
+  .group-label { font-size: .6875rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 1.25rem 0 .5rem; }
+</style>
+</head>
+<body>
+<h1>V8 — Test Runner</h1>
+<p class="lede">Sem framework. Cada função pura V8 nasce com pelo menos um teste (Risco 7 do plano).</p>
+<div style="padding:.5rem .75rem;border-radius:6px;margin:0 0 1rem;background:#fef3c7;color:#92400e;font-size:.8125rem;">
+  ⚠️ <strong>Escopo:</strong> este runner browser-only carrega 85 testes unitários. Os 4 testes de acessibilidade (<code>a11y.test.js</code>) rodam apenas via <code>npm test</code> (requerem jsdom + axe-core, incompatíveis com browser puro). Total: 89 testes (<code>npm test</code>) = 85 (aqui) + 4 (a11y).
+</div>
+<nav class="nav">
+  <a href="../index.html">← Dashboard V8</a>
+  <a href="../../dashboard.html">V7 (baseline)</a>
+</nav>
+<div id="output" aria-live="polite"></div>
+<script type="module">
+  import { runAll } from './runner.js';
+  try {
+  // Cache-buster: força reload dos módulos durante desenvolvimento.
+  const v = '?v=' + Date.now();
+  // Carregar testes em ordem (cada arquivo registra seus its)
+  await import('./schema.test.js' + v);
+  await import('./kpi.test.js' + v);
+  await import('./filter.test.js' + v);
+  await import('./table.test.js' + v);
+  await import('./persona.test.js' + v);
+  await import('./nav.test.js' + v);
+  await import('./story.test.js' + v);
+  await import('./demo.test.js' + v);
+  await import('./animate.test.js' + v);
+
+  const out = document.getElementById('output');
+  const t0 = performance.now();
+  const { results, passed, failed, total } = await runAll();
+  const elapsed = (performance.now() - t0).toFixed(0);
+
+  for (const r of results) {
+    const div = document.createElement('div');
+    div.className = `test ${r.ok ? 'ok' : 'fail'}`;
+    div.innerHTML = `<span class="icon" aria-hidden="true">${r.ok ? '✓' : '✗'}</span><span>${escape(r.label)}${r.error ? `<span class="err">${escape(r.error)}</span>` : ''}</span>`;
+    out.appendChild(div);
+  }
+  const sum = document.createElement('div');
+  sum.className = `summary ${failed === 0 ? 'green' : 'red'}`;
+  sum.innerHTML = `<span>${passed}/${total} ${failed === 0 ? 'PASSOU' : 'PASSOU · ' + failed + ' falhou'}</span><span>${elapsed}ms</span>`;
+  out.appendChild(sum);
+
+  // Para inspeção via preview eval
+  window.__V8_TEST_RESULT = { passed, failed, total, results, elapsed };
+
+  function escape(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  } catch (e) {
+    window.__V8_TEST_RESULT = { passed: 0, failed: 1, total: 1, results: [{ ok: false, label: 'BOOT', error: String(e?.stack || e) }], elapsed: 0 };
+    const out = document.getElementById('output');
+    const div = document.createElement('div');
+    div.className = 'test fail';
+    div.innerHTML = '<span class="icon">✗</span><span>BOOT ERROR<span class="err">' + String(e?.message || e).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</span></span>';
+    out.appendChild(div);
+    console.error('[V8/test boot]', e);
+  }
+</script>
+</body>
+</html>
