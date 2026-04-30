@@ -1,0 +1,231 @@
+{
+  "meta": {
+    "versao_schema": "1.0",
+    "gerado_em": "2026-04-29T21:31:56",
+    "total_obras": 14,
+    "fonte": "etl_v8"
+  },
+  "obras": [
+    {
+      "nome": "Torre A",
+      "tipo": "Edificio",
+      "status": "Em progresso",
+      "orcado": 12000000.0,
+      "executado": 8499999.98,
+      "avanco": 72.5,
+      "gap": 1.6,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Torre B",
+      "tipo": "Loteamento",
+      "status": "Atencao",
+      "orcado": 9800000.0,
+      "executado": 4119999.99,
+      "avanco": 45.9,
+      "gap": 3.8,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Torre C",
+      "tipo": "Comercial",
+      "status": "Pendente",
+      "orcado": 6700000.0,
+      "executado": 3100000.01,
+      "avanco": 33.0,
+      "gap": -13.3,
+      "atrasoDias": 13
+    },
+    {
+      "nome": "Torre D",
+      "tipo": "Infraestrutura",
+      "status": "Concluida",
+      "orcado": 15200000.0,
+      "executado": 8600000.02,
+      "avanco": 58.8,
+      "gap": 2.2,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Residencial Parque",
+      "tipo": "Loteamento",
+      "status": "Em progresso",
+      "orcado": 8400000.0,
+      "executado": 6048000.0,
+      "avanco": 76.7,
+      "gap": 4.7,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Jardim Europa",
+      "tipo": "Loteamento",
+      "status": "Atencao",
+      "orcado": 5600000.0,
+      "executado": 2128000.0,
+      "avanco": 40.5,
+      "gap": 2.5,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Horizon Hills",
+      "tipo": "Loteamento",
+      "status": "Em progresso",
+      "orcado": 7200000.0,
+      "executado": 4608000.0,
+      "avanco": 68.2,
+      "gap": 4.2,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Ed Central",
+      "tipo": "Comercial",
+      "status": "Planejado",
+      "orcado": 4500000.0,
+      "executado": 0.0,
+      "avanco": 0.0,
+      "gap": 0.0,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Torre E",
+      "tipo": "Edificio",
+      "status": "Em progresso",
+      "orcado": 14500000.0,
+      "executado": 11890000.03,
+      "avanco": 86.2,
+      "gap": 4.2,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Torre F",
+      "tipo": "Edificio",
+      "status": "Em progresso",
+      "orcado": 11300000.0,
+      "executado": 6440999.99,
+      "avanco": 60.6,
+      "gap": 3.7,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Loteamento Bosque",
+      "tipo": "Loteamento",
+      "status": "Atencao",
+      "orcado": 6200000.0,
+      "executado": 1798000.02,
+      "avanco": 30.9,
+      "gap": 1.9,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Galpao Logistico",
+      "tipo": "Comercial",
+      "status": "Em progresso",
+      "orcado": 8900000.0,
+      "executado": 8099999.97,
+      "avanco": 91.9,
+      "gap": 0.9,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Ponte Viaria",
+      "tipo": "Infraestrutura",
+      "status": "Atencao",
+      "orcado": 18700000.0,
+      "executado": 8602000.0,
+      "avanco": 49.0,
+      "gap": 3.0,
+      "atrasoDias": 0
+    },
+    {
+      "nome": "Estacao de Tratamento",
+      "tipo": "Infraestrutura",
+      "status": "Em progresso",
+      "orcado": 5100000.0,
+      "executado": 3723000.0,
+      "avanco": 77.8,
+      "gap": 4.8,
+      "atrasoDias": 0
+    }
+  ],
+  "series": {
+    "meses12": [
+      "Abr/25",
+      "Mai/25",
+      "Jun/25",
+      "Jul/25",
+      "Ago/25",
+      "Set/25",
+      "Out/25",
+      "Nov/25",
+      "Dez/25",
+      "Jan/26",
+      "Fev/26",
+      "Mar/26"
+    ],
+    "receitaMensal": [
+      6200000,
+      7100000,
+      7500000,
+      8200000,
+      8600000,
+      9000000,
+      9200000,
+      8800000,
+      9500000,
+      9800000,
+      9400000,
+      8734281
+    ],
+    "composicaoTipo": [
+      {
+        "name": "Comercial",
+        "value": 15.0
+      },
+      {
+        "name": "Edifícios",
+        "value": 28.2
+      },
+      {
+        "name": "Infraestrutura",
+        "value": 29.1
+      },
+      {
+        "name": "Loteamentos",
+        "value": 27.7
+      }
+    ],
+    "margemSpark": [
+      38,
+      40,
+      39,
+      42,
+      41,
+      43,
+      42,
+      40,
+      44,
+      43,
+      41,
+      40
+    ],
+    "metaAnualPercent": 72
+  },
+  "dimensoes": {
+    "centros_custo": [
+      "Administrativo",
+      "Equipamentos",
+      "Mao de Obra",
+      "Material",
+      "Servicos Terceirizados"
+    ],
+    "categorias": [
+      "Acabamento",
+      "Aco",
+      "Alvenaria",
+      "Concreto",
+      "Estrutura",
+      "Fundacao",
+      "Instalacoes"
+    ]
+  }
+}

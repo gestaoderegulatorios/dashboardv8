@@ -1,0 +1,84 @@
+{
+  "financeiro": {
+    "data": [
+      "Dt Lancamento",
+      "Data",
+      "Data Lanc."
+    ],
+    "valor": [
+      "Valor R$",
+      "Vlr",
+      "Valor"
+    ],
+    "centro_custo": [
+      "Centro de Custo",
+      "CC",
+      "C.Custo"
+    ],
+    "categoria": [
+      "Categoria",
+      "Cat."
+    ],
+    "descricao_lancamento": [
+      "Descricao",
+      "Historico"
+    ]
+  },
+  "planejamento": {
+    "etapa": [
+      "Etapa",
+      "Atividade",
+      "Fase"
+    ],
+    "percent_concluido": [
+      "% Concluido",
+      "% Conc.",
+      "Concluido (%)"
+    ],
+    "peso": [
+      "Peso (%)",
+      "Peso"
+    ],
+    "inicio": [
+      "Inicio Previsto",
+      "Inicio",
+      "Data Inicio"
+    ],
+    "fim": [
+      "Fim Previsto",
+      "Termino",
+      "Data Fim"
+    ]
+  },
+  "compras": {
+    "data": [
+      "Data Pedido",
+      "Dt Pedido",
+      "Data"
+    ],
+    "fornecedor": [
+      "Fornecedor",
+      "Forn."
+    ],
+    "item": [
+      "Item",
+      "Material",
+      "Descricao"
+    ],
+    "qtd": [
+      "Qtd",
+      "Quantidade",
+      "Qtd."
+    ],
+    "valor_unit": [
+      "Valor Unit",
+      "Vlr Unit",
+      "Preco Unit."
+    ],
+    "total": [
+      "Total",
+      "Vlr Total",
+      "Total R$"
+    ]
+  }
+}
