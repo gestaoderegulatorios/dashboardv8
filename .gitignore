@@ -27,3 +27,12 @@ dist/
 __pycache__/
 *.pyc
 .venv/
+
+# ETL — dados brutos (XLSX da equipe) e saída do pipeline
+# Não versionar: dados podem ser sensíveis e XLSX incham o repo.
+# Apenas o snapshot.json copiado para dashboard-v8/public/data/ vai pro git.
+dados_raw/
+etl_v8/output/
+etl_v8/.venv/
+erros_etl.json
+validation_report.json
