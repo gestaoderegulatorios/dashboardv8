@@ -1,0 +1,392 @@
+/* Borgonovi Design System - Semantic Theme Tokens (Single Source of Truth)
+   - Neutral light palette defined on :root
+   - Dark overrides defined in .dark
+   - Theme stubs using [data-theme] with light palette overrides (primary, primary-container, surface-tint, tertiary)
+   - No !important rules. No JS. CSS only.
+*/
+
+/* 1) Neutral baseline (root) - Borgonovi semantic mapping */
+:root {
+  /* Palette (tailored semantic tokens mapped from provided spec) */
+  --color-primary: #00081e; /* primary */
+  --color-on-primary: #ffffff; /* on-primary */
+  --color-primary-container: #0a1f44; /* primary-container */
+  --color-on-primary-container: #7687b2; /* on-primary-container */
+  --color-primary-fixed: #d9e2ff; /* primary-fixed */
+  --color-primary-fixed-dim: #b4c6f4; /* primary-fixed-dim */
+  --color-on-primary-fixed: #041a3f; /* on-primary-fixed */
+  --color-on-primary-fixed-variant: #34466d; /* on-primary-fixed-variant */
+
+  --color-secondary: #585e70; /* secondary */
+  --color-on-secondary: #ffffff; /* on-secondary */
+  --color-secondary-container: #dce2f7; /* secondary-container */
+  --color-on-secondary-container: #5e6476; /* on-secondary-container */
+  --color-secondary-fixed: #dce2f7; /* secondary-fixed */
+  --color-secondary-fixed-dim: #c0c6da; /* secondary-fixed-dim */
+  --color-on-secondary-fixed: #151b2a; /* on-secondary-fixed */
+  --color-on-secondary-fixed-variant: #404757; /* on-secondary-fixed-variant */
+
+  --color-tertiary: #150500; /* tertiary */
+  --color-on-tertiary: #ffffff; /* on-tertiary */
+  --color-tertiary-container: #391700; /* tertiary-container */
+  --color-on-tertiary-container: #b37c59; /* on-tertiary-container */
+  --color-tertiary-fixed: #ffdbc7; /* tertiary-fixed */
+  --color-tertiary-fixed-dim: #f8b992; /* tertiary-fixed-dim */
+  --color-on-tertiary-fixed: #311300; /* on-tertiary-fixed */
+  --color-on-tertiary-fixed-variant: #673c1e; /* on-tertiary-fixed-variant */
+
+  --color-error: #ba1a1a; /* error */
+  --color-on-error: #ffffff; /* on-error */
+  --color-error-container: #ffdad6; /* error-container */
+  --color-on-error-container: #93000a; /* on-error-container */
+
+  --color-background: #f7f9fb; /* background */
+  --color-on-background: #191c1e; /* on-background */
+  --color-surface: #f7f9fb; /* surface */
+  --color-on-surface: #191c1e; /* on-surface */
+  --color-surface-variant: #e0e3e5; /* surface-variant */
+  --color-on-surface-variant: #44464e; /* on-surface-variant (light: legível sobre fundo claro) */
+  --color-surface-dim: #d8dadc; /* surface-dim */
+  --color-surface-bright: #f7f9fb; /* surface-bright */
+  --color-surface-container-lowest: #ffffff; /* surface-container-lowest */
+  --color-surface-container-low: #f2f4f6; /* surface-container-low */
+  --color-surface-container: #eceef0; /* surface-container */
+  --color-surface-container-high: #e6e8ea; /* surface-container-high */
+  --color-surface-container-highest: #e0e3e5; /* surface-container-highest */
+
+  --color-outline: #75777f; /* outline */
+  --color-outline-variant: #c5c6cf; /* outline-variant */
+  --color-inverse-surface: #2d3133; /* inverse-surface */
+  --color-inverse-on-surface: #eff1f3; /* inverse-on-surface */
+  --color-inverse-primary: #b4c6f4; /* inverse-primary */
+  --color-surface-tint: #4c5e86; /* surface-tint */
+
+  /* Extra tokens (system enhancements) */
+  --color-success: #2e7d32; /* success */
+  --color-success-foreground: #ffffff; /* success-foreground */
+  --color-warning: #b37c59; /* warning */
+  --color-warning-foreground: #ffffff; /* warning-foreground */
+  --color-info: #4c5e86; /* info */
+  --color-info-foreground: #ffffff; /* info-foreground */
+  --color-destructive: #ba1a1a; /* destructive */
+  --color-destructive-foreground: #ffffff; /* destructive-foreground */
+
+  /* Chart colors (F2 prep) */
+  --chart-categorical-1: #4c5e86;
+  --chart-categorical-2: #0a1f44;
+  --chart-categorical-3: #b37c59;
+  --chart-categorical-4: #ba1a1a;
+  --chart-categorical-5: #7687b2;
+  --chart-categorical-6: #585e70;
+  --chart-sequential-1: #d9e2ff;
+  --chart-sequential-2: #b4c6f4;
+  --chart-sequential-3: #7687b2;
+  --chart-sequential-4: #4c5e86;
+  --chart-sequential-5: #34466d;
+  --chart-sequential-6: #0a1f44;
+  --chart-divergent-1: #ba1a1a;
+  --chart-divergent-2: #e57373;
+  --chart-divergent-3: #e0e3e5;
+  --chart-divergent-4: #81c784;
+  --chart-divergent-5: #2e7d32;
+  --chart-status-bad: #ba1a1a;
+  --chart-status-warn: #b37c59;
+  --chart-status-good: #2e7d32;
+  --chart-grid: #e0e3e5;
+  --chart-axis-label: #75777f;
+  --chart-axis-border: #e5e7eb;
+  --chart-legend: #44464e;
+  --chart-datalabel: #0a1f44;
+
+  /* Surface tint hover state (Tailwind token surface-tint-hover) */
+  --color-surface-tint-hover: #3d4d6d;
+
+  /* Radius tokens */
+  --radius-sm: 0.125rem; /* 2px */
+  --radius-default: 0.25rem; /* 4px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-full: 0.75rem; /* matches tailwind default */
+  --radius-pill: 9999px; /* pill */
+
+  /* Shadow tokens */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 24px rgba(10,31,68,0.12);
+
+  /* Effect tokens (used in app.css custom classes) */
+  --effect-card-lift-border: #c5c6cf;
+  --effect-card-lift-shadow: 0 8px 24px -8px rgba(10,31,68,0.12), 0 2px 4px -2px rgba(10,31,68,0.06);
+  --effect-text-gradient-from: #4c5e86;
+  --effect-text-gradient-to: #0a1f44;
+  --effect-border-glow-color: rgba(76,94,134,0.3);
+  --effect-border-glow-spread: rgba(76,94,134,0.15);
+  --effect-ripple-color: rgba(76,94,134,0.3);
+  --effect-pulse-dot-color: #10b981;
+  --effect-focus-ring-color: #4c5e86;
+  --effect-shimmer-from: #e5e7eb;
+  --effect-shimmer-mid: #f3f4f6;
+  --effect-shimmer-to: #e5e7eb;
+
+  /* Tooltip tokens (sidebar collapsed) */
+  --tooltip-bg: #1e293b;
+  --tooltip-text: #f8fafc;
+  --tooltip-shadow: 0 4px 12px rgba(0,0,0,0.25);
+
+  /* Motion tokens (from app.css — canonical source) */
+  --dur-instant: 100ms;
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-medium: 300ms;
+  --dur-slow: 400ms;
+  --dur-deliberate: 600ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-crisp: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 2) Dark mode baseline (global .dark) overrides */
+/* F9.1: refinamento dos tokens dark — background mais escuro azulado (Stitch-like),
+   bordas mais sutis, helper texts mais legíveis, charts com cores vibrantes. */
+.dark {
+  --color-background: #0f1419; /* background (era #111318) — azulado escuro */
+  --color-surface: #1a1f2e; /* surface (era #1d1f24) — leve azul para distinguir do bg */
+  --color-surface-container-lowest: #1c2233; /* F9.1 fix: era #ffffff (bug — cards ficavam brancos em dark) */
+  --color-surface-container-low: #1f2937; /* surface-container-low (era #24262b) — mais separação */
+  --color-surface-container: #252e42; /* surface-container (era #2a2c31) */
+  --color-surface-container-high: #2c3548; /* surface-container-high (era #313338) */
+  --color-surface-container-highest: #364255; /* surface-container-highest (era #383a3f) */
+  --color-on-surface: #e2e8f0; /* on-surface (mais legível) */
+  --color-on-background: #e6ecf5; /* on-background */
+  --color-outline-variant: #2d3548; /* outline-variant (era #44474c) — bordas mais discretas */
+  --color-outline: #4b5563; /* outline (era #75777f) — coerente com nova paleta */
+  --color-primary-container: #0a1f44; /* primary-container (dark surface for hero cards) */
+  --color-on-primary-container: #b4c6f4; /* on-primary-container */
+  --color-primary-fixed-dim: #b4c6f4; /* primary-fixed-dim */
+  --color-inverse-primary: #b4c6f4; /* inverse-primary */
+  /* F5.5: text-primary precisa inverter em dark — sem isso #00081e cai sobre fundo escuro = invisível */
+  --color-primary: #b4c6f4; /* primary inverted: light blue legível sobre dark surface */
+  --color-on-primary: #002e69; /* dark navy: legível sobre bg-primary claro em dark mode */
+  --color-surface-tint: #6b7fa8; /* surface-tint */
+  --color-surface-tint-hover: #546a8e; /* surface-tint hover on dark mode */
+  --color-error: #f87171; /* error */
+  --color-on-tertiary-container: #fbbf24; /* on-tertiary-container — dourado mais vibrante */
+  --color-surface-variant: #252e42; /* surface-variant */
+  --color-on-surface-variant: #9ca3af; /* on-surface-variant (era #919499) — contraste 5.2:1 */
+  --color-surface-dim: #0a0e14; /* surface-dim */
+  /* Keep other required dark tokens aligned with neutral baseline */
+  --color-inverse-surface: #eff1f3;
+  --color-inverse-on-surface: #ffffff;
+
+  /* F9.1: Chart dark overrides — cores vibrantes Stitch-like (azul + roxo + dourado) */
+  --chart-categorical-1: #60a5fa; /* azul vivo (era #b4c6f4) */
+  --chart-categorical-2: #a78bfa; /* roxo vibrante (era #e2e3e8) — distinção clara entre séries */
+  --chart-categorical-3: #fbbf24; /* dourado (era #d4956e) — mais distinto */
+  --chart-categorical-4: #f87171; /* vermelho */
+  --chart-categorical-5: #34d399; /* verde mint */
+  --chart-categorical-6: #c084fc; /* lilás */
+  --chart-sequential-1: #1e293b;
+  --chart-sequential-2: #334155;
+  --chart-sequential-3: #64748b;
+  --chart-sequential-4: #93c5fd;
+  --chart-sequential-5: #bfdbfe;
+  --chart-sequential-6: #e0e7ff;
+  --chart-divergent-1: #f87171;
+  --chart-divergent-2: #fbbf24;
+  --chart-divergent-3: #6b7280;
+  --chart-divergent-4: #34d399;
+  --chart-divergent-5: #4ade80;
+  --chart-status-bad: #f87171;
+  --chart-status-warn: #fbbf24;
+  --chart-status-good: #4ade80;
+  --chart-grid: #1f2937; /* grid sutil (era #44474c) */
+  --chart-axis-label: #9ca3af; /* eixos legíveis */
+  --chart-axis-border: #2d3548;
+  --chart-legend: #d1d5db; /* legenda mais clara */
+  --chart-datalabel: #e2e8f0;
+
+  /* Extra tokens dark */
+  --color-success: #4ade80;
+  --color-warning: #d4956e;
+  --color-info: #6b7fa8;
+  --color-destructive: #f87171;
+
+  /* Shadow dark */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+
+  /* Effect tokens dark */
+  --effect-card-lift-border: #55585d;
+  --effect-card-lift-shadow: 0 8px 24px -8px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.2);
+  --effect-text-gradient-from: #b4c6f4;
+  --effect-text-gradient-to: #e2e3e8;
+  --effect-border-glow-color: rgba(180,198,244,0.3);
+  --effect-border-glow-spread: rgba(180,198,244,0.1);
+  --effect-ripple-color: rgba(180,198,244,0.3);
+  --effect-pulse-dot-color: #4ade80;
+  --effect-focus-ring-color: #6b7fa8;
+  --effect-shimmer-from: rgba(226,232,240,0.6);
+  --effect-shimmer-mid: rgba(241,245,249,0.9);
+  --effect-shimmer-to: rgba(226,232,240,0.6);
+
+  /* Tooltip dark (sidebar) — stays dark in both themes */
+  --tooltip-bg: #1e293b;
+  --tooltip-text: #f8fafc;
+  --tooltip-shadow: 0 4px 12px rgba(0,0,0,0.4);
+
+  /* Input/form dark overrides */
+  --color-input-bg: #24262b;
+  --color-input-text: #e2e3e8;
+  --color-input-border: #44474c;
+
+  /* Status color dark overrides (for Tailwind utility classes like bg-red-50, text-green-700) */
+  --color-red-50: #2a1515;
+  --color-amber-50: #2a2515;
+  --color-green-50: #152a1a;
+  --color-blue-50: #151a2a;
+  --color-green-700: #4ade80;
+
+  /* Topbar dark */
+  --color-topbar-bg: rgba(29,31,36,0.9);
+  --color-topbar-border: #44474c;
+
+  /* Table header dark */
+  --color-table-header-bg: #24262b;
+
+  /* Print hero dark */
+  --color-print-hero: #333;
+}
+
+/* 3) Theme stubs (light palette overrides) - Cleopatra-inspired colors
+   Note: Cleopatra values will be provided to complete these tokens. For now, placeholders ensure the file is valid and themed. */
+
+/* blue theme */
+[data-theme="blue"] {
+  --color-primary: #0a2f69;
+  --color-primary-container: #e6f0ff;
+  --color-surface-tint: #4c5e86;
+  --color-tertiary: #1a37b6;
+}
+[data-theme="blue"].dark {
+  --color-primary: #a7c7ff;
+  --color-primary-container: #102a55;
+  --color-surface-tint: #8abfff;
+  --color-tertiary: #3a2a7a;
+}
+
+/* green theme */
+[data-theme="green"] {
+  --color-primary: #0f7d3a;
+  --color-primary-container: #eafff1;
+  --color-surface-tint: #82b278;
+  --color-tertiary: #2a7a1f;
+}
+[data-theme="green"].dark {
+  --color-primary: #a3e7c2;
+  --color-primary-container: #104a26;
+  --color-surface-tint: #87d59f;
+  --color-tertiary: #2e5c30;
+}
+
+/* orange theme */
+[data-theme="orange"] {
+  --color-primary: #d97706;
+  --color-primary-container: #fff4e0;
+  --color-surface-tint: #d97706;
+  --color-tertiary: #8a3a00;
+}
+[data-theme="orange"].dark {
+  --color-primary: #ffb677;
+  --color-primary-container: #221d0a;
+  --color-surface-tint: #ffb677;
+  --color-tertiary: #7a4a00;
+}
+
+/* yellow theme */
+[data-theme="yellow"] {
+  --color-primary: #f59e0b;
+  --color-primary-container: #fff6e0;
+  --color-surface-tint: #ffd97a;
+  --color-tertiary: #a06a00;
+}
+[data-theme="yellow"].dark {
+  --color-primary: #ffd97a;
+  --color-primary-container: #2a1d00;
+  --color-surface-tint: #ffd97a;
+  --color-tertiary: #a25a00;
+}
+
+/* stone theme */
+[data-theme="stone"] {
+  --color-primary: #5b5b5b;
+  --color-primary-container: #e9e9e9;
+  --color-surface-tint: #7f7f7f;
+  --color-tertiary: #6b6b6b;
+}
+[data-theme="stone"].dark {
+  --color-primary: #a0a0a0;
+  --color-primary-container: #2a2a2a;
+  --color-surface-tint: #8f8f8f;
+  --color-tertiary: #8a8a8a;
+}
+
+/* slate theme */
+[data-theme="slate"] {
+  --color-primary: #334155;
+  --color-primary-container: #e2e8f0;
+  --color-surface-tint: #64748b;
+  --color-tertiary: #1e293b;
+}
+[data-theme="slate"].dark {
+  --color-primary: #94a3b8;
+  --color-primary-container: #1f2a3a;
+  --color-surface-tint: #2e3a58;
+  --color-tertiary: #334155;
+}
+
+/* sky theme */
+[data-theme="sky"] {
+  --color-primary: #0369a1;
+  --color-primary-container: #e8fbff;
+  --color-surface-tint: #4cd0ff;
+  --color-tertiary: #0b4f6b;
+}
+[data-theme="sky"].dark {
+  --color-primary: #7bd8ff;
+  --color-primary-container: #0a2a38;
+  --color-surface-tint: #7bd8ff;
+  --color-tertiary: #0a3156;
+}
+
+/* azure theme */
+[data-theme="azure"] {
+  --color-primary: #0e4fff;
+  --color-primary-container: #eaf3ff;
+  --color-surface-tint: #2a6dfc;
+  --color-tertiary: #072d86;
+}
+[data-theme="azure"].dark {
+  --color-primary: #7ea8ff;
+  --color-primary-container: #0b1740;
+  --color-surface-tint: #7ea8ff;
+  --color-tertiary: #3a2a7a;
+}
+
+/* rose theme */
+[data-theme="rose"] {
+  --color-primary: #e11d48;
+  --color-primary-container: #ffdfe6;
+  --color-surface-tint: #e11d48;
+  --color-tertiary: #7a1a44;
+}
+[data-theme="rose"].dark {
+  --color-primary: #ff7b9c;
+  --color-primary-container: #2a0c12;
+  --color-surface-tint: #ff7b9c;
+  --color-tertiary: #7a1a44;
+}

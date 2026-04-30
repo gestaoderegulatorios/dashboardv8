@@ -1,0 +1,188 @@
+/* ========== app.css — Borgonovi Design System V8 (F1) ========== */
+/* Tailwind v4 + custom CSS. Migrado de index.html <style> para PostCSS pipeline. */
+/* Google Fonts carregam via <link> no index.html (mais confiável que @import em CSS). */
+/* Color + radius + shadow + motion tokens now in src/styles/theme.css (F1). */
+
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+/* ===== Motion tokens sourced from theme.css ===== */
+/* All --dur-* and --ease-* vars defined in src/styles/theme.css :root */
+/* app.css only overrides them for prefers-reduced-motion and .motion-reduced */
+
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+
+/* Scrollbar */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Sidebar */
+#sidebar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.sidebar-collapsed { width: 64px; }
+.sidebar-expanded { width: 240px; }
+.main-content { transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-left: 64px; }
+.main-content-expanded { margin-left: 240px; }
+.nav-text { opacity: 0; transition: opacity 0.2s ease; white-space: nowrap; pointer-events: none; }
+.sidebar-expanded .nav-text { opacity: 1; pointer-events: auto; }
+.sidebar-expanded .logo-text { opacity: 1; }
+.logo-text { opacity: 0; transition: opacity 0.2s ease; }
+
+/* Skeleton shimmer */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+.animate-shimmer { background: linear-gradient(90deg, var(--effect-shimmer-from) 25%, var(--effect-shimmer-mid) 50%, var(--effect-shimmer-to) 75%) !important; background-size: 200% 100% !important; animation: shimmer 1.5s infinite; }
+
+/* Accessibility */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
+/* ===== CARD LIFT ===== */
+.card-lift { transition: transform var(--dur-base) var(--ease-crisp), box-shadow var(--dur-base) var(--ease-crisp), border-color var(--dur-base) var(--ease-crisp); will-change: transform; }
+.card-lift:hover { transform: translateY(-2px); box-shadow: var(--effect-card-lift-shadow); border-color: var(--effect-card-lift-border); }
+
+/* ===== CARD TILT ===== */
+.card-tilt { transition: transform var(--dur-medium) var(--ease-crisp); transform-style: preserve-3d; will-change: transform; }
+.card-tilt:hover { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateZ(4px); }
+
+/* ===== GRADIENT TEXT ===== */
+.text-gradient { background: linear-gradient(135deg, var(--effect-text-gradient-from) 0%, var(--effect-text-gradient-to) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+
+/* ===== ANIMATED BORDER ===== */
+.border-glow { position: relative; border: 2px solid transparent; background-clip: padding-box; box-shadow: 0 0 0 2px var(--effect-border-glow-color), 0 0 16px var(--effect-border-glow-spread); animation: glowPulse 3s ease-in-out infinite; }
+@keyframes glowPulse { 0%, 100% { box-shadow: 0 0 0 2px var(--effect-border-glow-color), 0 0 16px var(--effect-border-glow-spread); } 50% { box-shadow: 0 0 0 2px var(--effect-border-glow-color), 0 0 24px var(--effect-border-glow-spread); } }
+
+/* ===== RIPPLE EFFECT ===== */
+.ripple-container { position: relative; overflow: hidden; }
+.ripple-wave { position: absolute; border-radius: 50%; background: var(--effect-ripple-color); transform: scale(0); animation: ripple 600ms var(--ease-decelerate); pointer-events: none; }
+@keyframes ripple { to { transform: scale(2.4); opacity: 0; } }
+
+/* ===== SHIMMER APRIMORADO ===== */
+@keyframes shimmerPro { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+.animate-shimmer-pro { background: linear-gradient(90deg, var(--effect-shimmer-from) 0%, var(--effect-shimmer-mid) 50%, var(--effect-shimmer-to) 100%) !important; background-size: 1000px 100% !important; animation: shimmerPro 1.8s var(--ease-standard) infinite; }
+
+/* ===== PULSE DOT ===== */
+.pulse-dot { position: relative; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--effect-pulse-dot-color); }
+.pulse-dot::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: pulseRing 2s var(--ease-decelerate) infinite; }
+@keyframes pulseRing { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* ===== DETAIL DRAWER (espelho V7) ===== */
+.detail-drawer { max-height: 0; overflow: hidden; opacity: 0; margin-top: 0 !important; margin-bottom: 0 !important; border-color: transparent; transition: max-height 0.4s ease-out, margin 0.4s ease-out, opacity 0.4s ease-out, border-color 0.4s ease-out; }
+.detail-drawer.open { max-height: 800px; margin-top: 1.5rem !important; margin-bottom: 1.5rem !important; border-color: var(--color-outline-variant); opacity: 1; }
+
+/* ===== SMOOTH SCROLL ===== */
+html { scroll-behavior: smooth; }
+
+/* ===== REVEAL ON SCROLL ===== */
+.reveal { opacity: 0; transform: translateY(16px); }
+.reveal.revealed { opacity: 1; transform: translateY(0); transition: opacity var(--dur-slow) var(--ease-decelerate), transform var(--dur-slow) var(--ease-decelerate); }
+.reveal-scale { opacity: 0; transform: scale(0.96); transition: opacity var(--dur-medium) var(--ease-decelerate), transform var(--dur-medium) var(--ease-decelerate); }
+.reveal-scale.visible { opacity: 1; transform: scale(1); }
+
+/* ===== STAGGER ===== */
+.stagger > * { opacity: 0; transform: translateY(12px); animation: staggerIn var(--dur-slow) var(--ease-decelerate) forwards; }
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 60ms; }
+.stagger > *:nth-child(3) { animation-delay: 120ms; }
+.stagger > *:nth-child(4) { animation-delay: 180ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+.stagger > *:nth-child(6) { animation-delay: 300ms; }
+.stagger > *:nth-child(n+7) { animation-delay: 340ms; }
+@keyframes staggerIn { to { opacity: 1; transform: translateY(0); } }
+
+/* ===== CHART CONTAINER ===== */
+[id^="chart-"], [id^="spark-"] { width: 100% !important; min-height: 0 !important; overflow: hidden; }
+.chart-container { position: relative; width: 100%; overflow: hidden; }
+.chart-container .apexcharts-canvas { max-width: 100% !important; }
+
+/* ===== VIEW TRANSITION ===== */
+.view-section { animation: viewEnter var(--dur-medium) var(--ease-emphasized); }
+@keyframes viewEnter { from { opacity: 0; transform: translateY(12px) scale(0.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* ===== MODAL ENTRANCE — scale + fade (espelho V7 reveal-scale) ===== */
+#modal-inner { opacity: 0; transform: scale(0.96); transition: opacity var(--dur-medium) var(--ease-decelerate), transform var(--dur-medium) var(--ease-decelerate); }
+#modal-overlay:not(.hidden) #modal-inner { opacity: 1; transform: scale(1); }
+
+/* ===== TOAST ===== */
+.toast-animate { animation: toastEnter var(--dur-medium) var(--ease-spring); }
+@keyframes toastEnter { from { opacity: 0; transform: translateY(24px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* ===== KPI VALUE ENTRANCE ===== */
+[data-animate-value] { animation: valueEnter var(--dur-slow) var(--ease-emphasized); }
+@keyframes valueEnter { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
+
+/* ===== FOCUS RING ANIMADO ===== */
+*:focus-visible { outline: 2px solid var(--effect-focus-ring-color); outline-offset: 2px; border-radius: 4px; animation: focusPulse 0.6s var(--ease-decelerate); }
+@keyframes focusPulse { 0% { outline-offset: 0; } 50% { outline-offset: 4px; } 100% { outline-offset: 2px; } }
+
+/* ===== REDUCED MOTION (OS preference) ===== */
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-instant: 0ms; --dur-fast: 0ms; --dur-base: 0ms; --dur-medium: 0ms; --dur-slow: 0ms; --dur-deliberate: 0ms; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .pulse-dot::before { display: none; } .border-glow { animation: none; } .animate-shimmer-pro { animation: none; } .animate-shimmer { animation: none !important; }
+}
+
+/* Sidebar tooltip when collapsed */
+.sidebar-collapsed .nav-item { position: relative; }
+.sidebar-collapsed .nav-item:hover::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); background: var(--tooltip-bg); color: var(--tooltip-text); font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; white-space: nowrap; z-index: 999; box-shadow: var(--tooltip-shadow); pointer-events: none; animation: tooltipFadeIn 150ms ease-out; }
+.sidebar-collapsed .nav-item:hover::before { content: ''; position: absolute; left: calc(100% + 2px); top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: var(--tooltip-bg); z-index: 999; }
+.sidebar-collapsed .sidebar-user:hover::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); background: var(--tooltip-bg); color: var(--tooltip-text); font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; white-space: nowrap; z-index: 999; box-shadow: var(--tooltip-shadow); pointer-events: none; }
+@keyframes tooltipFadeIn { from { opacity: 0; transform: translateY(-50%) translateX(-4px); } to { opacity: 1; transform: translateY(-50%) translateX(0); } }
+
+/* Responsive */
+@media (max-width: 1024px) { .sidebar-collapsed { width: 0px; overflow: hidden; } .main-content { margin-left: 0; } .sidebar-expanded { width: 240px; } .main-content-expanded { margin-left: 0; } }
+@media (max-width: 640px) { .main-content { padding: 1rem; } #top-bar { padding-left: 1rem; padding-right: 1rem; } }
+
+/* Print */
+@media print {
+  #sidebar, #sidebar-backdrop, #top-bar, #toast-container, #modal-overlay, #command-palette, button, input, select { display: none !important; }
+  .main-content { margin-left: 0 !important; padding: 0 !important; }
+  .view-section { display: grid !important; page-break-after: always; }
+  .view-section:last-child { page-break-after: auto; }
+  .shadow-sm, .shadow-lg { box-shadow: none !important; }
+  body { background: white !important; color: black !important; font-size: 12px !important; }
+  .bg-primary-container { background: #333 !important; } .text-white { color: #fff !important; }
+  .bg-white, section, table { page-break-inside: avoid; }
+}
+
+/* F1: Dark mode overrides DELETED — .dark CSS vars in theme.css handle all colors natively.
+   No !important needed; Tailwind classes like bg-surface now resolve to var(--color-surface)
+   which automatically picks up .dark overrides from theme.css. */
+
+/* F2: Dark overrides for Tailwind utility classes that don't map to semantic tokens.
+   These cover bg-red-50, bg-green-50, etc. used in status badges and alerts.
+   When possible, prefer semantic tokens (bg-error, bg-success) in new code. */
+.dark .bg-red-50 { background: var(--color-red-50); }
+.dark .bg-amber-50 { background: var(--color-amber-50); }
+.dark .bg-green-50 { background: var(--color-green-50); }
+.dark .bg-blue-50 { background: var(--color-blue-50); }
+.dark .text-green-700 { color: var(--color-green-700); }
+.dark #top-bar { background: var(--color-topbar-bg); border-color: var(--color-topbar-border); }
+.dark input, .dark select, .dark textarea { background: var(--color-input-bg); color: var(--color-input-text); border-color: var(--color-input-border); }
+.dark table thead { background: var(--color-table-header-bg); }
+.dark .bg-on-tertiary-container { background: var(--color-on-tertiary-container); }
+.dark .bg-error { background: var(--color-error); }
+.dark .bg-green-700 { background: var(--color-green-700); }
+.dark .text-error { color: var(--color-error); }
+.dark .text-on-tertiary-container { color: var(--color-on-tertiary-container); }
+.dark .text-surface-tint { color: var(--color-surface-tint); }
+.dark .placeholder\:text-on-surface-variant::placeholder { color: var(--color-on-surface-variant); }
+
+/* Density profiles (V8 — toggle via persona) */
+body[data-density="low"] .density-pad { padding: 1.5rem; }
+body[data-density="medium"] .density-pad { padding: 1.25rem; }
+body[data-density="high"] .density-pad { padding: 0.875rem; }
+
+/* ===== MANUAL REDUCED MOTION (settings toggle) ===== */
+.motion-reduced {
+  --dur-instant: 0ms; --dur-fast: 0ms; --dur-base: 0ms;
+  --dur-medium: 0ms; --dur-slow: 0ms; --dur-deliberate: 0ms;
+}
+.motion-reduced *, .motion-reduced *::before, .motion-reduced *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+.motion-reduced .pulse-dot::before { display: none; }
+.motion-reduced .border-glow { animation: none; }
+.motion-reduced .animate-shimmer-pro { animation: none; }
+.motion-reduced .animate-shimmer { animation: none !important; }
