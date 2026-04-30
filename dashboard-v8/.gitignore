@@ -1,0 +1,25 @@
+# dashboard-v8 local .gitignore
+# O .gitignore da raiz também cobre estes patterns, mas este arquivo garante
+# autonomia da pasta dashboard-v8/ (pode ser copiada/movida sem depender da raiz).
+
+node_modules/
+dist/
+*.log
+
+# Cloudflare Pages (wrangler) — state, cache e credenciais ficam aqui após primeiro deploy.
+.wrangler/
+
+# Variáveis de ambiente locais (segredos). .env.example é versionado como template.
+.env
+.env.*
+!.env.example
+
+# ETL snapshot copied by predev/prebuild scripts (source of truth is etl_v8/output/)
+public/etl_v8/
+
+# Playwright test results and reports (regenerated on each run)
+test-results/
+playwright-report/
+
+# Package lock (optional — uncomment if you want to exclude)
+# package-lock.json

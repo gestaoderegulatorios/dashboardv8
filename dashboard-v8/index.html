@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard V8</title>
+  <!-- Fonts (Google CDN) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+  <!-- CSS injetado via main.js → src/app.css (Tailwind + PostCSS pipeline). Vite processa e otimiza no build. -->
+</head>
+<body class="bg-background text-on-surface overflow-x-hidden" data-density="medium">
+<!-- Skip Navigation -->
+<a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:bg-primary-container focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:outline-none">Pular para conteúdo principal</a>
+
+<!-- SIDEBAR (mounted by ui/sidebar.js) -->
+<aside id="sidebar" role="navigation" aria-label="Menu principal" class="sidebar-collapsed h-screen fixed left-0 top-0 overflow-y-auto overflow-x-hidden z-50 bg-primary-container flex flex-col py-6 shadow-2xl shadow-slate-900/20"></aside>
+
+<!-- BACKDROP MOBILE -->
+<div id="sidebar-backdrop" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden" aria-hidden="true"></div>
+
+<!-- TOPBAR (mounted by ui/topbar.js) -->
+<header id="top-bar" class="main-content sticky top-0 z-30 bg-surface-container-lowest/80 backdrop-blur-md border-b border-outline-variant h-16 flex justify-between items-center px-6"></header>
+
+<!-- MAIN -->
+<main id="main-content" class="main-content min-h-screen" aria-label="Conteúdo do dashboard">
+  <div id="view-host" role="region" aria-live="polite"></div>
+</main>
+
+<!-- COMMAND PALETTE OVERLAY -->
+<div id="command-palette" class="hidden fixed inset-0 z-[60] bg-black/40 flex items-start justify-center pt-[15vh]" role="dialog" aria-label="Paleta de comandos" aria-modal="true">
+  <div class="bg-surface rounded-xl shadow-2xl w-full max-w-2xl mx-4 border border-outline-variant overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 border-b border-outline-variant">
+      <span class="material-symbols-outlined text-on-surface-variant" aria-hidden="true">search</span>
+      <input id="cmd-palette-input" type="text" class="flex-1 bg-transparent text-sm text-primary placeholder:text-on-surface-variant outline-none" placeholder="Digite para buscar comandos..." aria-label="Buscar comandos">
+      <kbd class="text-xs text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded border border-outline-variant">Esc</kbd>
+    </div>
+    <div id="cmd-palette-results" class="max-h-[40vh] overflow-y-auto divide-y divide-outline-variant"></div>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY (gráfico fullscreen, etc) -->
+<div id="modal-overlay" class="hidden fixed inset-0 z-40 bg-black/40 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Modal">
+  <div id="modal-inner" class="bg-surface rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-hidden border border-outline-variant flex flex-col">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant flex-shrink-0">
+      <h2 id="modal-title" class="text-lg font-bold text-primary"></h2>
+      <button id="modal-close" class="p-2 hover:bg-surface-container-low rounded-lg transition-colors" aria-label="Fechar modal">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </div>
+    <div id="modal-body" class="px-6 py-4 overflow-y-auto flex-1 min-h-0"></div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container" class="fixed bottom-4 right-4 z-[70] flex flex-col gap-2" aria-live="polite" aria-label="Notificações"></div>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "dashboard-v8",
+  "version": "8.0.0",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "description": "Dashboard V8 — base modular flagship",
+  "license": "MIT",
+  "scripts": {
+    "predev": "node scripts/copy-snapshot.cjs",
+    "dev": "vite",
+    "prebuild": "node scripts/copy-snapshot.cjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name=${CF_PAGES_PROJECT:-dashboard-borgonovi} --branch=main",
+    "capture:baseline": "node scripts/capture-baseline.cjs",
+    "test:visual": "node scripts/visual-diff.cjs test/baseline test/current",
+    "test:e2e": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/postcss": "^4.2.4",
+    "autoprefixer": "^10.5.0",
+    "axe-core": "^4.11.3",
+    "jsdom": "^25.0.1",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^6.0.0",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^4.2.4",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4",
+    "wrangler": "^4.85.0"
+  },
+  "dependencies": {
+    "apexcharts": "^5.10.6"
+  }
+}
