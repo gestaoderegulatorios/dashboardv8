@@ -541,3 +541,34 @@ Auditoria pós-Fase-5 identificou 4 issues P1 corrigidos:
 - `public/etl_v8/` é gerado por pre-script, não versionado — se snapshot.json não existe, dashboard funciona com mock
 
 **Gatilho de revisão.** Migrar para WebSocket/polling se: (a) dados precisam ser atualizados sem reload, (b) múltiplos usuários simultâneos, (c) ETL passa a rodar em tempo real.
+
+---
+
+## P-1 — V7 Sunset (2026-05-01)
+
+**Contexto.** V8 atingiu paridade funcional completa com V7. V7 (`dashboard.html`, ~3199 linhas) ficava na raiz do repo ao lado de 11 skills V7 soltos. GOVERNANCE.md ainda tratava V7 e V8 como "linhas em paralelo".
+
+**Decisão.** Arquivar V7 em `archive/v7/`: dashboard.html + verificador.py + 11 skills V7. V8 = única linha ativa. GOVERNANCE.md reescrito para refletir V8-only.
+
+**Critérios de sunset atingidos:**
+- [x] Paridade funcional completa com V7
+- [x] Zero dos 3 bugs históricos (KPI overflow, modal sizing, filtros)
+- [x] ≥2 semanas sem bug novo em uso real
+- [x] AA baseline passando em axe-core (4 testes WCAG AA)
+- [x] 89/89 unit tests + 23/23 E2E passando
+- [x] ETL integration validada via Playwright
+
+**Arquivos movidos:**
+- `dashboard.html` → `archive/v7/dashboard.html`
+- `verificador.py` → `archive/v7/verificador.py`
+- `SKILL.md` + 10 skills → `archive/v7/skills/`
+
+**Novos arquivos:**
+- `archive/v7/V7_FROZEN.md` — declara V7 congelado, sem suporte
+- `GOVERNANCE.md` — reescrito: V8 = única linha ativa
+
+**Tag:** `v7-final` no commit c927a94 (último commit V7-only)
+
+**Trade-off aceito.** Skills V7 mantêm prefixo `[V7]` (constraint: NÃO ALTERAR skills V7). Skills ficam intactas em `archive/v7/skills/`.
+
+**Gatilho de revisão.** Se V7 precisar ser revivido (improvável): `git checkout v7-final`.

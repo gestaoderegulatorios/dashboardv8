@@ -36,3 +36,6 @@ etl_v8/output/
 etl_v8/.venv/
 erros_etl.json
 validation_report.json
+
+# Claude scheduled tasks lock (local only)
+.claude/scheduled_tasks.lock
