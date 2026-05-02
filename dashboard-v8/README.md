@@ -1,6 +1,6 @@
 ﻿# Dashboard V8 — Flagship
 
-Linha experimental do dashboard. Roda em paralelo com V7 (`../dashboard.html`).
+Linha experimental do dashboard. V7 arquivado em `archive/v7/`.
 
 ## Como rodar
 
@@ -28,6 +28,7 @@ npm run dev # http://localhost:5173 — atualiza ao salvar arquivos
 | `npm run preview` | Serve o build de produção (porta 4173) |
 | `npm test` | Roda 89 testes headless via Vitest + jsdom (85 unit + 4 a11y) |
 | `npm run test:watch` | Vitest em modo watch |
+| `npm run audit` | Verifica regras CONTRIBUTING.md (LOC, hex, template size, etc.) |
 
 ## Estrutura
 
@@ -159,7 +160,9 @@ dashboard-v8/
 | **Theme System (F1)** | ✅ | `src/styles/theme.css` — CSS vars semânticas + .dark + 9 theme stubs + chart/effect tokens |
 | **Design Tokens (F2)** | ✅ | `getChartDefaults()` lazy init + Proxy compat + 15 dark utility tokens + motion tokens consolidados |
 | **API Manifest (F4)** | ✅ | 3 `.d.ts` (domain/ui/model) + `v8.d.ts` ambient + `sideEffects: false` — 91 exports tipados |
-| **Branding como Dado (F5)** | ✅ | `src/model/branding.js` — NAV_ITEMS + VIEW_LABELS + BRANDING_DEFAULTS + REPORTS + STORAGE_PREFIX — trocar vertical = 3 arquivos |
+| **Branding como Dado (F5)** | ✅ | `src/model/branding.js` — NAV_ITEMS + VIEW_LABELS + BRANDING_DEFAULTS + REPORTS + STORAGE_PREFIX — trocar vertical = 4 arquivos |
+| **F-CONSOLIDATE** | ✅ | Dead code eliminado, layer separation, semantic CSS, audit.cjs, CONTRIBUTING.md, replication proof (vet-vertical) |
+| **ETL Real** | ✅ | `etl_v8/main.py` → 43 fontes XLSX → snapshot.json → mock.js hydration — 11/15 campos derivados de dados reais |
 
 ## Comparação com V7
 

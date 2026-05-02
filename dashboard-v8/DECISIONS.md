@@ -607,3 +607,73 @@ Auditoria pós-Fase-5 identificou 4 issues P1 corrigidos:
 **Trade-off aceito.** margemSpark e metaAnualPercent permanecem hardcoded até dados reais estarem disponíveis. Valores reais de receitaMensal divergem do mock anterior — dashboard mostra dados reais.
 
 **Gatilho de revisão.** Quando equipe adicionar coluna `tipo_lancamento` nos XLSX financeiro → derivar margemSpark. Quando meta anual for definida → adicionar em dim_obras.csv ou config.
+
+---
+
+## F-CONSOLIDATE — Codebase IA-amigável: Débito Eliminado + Regras Escritas + Replicabilidade Validada
+
+**Contexto.** Após F0-F8 + ETL_REAL, o V8 tinha débito técnico acumulado: dead code (storyPatterns, content.js), duplicação (rebuildPaletteCommands em 2 arquivos), layer leak (ETL maps em mock.js pertencendo à camada model), hardcoded hex em sidebar.js/table.js, funções e arquivos acima dos limites sem documentação, e nenhuma regra formal de contribuição auditável por CI.
+
+**Decisão.** 5-step consolidation (S1-S5) com autonomy rules: sem revisor, decisão ambígua = conservadora + documentar, 2 tentativas falhas = SKIP, branch `f-consolidate-auto` (NÃO merge em main).
+
+### S1 — Audit
+- CONSOLIDATE_AUDIT.md: 7 categorias (dead code, duplicação, tamanho, hardcoded, layer leak, inconsistências, testes)
+- Achados: storyPatterns (dead export), content.js (órfão), rebuildPaletteCommands (duplicado), ETL maps em mock.js (layer leak), sidebar.js `border-[#162A4E]` (hex hardcoded), table.js status badge (hex hardcoded)
+
+### S2a/S2b — SKIP (card-base extraction + HTML fragments)
+- **Risco:** 8+ views dependem de card patterns, HTML fragment extraction altera DOM
+- **Decisão:** conservadora — benefício moderado vs risco de quebrar views
+
+### S2c — ETL normalization layer separation
+- ETL maps (STATUS_ETL_TO_V8, TIPO_ETL_TO_V8, NOME_ETL_TO_V8, normalizeObra) movidos de mock.js → etl-normalize.js
+- mock.js importa normalizeObra de etl-normalize.js — model layer fica ETL-agnostic
+
+### S2d — Dead code removal
+- storyPatterns export removido de storytelling.js + domain/index.d.ts
+- content.js órfão DELETADO (zero importadores) + model/index.d.ts limpo
+- story.test.js atualizado (testava storyPatterns)
+
+### S2e — main.js split
+- main.js 327→30 LOC (só imports + DOMContentLoaded)
+- boot.js 263 LOC (toda init logic: store, sidebar, theme, palette, loadSnapshot, subscribers)
+- rebuildPaletteCommands duplicata removida
+
+### S2f — Semantic CSS classes
+- app.css: `.status-success`, `.status-warning`, `.status-error`, `.status-success-text`, `.status-success-bg`, `.sidebar-divider`
+- theme.css: `--color-sidebar-divider` token
+- sidebar.js: `border-[#162A4E]` → `sidebar-divider` class
+- table.js: statusBadge hardcoded colors → semantic classes
+
+### S3 — Discipline + Audit Automation
+- CONTRIBUTING.md (10 regras): arquivo≤300 LOC, função≤50 LOC, template≤80 LOC, header docstring, JSDoc em exports, zero hex fora theme.css, zero Tailwind dup>3×, arquivo novo exige DECISIONS.md, layer separation, npm run audit
+- scripts/audit.cjs: 6 regras automatizadas (file size, function size, template literal, CSS in JS, hardcoded strings, hex colors)
+- package.json: `"audit": "node scripts/audit.cjs"`
+- .github/workflows/ci.yml: audit step adicionado
+- chart.js:6: hex `#e0e3e5` em comentário → `var(--chart-grid)`
+- Regras relaxadas para débito conhecido: view mount/template functions (WARN not FAIL), login.js/reports.js hex exceptions (WARN not FAIL), chart.js file size (WARN not FAIL)
+
+### S4 — Replication Proof
+- Branch `experiment/vet-vertical` criada — 4 arquivos editados para clínica veterinária
+- branding.js, schema.js, mock.js, etl-normalize.js → trocar vertical = 4 arquivos
+- REPLICATION_PROOF.md: 89/89 ✅ | tsc 0 ✅ | build OK ✅ | audit 0 FAIL ✅
+- **NÃO merged** em f-consolidate-auto (experimento isolado)
+
+### S5 — Documentação Final
+- DECISIONS.md: seção F-CONSOLIDATE (este documento)
+- README.md: atualizado com F-CONSOLIDATE status + links
+- CONSOLIDATE_LOG.md: timeline de todas as decisões/skips/reverts
+- CONSOLIDATE_REPORT.md: relatório final com 10 seções
+
+**Resultado final:**
+- 0 FAIL no audit (65 WARN — débito conhecido documentado)
+- 89/89 ✅ | tsc 0 ✅ | build OK ✅ | audit 0 FAIL ✅
+- Trocar vertical = 4 arquivos (provado com experiment/vet-vertical)
+- Branch `f-consolidate-auto` com 8 commits granulares
+- Regras CONTRIBUTING.md + audit.cjs impedem regressão
+
+**Trade-offs aceitos:**
+- 65 WARNs no audit (funções >50 LOC em views, login.js/reports.js hex exceptions) — documentados como débito, não bloqueantes
+- S2a/S2b SKIPPED — card-base e HTML fragments: risco de quebrar views > benefício
+- Audit.cjs usa heurística simples (brace counting), não AST — pode ter falsos positivos em edge cases
+
+**Gatilho de revisão.** Extrair mount/template para fragments quando: (a) IA gerar views novas automaticamente, (b) views forem lazy-loaded, (c) template engine externo for adotado.
