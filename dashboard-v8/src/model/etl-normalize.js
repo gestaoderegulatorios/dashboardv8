@@ -13,9 +13,9 @@ export const STATUS_ETL_TO_V8 = {
 };
 
 export const TIPO_ETL_TO_V8 = {
-  'Edificio': 'Edifício',
-  'Loteamento': 'Loteamento',
-  'Comercial': 'Comercial',
+  'Edificio': 'Clínica',
+  'Loteamento': 'Pet Shop',
+  'Comercial': 'Laboratório',
   'Infraestrutura': 'Infraestrutura',
 };
 
@@ -24,6 +24,20 @@ export const NOME_ETL_TO_V8 = {
   'Ponte Viaria': 'Ponte Viária',
   'Estacao de Tratamento': 'Estação de Tratamento',
   'Ed Central': 'Ed. Central',
+  'Clinica Centro': 'Clínica Centro',
+  'Pet Shop Norte': 'Pet Shop Norte',
+  'Lab Diagnostico': 'Lab Diagnóstico',
+  'Clinica Sul': 'Clínica Sul',
+  'Clinica Jardins': 'Clínica Jardins',
+  'Pet Shop Europa': 'Pet Shop Europa',
+  'Pet Shop Hills': 'Pet Shop Hills',
+  'Clinica Central': 'Clínica Central',
+  'Clinica Leste': 'Clínica Leste',
+  'Clinica Oeste': 'Clínica Oeste',
+  'Pet Shop Bosque': 'Pet Shop Bosque',
+  'Lab Veterinario': 'Laboratório Veterinário',
+  'Canil Municipal': 'Canil Municipal',
+  'Centro de Reabilitacao': 'Centro de Reabilitação',
 };
 
 /**
