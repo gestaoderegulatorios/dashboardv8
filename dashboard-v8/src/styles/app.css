@@ -172,6 +172,16 @@ html { scroll-behavior: smooth; }
 .dark .bg-green-50 { background: var(--color-green-50); }
 .dark .bg-blue-50 { background: var(--color-blue-50); }
 .dark .text-green-700 { color: var(--color-green-700); }
+
+/* S2f: Semantic status classes — replace repeated Tailwind color combos */
+.status-success { background: var(--color-green-50, #f0fdf4); color: var(--color-green-700, #15803d); }
+.status-warning { background: var(--color-amber-50, #fffbeb); color: var(--color-on-tertiary-container, #7a5900); }
+.status-error   { background: var(--color-red-50, #fef2f2); color: var(--color-error, #ba1a1a); }
+.status-success-text { color: var(--color-green-700, #15803d); }
+.status-success-bg   { background: var(--color-green-700, #15803d); }
+
+/* S2f: Sidebar divider token */
+.sidebar-divider { border-color: var(--color-sidebar-divider, #162A4E); }
 .dark #top-bar { background: var(--color-topbar-bg); border-color: var(--color-topbar-border); }
 .dark input, .dark select, .dark textarea { background: var(--color-input-bg); color: var(--color-input-text); border-color: var(--color-input-border); }
 .dark table thead { background: var(--color-table-header-bg); }

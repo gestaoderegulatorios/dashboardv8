@@ -251,11 +251,14 @@
   --color-blue-50: #151a2a;
   --color-green-700: #4ade80;
 
-  /* Topbar dark */
-  --color-topbar-bg: rgba(29,31,36,0.9);
-  --color-topbar-border: #44474c;
+/* Topbar dark */
+--color-topbar-bg: rgba(29,31,36,0.9);
+--color-topbar-border: #44474c;
 
-  /* Table header dark */
+/* Sidebar dark */
+--color-sidebar-divider: #162A4E;
+
+/* Table header dark */
   --color-table-header-bg: #24262b;
 
   /* Print hero dark */

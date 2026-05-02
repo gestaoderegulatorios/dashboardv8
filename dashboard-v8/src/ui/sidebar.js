@@ -48,7 +48,7 @@ export function renderSidebar({ activeView, items = NAV_ITEMS, settings = {} } =
         <span class="material-symbols-outlined min-w-[24px]" aria-hidden="true">${escape(item.icon)}</span><span class="nav-text">${escape(item.label)}</span>
       </a>`;
     }).join('');
-    const divider = idx < groups.length - 1 ? '<hr class="mx-4 border-t border-[#162A4E]"/>' : '';
+    const divider = idx < groups.length - 1 ? '<hr class="mx-4 border-t sidebar-divider"/>' : '';
     return itemsHTML + divider;
   }).join('');
 
@@ -61,7 +61,7 @@ export function renderSidebar({ activeView, items = NAV_ITEMS, settings = {} } =
     </div>
   </div>
   <nav class="flex-1 space-y-1" aria-label="Navegação do dashboard">${navHTML}</nav>
-  <div id="sidebar-user" class="px-4 mt-auto flex items-center gap-4 pt-6 border-t border-[#162A4E] overflow-hidden sidebar-user cursor-pointer" data-tooltip="${escape(username)} — ${escape(role)}" title="Clique para sair">
+  <div id="sidebar-user" class="px-4 mt-auto flex items-center gap-4 pt-6 border-t sidebar-divider overflow-hidden sidebar-user cursor-pointer" data-tooltip="${escape(username)} — ${escape(role)}" title="Clique para sair">
     <div class="w-8 h-8 rounded-[9999px] bg-surface-tint flex items-center justify-center min-w-[32px] flex-shrink-0">
       <span class="material-symbols-outlined text-white text-sm">person</span>
     </div>
