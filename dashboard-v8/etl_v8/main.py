@@ -108,13 +108,23 @@ SCHEMA_COMPRAS = pa.DataFrameSchema({
 })
 
 
-# ─── Series temporais hardcoded (paridade com mock V8) ──────────────────────
-# Em producao, derivariam do agrupamento mensal de financeiro/. Hoje, mantem
-# paridade exata com dashboard-v8/src/model/mock.js.
-MESES_12 = ['Abr/25','Mai/25','Jun/25','Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26']
-RECEITA_MENSAL = [6200000, 7100000, 7500000, 8200000, 8600000, 9000000, 9200000, 8800000, 9500000, 9800000, 9400000, 8734281]
+# ─── Series temporais ─────────────────────────────────────────────────────
+# meses12 e receitaMensal agora derivados dinamicamente do financeiro (A5).
+# Abaixo, apenas campos que NAO podem ser derivados dos XLSX:
+
+# TODO: meta anual deve vir de config. Adicionar coluna meta_anual no
+# dim_obras.csv (uma por obra) ou meta_anual.json (única global).
 META_ANUAL_PERCENT = 72
+
+# MOCK: XLSX não distingue receita de custo. Para derivar,
+# adicionar coluna 'tipo_lancamento' (receita|despesa) nos XLSX financeiro.
 MARGEM_SPARK = [38, 40, 39, 42, 41, 43, 42, 40, 44, 43, 41, 40]
+
+# Meses pt-BR para formatação dinâmica (A5)
+MESES_PT = {
+    1: "Jan", 2: "Fev", 3: "Mar", 4: "Abr", 5: "Mai", 6: "Jun",
+    7: "Jul", 8: "Ago", 9: "Set", 10: "Out", 11: "Nov", 12: "Dez"
+}
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -189,8 +199,11 @@ def carregar_setor(setor: str, dim_obras_map: dict, log: list) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
 
 
-def calcular_kpis_obra(nome_obra, fin_df, plan_df, dim_row):
-    """Deriva campos calculados (executado, avanco, gap, atrasoDias) a partir dos dados setoriais."""
+def calcular_kpis_obra(nome_obra, fin_df, plan_df, dim_row, log=None):
+    """Deriva campos calculados (executado, avanco, gap, atrasoDias) a partir dos dados setoriais.
+    A1: atrasoDias derivado de planejamento.fim vs hoje (com regras da design).
+    Optional: grava warnings em log para A4.
+    """
     fin_obra  = fin_df[fin_df["obra"] == nome_obra]   if not fin_df.empty   else pd.DataFrame()
     plan_obra = plan_df[plan_df["obra"] == nome_obra] if not plan_df.empty  else pd.DataFrame()
 
@@ -208,13 +221,38 @@ def calcular_kpis_obra(nome_obra, fin_df, plan_df, dim_row):
     avanco_financeiro = (executado / orcado * 100) if orcado > 0 else 0.0
     gap = round(avanco - avanco_financeiro, 1)
 
-    # Estimativa simples de atrasoDias a partir do gap negativo.
-    atraso_dias = abs(int(gap)) if gap < -3 else 0
+    # A1: atrasoDias derivado de datas de fim das etapas abertas
+    atraso_dias = 0
+    status = dim_row["status"]
+    if status not in ("Concluida", "Planejado"):
+        if not plan_obra.empty:
+            etapas_abertas = plan_obra[plan_obra["percent_concluido"] < 100]
+            if not etapas_abertas.empty:
+                fim_max = pd.to_datetime(etapas_abertas["fim"], errors="coerce").max()
+                if pd.notna(fim_max):
+                    atraso_dias = max(0, (datetime.now() - fim_max).days)
+                else:
+                    atraso_dias = 0
+            else:
+                atraso_dias = 0
+        else:
+            atraso_dias = 0
+
+    # A4: warning de inconsistência de status (quando gap > 30% em negativo)
+    if log is not None:
+        if abs(gap) > 30 and status not in ("Atencao", "Pendente"):
+            log.append({
+                "type": "status_inconsistency",
+                "obra": nome_obra,
+                "status": status,
+                "gap": gap,
+                "msg": f"Gap {gap:+.1f}% mas status='{status}' — verificar com equipe"
+            })
 
     return {
         "nome":       nome_obra,
         "tipo":       dim_row["tipo"],
-        "status":     dim_row["status"],
+        "status":     status,
         "orcado":     orcado,
         "executado":  round(executado, 2),
         "avanco":     round(avanco, 1),
@@ -233,9 +271,9 @@ def calcular_composicao_tipo(obras_calculadas):
         return []
 
     plural = {
-        "Edificio":       "Edifícios",
-        "Loteamento":     "Loteamentos",
-        "Comercial":      "Comercial",
+        "Edificio": "Edifícios",
+        "Loteamento": "Loteamentos",
+        "Comercial": "Comercial",
         "Infraestrutura": "Infraestrutura",
     }
     grupos = df.groupby("tipo")["orcado"].sum().reset_index()
@@ -246,13 +284,64 @@ def calcular_composicao_tipo(obras_calculadas):
     ]
 
 
+def derive_series(fin_df_local, log_acc: list):
+    """Deriva meses12 e receitaMensal dinamicamente do financeiro (A5).
+
+    Regra: ultimo mes com dados → end_month; rolling 12 meses para tras.
+    Meses sem dados → receita=0 + warning.
+    Formato: 'Mmm/AA' pt-BR (Jan/26, Fev/26, ...).
+    """
+    if fin_df_local is None or fin_df_local.empty:
+        end_month = pd.Timestamp.now().to_period("M")
+        meses_period = [end_month - i for i in range(11, -1, -1)]
+        meses12 = [f"{MESES_PT[p.month]}/{str(p.year)[-2:]}" for p in meses_period]
+        receitaMensal = [0 for _ in range(12)]
+        log_acc.append({
+            "type": "no_valid_financial_dates",
+            "obra": "all",
+            "msg": "Nenhuma data valida no financeiro",
+        })
+        return meses12, receitaMensal
+
+    fin_all = fin_df_local.copy()
+    fin_all["data_parsed"] = pd.to_datetime(fin_all["data"], errors="coerce")
+    fin_valid = fin_all[fin_all["data_parsed"].notna()]
+
+    if not fin_valid.empty:
+        end_month = fin_valid["data_parsed"].max().to_period("M")
+    else:
+        end_month = pd.Timestamp.now().to_period("M")
+
+    meses_period = [end_month - i for i in range(11, -1, -1)]
+    meses12 = [f"{MESES_PT[p.month]}/{str(p.year)[-2:]}" for p in meses_period]
+    monthly = fin_valid.groupby(fin_valid["data_parsed"].dt.to_period("M"))["valor"].sum()
+
+    receitaMensal = []
+    missing_months = []
+    for p in meses_period:
+        if p in monthly.index:
+            receitaMensal.append(round(float(monthly[p]), 0))
+        else:
+            receitaMensal.append(0)
+            missing_months.append(str(p))
+
+    if missing_months:
+        log_acc.append({
+            "type": "missing_monthly_data",
+            "months": missing_months,
+            "msg": f"{len(missing_months)} meses sem dados financeiros — receita=0"
+        })
+
+    return meses12, receitaMensal
+
+
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 def main():
     print()
-    print(">> Pipeline ETL V8")
-    print(f"   Origem:  {DADOS_RAW}")
-    print(f"   Destino: {OUTPUT / 'snapshot.json'}")
+    print(">> Pipeline ETL V8 Real")
+    print(f" Origem: {DADOS_RAW}")
+    print(f" Destino: {OUTPUT / 'snapshot.json'}")
     print()
 
     log = []
@@ -299,11 +388,14 @@ def main():
     obras_calculadas = []
     for _, dim_row in dim_obras.iterrows():
         nome = dim_row["nome"]
-        kpis = calcular_kpis_obra(nome, fin_df, plan_df, dim_row)
+        kpis = calcular_kpis_obra(nome, fin_df, plan_df, dim_row, log)
         obras_calculadas.append(kpis)
         print(f"      [OK] {nome:25s} executado={kpis['executado']:>13,.0f}  avanco={kpis['avanco']:5.1f}%  gap={kpis['gap']:+5.1f}")
 
-    # 5. Snapshot
+    # 5. Derive dynamic series (meses12 & receitaMensal) a partir do financeiro (A5)
+    meses12, receitaMensal = derive_series(fin_df, log)
+
+    # 5b. Snapshot
     print("[5/5] Gerando snapshot.json...")
 
     centros_custo = sorted(fin_df["centro_custo"].dropna().unique().tolist()) if not fin_df.empty else []
@@ -311,15 +403,15 @@ def main():
 
     snapshot = {
         "meta": {
-            "versao_schema": "1.0",
+            "versao_schema": "1.1",
             "gerado_em":     datetime.now().isoformat(timespec="seconds"),
             "total_obras":   len(obras_calculadas),
-            "fonte":         "etl_v8",
+            "fonte":         "etl_v8_real",
         },
         "obras": obras_calculadas,
         "series": {
-            "meses12":          MESES_12,
-            "receitaMensal":    RECEITA_MENSAL,
+            "meses12":          meses12,
+            "receitaMensal":    receitaMensal,
             "composicaoTipo":   calcular_composicao_tipo(obras_calculadas),
             "margemSpark":      MARGEM_SPARK,
             "metaAnualPercent": META_ANUAL_PERCENT,
@@ -335,10 +427,38 @@ def main():
         json.dump(snapshot, f, ensure_ascii=False, indent=2, default=str)
 
     if log:
+        # Separate structured messages from legacy string messages
+        structured_msgs = []
+        obras_with_warnings = set()
+        total_warnings = 0
+        total_errors = 0
+        for msg in log:
+            if isinstance(msg, dict):
+                structured_msgs.append(msg)
+                if msg.get("type") == "status_inconsistency":
+                    obras_with_warnings.add(msg.get("obra", ""))
+                total_warnings += 1
+            else:
+                # Legacy string messages (from carregar_setor etc.)
+                structured_msgs.append({"type": "legacy", "msg": str(msg)})
+                if "[ERRO]" in str(msg):
+                    total_errors += 1
+                else:
+                    total_warnings += 1
+
+        report = {
+            "timestamp": datetime.now().isoformat(timespec="seconds"),
+            "summary": {
+                "total_warnings": total_warnings,
+                "total_errors": total_errors,
+                "obras_processed": len(obras_calculadas),
+                "obras_with_warnings": len(obras_with_warnings),
+            },
+            "messages": structured_msgs,
+        }
         with open(OUTPUT / "validation_report.json", "w", encoding="utf-8") as f:
-            json.dump({"timestamp": datetime.now().isoformat(), "messages": log}, f,
-                      ensure_ascii=False, indent=2)
-        print(f"\n>> {len(log)} avisos/erros em validation_report.json")
+            json.dump(report, f, ensure_ascii=False, indent=2)
+        print(f"\n>> {total_warnings} avisos, {total_errors} erros em validation_report.json")
     else:
         # Apaga relatorio antigo se nao houver nada para reportar
         old = OUTPUT / "validation_report.json"

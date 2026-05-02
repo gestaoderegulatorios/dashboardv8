@@ -8,6 +8,9 @@
 import './src/styles/theme.css';
 import './src/styles/app.css';
 
+import { isAuthenticated } from './src/model/auth.js';
+import { mountLogin, hideLogin } from './src/ui/login.js';
+
 import { createStore } from './src/model/store.js';
 import { on, emit } from './src/model/bus.js';
 import { resolveDataset } from './src/model/demo.js';
@@ -132,6 +135,10 @@ function rebuildPaletteCommands() {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
+  // Gate boot by auth before rendering the app fully
+  if (!isAuthenticated()) {
+    await showLoginAndWait();
+  }
   // F6.6: Hydrate mock.js with ETL snapshot if available (~50ms, fallback to mock on failure)
   await loadSnapshot();
 
@@ -356,3 +363,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   console.log('[V8] booted with', store.get().data.obras.length, 'obras', isDemo ? '(DEMO MODE)' : '', '· view:', store.get().activeView);
 });
+
+// Helper: show login overlay and wait for authentication
+async function showLoginAndWait() {
+  return new Promise((resolve) => {
+    mountLogin({ onSuccess: () => {
+      hideLogin();
+      resolve();
+    }});
+  });
+}

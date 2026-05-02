@@ -64,7 +64,7 @@ function template() {
     </div>
 
     <!-- 4 KPIs (espelho V7: Hero + Margem Líquida + Inadimplência + Fluxo de Caixa) -->
-    <div class="col-span-12 grid grid-cols-1 lg:grid-cols-4 gap-4 stagger">
+    <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 stagger">
       <!-- Hero: Receita Acumulada -->
       <div class="bg-primary-container rounded-xl border border-outline-variant p-5 card-tilt border-glow" aria-label="Receita Acumulada">
         <div class="text-xs uppercase text-on-primary-container font-semibold mb-1">Receita Acumulada</div>
@@ -96,15 +96,15 @@ function template() {
     <div class="col-span-12 grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Demonstrativo de Resultados">
         <div class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider mb-2 flex items-center justify-between">Waterfall <button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="fi-chart-waterfall" data-title="Demonstrativo de Resultados" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
-        <div id="fi-chart-waterfall" class="w-full h-[280px]" role="img" aria-label="Gráfico waterfall"></div>
+    <div id="fi-chart-waterfall" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico waterfall"></div>
       </div>
       <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Receita vs Meta">
         <div class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider mb-2 flex items-center justify-between">Receita vs Meta <button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="fi-chart-line" data-title="Receita vs Meta" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
-        <div id="fi-chart-line" class="w-full h-[280px]" role="img" aria-label="Gráfico linha com anotações"></div>
+        <div id="fi-chart-line" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico linha com anotações"></div>
       </div>
       <div class="bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Composição Custos">
         <div class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider mb-2 flex items-center justify-between">Custos (Treemap) <button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="fi-chart-treemap" data-title="Composição de Custos" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
-        <div id="fi-chart-treemap" class="w-full h-[280px]" role="img" aria-label="Gráfico treemap de custos"></div>
+        <div id="fi-chart-treemap" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico treemap de custos"></div>
       </div>
     </div>
 

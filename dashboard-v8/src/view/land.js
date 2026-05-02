@@ -116,11 +116,11 @@ ${panelsHTML}
     <span class="text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-wider">Distribuição por Loteamento</span>
     <div class="flex items-center gap-2"><button class="px-2 py-1 text-xs font-medium text-surface-tint bg-surface hover:bg-surface-container-low rounded-lg border border-outline-variant transition-colors" data-cross-filter-clear aria-label="Limpar filtro">Limpar filtro</button><button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="chart-donut-land" data-title="Distribuição por Loteamento" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
   </div>
-  <div id="chart-donut-land" class="w-full h-[260px]"></div>
+  <div id="chart-donut-land" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]"></div>
 </div>
 <div class="col-span-12 lg:col-span-6 bg-surface p-5 rounded-xl border border-outline-variant shadow-sm reveal relative">
   <div class="flex items-center justify-between mb-2"><span class="text-[0.75rem] font-bold text-on-surface-variant uppercase tracking-wider">Progresso Geral Infra</span><button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="chart-gauge-land" data-title="Progresso Geral Infra" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
-  <div id="chart-gauge-land" class="w-full h-[200px] mt-2"></div>
+  <div id="chart-gauge-land" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px] mt-2"></div>
 </div>
 
 <!-- Drawer de Loteamento -->

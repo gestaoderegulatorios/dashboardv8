@@ -112,7 +112,7 @@ function template() {
         <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Atividade Dia/Hora</span>
         <button class="p-1 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="op-chart-heatmap" data-title="Atividade Dia/Hora" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button>
       </div>
-      <div id="op-chart-heatmap" class="w-full h-[180px]" role="img" aria-label="Gráfico heatmap"></div>
+    <div id="op-chart-heatmap" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico heatmap"></div>
     </div>
 
     <div class="col-span-6 bg-surface-container rounded-xl p-3 border border-outline-variant reveal relative" aria-label="Avanço por Atividade">
@@ -120,7 +120,7 @@ function template() {
         <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Avanço por Atividade</span>
         <button class="p-1 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="op-chart-bar" data-title="Avanço por Atividade" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button>
       </div>
-      <div id="op-chart-bar" class="w-full h-[180px]" role="img" aria-label="Gráfico barras horizontais"></div>
+      <div id="op-chart-bar" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico barras horizontais"></div>
     </div>
 
     <!-- Tabela densa com Bulk Actions -->

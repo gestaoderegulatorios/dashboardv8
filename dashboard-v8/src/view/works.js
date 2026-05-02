@@ -108,9 +108,9 @@ export function mount(host, ctx) {
 
   <!-- Bar Chart Orçado vs Executado (respeita persona.showChart) -->
   ${persona.showChart ? `
-    <div class="col-span-12 bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Orçado vs Executado">
+  <div class="col-span-12 bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Orçado vs Executado">
       <div class="flex items-center justify-between mb-2"><span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Orçado vs Executado</span><div class="flex items-center gap-2"><span class="text-xs text-on-surface-variant">Barras verticais</span><button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="wk-chart-bar" data-title="Orçado vs Executado" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div></div>
-      <div id="wk-chart-bar" class="w-full h-[280px]" role="img" aria-label="Gráfico de barras Orçado vs Executado"></div>
+      <div id="wk-chart-bar" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico de barras Orçado vs Executado"></div>
     </div>
   ` : ''}
 
@@ -131,7 +131,7 @@ export function mount(host, ctx) {
   </div>
 
   <!-- Tabela principal (respeita persona.showTable) -->
-  <div class="col-span-12" id="wk-table-container"></div>
+  <div class="col-span-12 overflow-x-auto" id="wk-table-container"></div>
 
 </section>
 `;

@@ -3,6 +3,7 @@
 // P1.1: localStorage removido — store é única fonte; persistência via state/ui.js.
 
 import { NAV_ITEMS, SIDEBAR_LOGO_ICON, BRANDING_DEFAULTS } from '../model/branding.js';
+import { getAuthUser, logout } from '../model/auth.js';
 
 import { escape } from '../view/shared.js';
 
@@ -16,8 +17,12 @@ export function renderSidebar({ activeView, items = NAV_ITEMS, settings = {} } =
   // Single source of truth: settings do store; fallback para DEFAULTS (state/settings.js).
   const companyName = settings.companyName || BRANDING_DEFAULTS.companyName;
   const projectName = settings.projectName || BRANDING_DEFAULTS.projectName;
-  const username = settings.username || BRANDING_DEFAULTS.username;
-  const role = settings.role || BRANDING_DEFAULTS.role;
+  // Prefer real auth user data if available
+  const authUser = getAuthUser();
+  const username = (authUser && authUser.name) || (settings.username || BRANDING_DEFAULTS.username);
+  const role = (authUser && authUser.roles && authUser.roles.length > 0)
+    ? authUser.roles.join(', ')
+    : (settings.role || BRANDING_DEFAULTS.role);
 
   // Agrupa por `group` mantendo ordem
   const groups = [];
@@ -48,24 +53,35 @@ export function renderSidebar({ activeView, items = NAV_ITEMS, settings = {} } =
   }).join('');
 
   sidebar.innerHTML = `
-    <div class="px-5 mb-10 flex items-center gap-4 overflow-hidden">
-      <div class="min-w-[24px] flex-shrink-0"><span class="material-symbols-outlined text-white text-2xl">${escape(SIDEBAR_LOGO_ICON)}</span></div>
-      <div class="logo-text">
-        <h1 class="text-white font-bold text-lg tracking-tighter uppercase break-words leading-tight">${escape(companyName)}</h1>
-        <p class="text-on-primary-container text-[10px] break-words">${escape(projectName)}</p>
-      </div>
+  <div class="px-5 mb-10 flex items-center gap-4 overflow-hidden">
+    <div class="min-w-[24px] flex-shrink-0"><span class="material-symbols-outlined text-white text-2xl">${escape(SIDEBAR_LOGO_ICON)}</span></div>
+    <div class="logo-text">
+      <h1 class="text-white font-bold text-lg tracking-tighter uppercase break-words leading-tight">${escape(companyName)}</h1>
+      <p class="text-on-primary-container text-[10px] break-words">${escape(projectName)}</p>
     </div>
-    <nav class="flex-1 space-y-1" aria-label="Navegação do dashboard">${navHTML}</nav>
-    <div id="sidebar-user" class="px-4 mt-auto flex items-center gap-4 pt-6 border-t border-[#162A4E] overflow-hidden sidebar-user" data-tooltip="${escape(username)} — ${escape(role)}">
-      <div class="w-8 h-8 rounded-[9999px] bg-surface-tint flex items-center justify-center min-w-[32px] flex-shrink-0">
-        <span class="material-symbols-outlined text-white text-sm">person</span>
-      </div>
-      <div class="nav-text">
-        <p class="text-white text-xs font-medium truncate">${escape(username)}</p>
-        <p class="text-on-primary-container text-[10px] truncate">${escape(role)}</p>
-      </div>
+  </div>
+  <nav class="flex-1 space-y-1" aria-label="Navegação do dashboard">${navHTML}</nav>
+  <div id="sidebar-user" class="px-4 mt-auto flex items-center gap-4 pt-6 border-t border-[#162A4E] overflow-hidden sidebar-user cursor-pointer" data-tooltip="${escape(username)} — ${escape(role)}" title="Clique para sair">
+    <div class="w-8 h-8 rounded-[9999px] bg-surface-tint flex items-center justify-center min-w-[32px] flex-shrink-0">
+      <span class="material-symbols-outlined text-white text-sm">person</span>
     </div>
+    <div class="nav-text">
+      <p class="text-white text-xs font-medium truncate">${escape(username)}</p>
+      <p class="text-on-primary-container text-[10px] truncate">${escape(role)}</p>
+    </div>
+  </div>
   `;
+
+  // Attach logout interaction AFTER innerHTML (element now exists in DOM)
+  const userEl = document.getElementById('sidebar-user');
+  if (userEl) {
+    userEl.addEventListener('click', (e) => {
+      // Don't trigger if click was on a nav link
+      if (e.target.closest('a[data-view]')) return;
+      logout();
+      window.location.reload();
+    });
+  }
 }
 
 /** Tipa `mountSidebar({ store })`. Wires clicks → store.set({ activeView }). */
@@ -88,6 +104,15 @@ export function mountSidebar({ store }) {
     e.preventDefault();
     const id = a.dataset.view;
     if (id) store.set({ activeView: id });
+    // Auto-close on mobile after navigation
+    try {
+      if (window.matchMedia('(max-width: 1024px)').matches) {
+        applySidebarState(false);
+        store.set((s) => ({ ui: { ...s.ui, sidebarOpen: false } }));
+      }
+    } catch {
+      // no-op in non-browser environments
+    }
   });
 
   // Re-render quando view ativa OU settings mudam (Princípio 7: store = única fonte).

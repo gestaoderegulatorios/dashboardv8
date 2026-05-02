@@ -58,7 +58,7 @@ export function mount(host, ctx) {
     // Margem Bruta (derivada das obras)
     const margemBruta = obraSchema.measures.margemBrutaPercent(obras);
 
-    return `
+      return `
 <section class="view-section grid grid-cols-12 gap-6 p-6 lg:p-8" role="region" aria-label="Visão Geral">
 
   <!-- F9.6: 4 KPIs em fileira única (Hero + 3 canônicos), todos col-span-3 -->
@@ -76,7 +76,7 @@ export function mount(host, ctx) {
         <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Evolução Receita</span>
         <div class="flex items-center gap-2"><span class="text-xs text-on-surface-variant">12 meses</span><button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="ov-chart-area" data-title="Evolução Receita 12 Meses" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
       </div>
-      <div id="ov-chart-area" class="w-full h-[320px]" role="img" aria-label="Gráfico de evolução da receita"></div>
+      <div id="ov-chart-area" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gráfico de evolução da receita"></div>
     </div>
 
     <div class="lg:col-span-1 bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Composição por Tipo">
@@ -84,18 +84,18 @@ export function mount(host, ctx) {
         <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Composição por Tipo</span>
         <button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="ov-chart-donut" data-title="Composição por Tipo" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button>
       </div>
-      <div id="ov-chart-donut" class="w-full h-[320px]" role="img" aria-label="Donut de composição por tipo"></div>
+      <div id="ov-chart-donut" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Donut de composição por tipo"></div>
     </div>
   </div>
 
   <!-- F9.3: Gauge + Status panel (border-l-4 semântico, tematizável) lado a lado -->
-  <div class="col-span-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="lg:col-span-1 bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal relative" aria-label="Meta Anual">
       <div class="flex items-center justify-between mb-2">
         <span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-wider">Meta Anual</span>
         <div class="flex items-center gap-2"><span class="text-xs text-on-surface-variant">${metaAnualPercent}%</span><button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-lg transition-colors z-10" data-fullscreen="ov-chart-gauge" data-title="Meta Anual" aria-label="Maximizar gráfico" title="Maximizar"><span class="material-symbols-outlined text-sm">fullscreen</span></button></div>
       </div>
-      <div id="ov-chart-gauge" class="w-full h-[280px]" role="img" aria-label="Gauge de meta anual"></div>
+      <div id="ov-chart-gauge" class="w-full min-h-[200px] sm:min-h-[240px] md:min-h-[320px]" role="img" aria-label="Gauge de meta anual"></div>
     </div>
 
     <aside class="lg:col-span-2 bg-surface-container-lowest p-5 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Status do empreendimento">
