@@ -10,27 +10,6 @@
 
 /** @typedef {'hierarchical'|'comparative'|'drilldown'} StoryPattern */
 
-export const storyPatterns = {
-  hierarchical: {
-    id: 'hierarchical',
-    label: 'Hierárquica',
-    icon: 'list_alt',
-    description: 'Macro → micro, ordem natural. Default.'
-  },
-  comparative: {
-    id: 'comparative',
-    label: 'Comparativa',
-    icon: 'compare_arrows',
-    description: 'Agrupa por tipo, ordena por avanço relativo.'
-  },
-  drilldown: {
-    id: 'drilldown',
-    label: 'Drill-down',
-    icon: 'troubleshoot',
-    description: 'Foca nas obras com maior |GAP| (atenção).'
-  }
-};
-
 /**
  * Aplica o padrão de storytelling ao array de obras.
  * Pura — não muta input.

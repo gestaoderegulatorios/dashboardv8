@@ -47,16 +47,6 @@ export const REPORTS: any[];
 export const REPORT_SUMMARIES: any;
 export const SIDEBAR_LOGO_ICON: string;
 
-// ─── content.js — domain vocabulary (F8)
-export const ETAPAS_OBRA: string[];
-export const TIPOS_OBRA: string[];
-export const LOTE_TERMS: { lote: string; quadra: string; loteamento: string; infra: string };
-export const STATUS_OBRA: { emProgresso: string; atencao: string; pendente: string; concluida: string; planejado: string };
-export const METRIC_LABELS: Record<string, string>;
-export const UNITS: { currency: string; percent: string; area: string; volume: string; weight: string; units: string };
-export const MATERIAIS: string[];
-export const UPLOAD_SCHEMA: Record<string, string>;
-
 // ─── ui-state.js
 export function loadUIState(): any;
 export function saveUIState(ui: any): void;
