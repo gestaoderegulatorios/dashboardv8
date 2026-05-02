@@ -31,7 +31,11 @@ jobs:
         working-directory: ./dashboard-v8
         run: |
           npx tsc --noEmit
-      - name: Build
-        working-directory: ./dashboard-v8
-        run: |
-          npm run build
+    - name: Build
+      working-directory: ./dashboard-v8
+      run: |
+        npm run build
+    - name: Audit (LOC + hex + conventions)
+      working-directory: ./dashboard-v8
+      run: |
+        npm run audit

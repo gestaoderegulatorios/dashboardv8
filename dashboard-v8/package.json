@@ -17,7 +17,8 @@
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name=${CF_PAGES_PROJECT:-dashboard-borgonovi} --branch=main",
     "capture:baseline": "node scripts/capture-baseline.cjs",
     "test:visual": "node scripts/visual-diff.cjs test/baseline test/current",
-    "test:e2e": "npx playwright test"
+    "test:e2e": "npx playwright test",
+"audit": "node scripts/audit.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
