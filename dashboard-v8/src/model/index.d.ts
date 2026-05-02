@@ -11,6 +11,12 @@ export let heroSpark: number[];
 export let metaAnualPercent: number;
 export function _hydrateFromSnapshot(s: any): void;
 
+// ─── etl-normalize.js — ETL→V8 value normalization
+export const STATUS_ETL_TO_V8: Record<string, string>;
+export const TIPO_ETL_TO_V8: Record<string, string>;
+export const NOME_ETL_TO_V8: Record<string, string>;
+export function normalizeObra(o: any): any;
+
 // ─── snapshot.js (F6.6)
 export function loadSnapshot(): Promise<void>;
 
