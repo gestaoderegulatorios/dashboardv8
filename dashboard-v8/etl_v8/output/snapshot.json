@@ -1,7 +1,7 @@
 {
   "meta": {
     "versao_schema": "1.1",
-    "gerado_em": "2026-05-02T14:04:48",
+    "gerado_em": "2026-05-03T18:26:34",
     "total_obras": 14,
     "fonte": "etl_v8_real"
   },
@@ -14,7 +14,7 @@
       "executado": 8499999.98,
       "avanco": 72.5,
       "gap": 1.6,
-      "atrasoDias": 125
+      "atrasoDias": 0
     },
     {
       "nome": "Torre B",
@@ -24,7 +24,7 @@
       "executado": 4119999.99,
       "avanco": 45.9,
       "gap": 3.8,
-      "atrasoDias": 125
+      "atrasoDias": 64
     },
     {
       "nome": "Torre C",
@@ -34,7 +34,7 @@
       "executado": 3100000.01,
       "avanco": 33.0,
       "gap": -13.3,
-      "atrasoDias": 125
+      "atrasoDias": 27
     },
     {
       "nome": "Torre D",
@@ -54,7 +54,7 @@
       "executado": 6048000.0,
       "avanco": 76.7,
       "gap": 4.7,
-      "atrasoDias": 125
+      "atrasoDias": 0
     },
     {
       "nome": "Jardim Europa",
@@ -64,7 +64,7 @@
       "executado": 2128000.0,
       "avanco": 40.5,
       "gap": 2.5,
-      "atrasoDias": 125
+      "atrasoDias": 7
     },
     {
       "nome": "Horizon Hills",
@@ -74,7 +74,7 @@
       "executado": 4608000.0,
       "avanco": 68.2,
       "gap": 4.2,
-      "atrasoDias": 125
+      "atrasoDias": 0
     },
     {
       "nome": "Ed Central",
@@ -94,7 +94,7 @@
       "executado": 11890000.03,
       "avanco": 86.2,
       "gap": 4.2,
-      "atrasoDias": 125
+      "atrasoDias": 0
     },
     {
       "nome": "Torre F",
@@ -104,7 +104,7 @@
       "executado": 6440999.99,
       "avanco": 60.6,
       "gap": 3.7,
-      "atrasoDias": 125
+      "atrasoDias": 0
     },
     {
       "nome": "Loteamento Bosque",
@@ -114,7 +114,7 @@
       "executado": 1798000.02,
       "avanco": 30.9,
       "gap": 1.9,
-      "atrasoDias": 125
+      "atrasoDias": 25
     },
     {
       "nome": "Galpao Logistico",
@@ -124,7 +124,7 @@
       "executado": 8099999.97,
       "avanco": 91.9,
       "gap": 0.9,
-      "atrasoDias": 125
+      "atrasoDias": 0
     },
     {
       "nome": "Ponte Viaria",
@@ -134,7 +134,7 @@
       "executado": 8602000.0,
       "avanco": 49.0,
       "gap": 3.0,
-      "atrasoDias": 125
+      "atrasoDias": 1
     },
     {
       "nome": "Estacao de Tratamento",
@@ -144,7 +144,7 @@
       "executado": 3723000.0,
       "avanco": 77.8,
       "gap": 4.8,
-      "atrasoDias": 125
+      "atrasoDias": 0
     }
   ],
   "series": {

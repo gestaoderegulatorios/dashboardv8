@@ -57,13 +57,15 @@ Consolidar o codebase V8 para ser IA-amigável: débito eliminado, regras escrit
 9. Layer separation (domain/model/ui/view)
 10. `npm run audit` antes de commit
 
-**scripts/audit.cjs** — 6 regras automatizadas:
+**scripts/audit.cjs** — 4 regras automatizadas (Rules 1, 2, 3, 6):
 - Rule 1: file > 300 LOC → FAIL
 - Rule 2: function > 50 LOC → FAIL
 - Rule 3: template literal > 80 lines → FAIL
-- Rule 4: CSS in JS (inline styles > 3 props) → WARN
-- Rule 5: hardcoded strings (>10 same value) → WARN
 - Rule 6: hex colors outside theme.css → FAIL
+
+> **Nota:** Rules 4 (CSS in JS) e 5 (hardcoded strings) ficam como guidelines
+> manuais em CONTRIBUTING.md — não são auditáveis sem AST parser ou análise
+> semântica. Podem ser implementadas no audit.cjs no futuro se necessário.
 
 **Relaxamentos pragmáticos** (WARN not FAIL para débito conhecido):
 - View mount/template/boot functions — template-heavy por natureza

@@ -13,8 +13,10 @@ Saida:
 Reproducibilidade: random.seed(42) -> mesma saida sempre.
 """
 
+import hashlib
 import random
 import unicodedata
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -90,6 +92,14 @@ def safe_filename(nome: str) -> str:
     return s.lower().replace(" ", "_").replace(".", "").replace("-", "_")
 
 
+def _offset_for_obra(nome_obra: str, etapa_idx: int) -> int:
+    """Offset determinístico em dias, baseado em hash(nome+etapa).
+    Range: -180 a +200. Biased towards slight past (atraso) or near future.
+    ~40% no passado (atraso), ~40% próximo futuro (em prazo), ~20% futuro distante."""
+    seed = int(hashlib.md5(f"{nome_obra}_{etapa_idx}".encode()).hexdigest()[:8], 16)
+    return -180 + (seed % 381)  # -180 a +200
+
+
 def distribuir_valor(total: float, n: int) -> list:
     """Distribui um total em n parcelas com variacao, somando exatamente 'total'."""
     if total <= 0 or n <= 0:
@@ -142,6 +152,18 @@ def gerar_planejamento(obra: dict, idx: int) -> pd.DataFrame:
     headers = HEADERS_PLANEJAMENTO[idx % len(HEADERS_PLANEJAMENTO)]
     avanco_obra = obra["avanco"]
 
+    # Base date: today. Each etapa gets a deterministically offset date.
+    base_date = datetime.now()
+
+    # Obras com status "Atencao"/"Pendente" devem ter etapas atrasadas (fim no passado).
+    # Obras "Em progresso" podem ter mix — ~40% com atraso leve, ~60% sem atraso.
+    # Obras "Concluida"/"Planejado" nao importam (atrasoDias=0 por regra A1).
+    status = obra["status"]
+    is_atrasada = status in ("Atencao", "Pendente")
+    # Deterministic: some "Em progresso" obras get atraso based on hash
+    obra_hash = int(hashlib.md5(obra["nome"].encode()).hexdigest()[:8], 16)
+    is_leve_atraso = (status == "Em progresso") and (obra_hash % 10 < 4)  # ~40%
+
     rows = []
     for i, (etapa, peso) in enumerate(ETAPAS_PADRAO):
         if avanco_obra >= 100:
@@ -152,12 +174,31 @@ def gerar_planejamento(obra: dict, idx: int) -> pd.DataFrame:
             # Etapas iniciais mais avancadas, finais menos.
             fator = 1.0 + (3 - i) * 0.1
             conc = max(0, min(100, round(avanco_obra * fator)))
+
+        # Deterministic offset per obra+etapa → varied end dates
+        offset = _offset_for_obra(obra["nome"], i)
+
+        # Para obras atrasadas: garantir que fim_previsto < today
+        if is_atrasada:
+            offset = offset - 200  # force all dates into past
+        elif is_leve_atraso:
+            # Shift some etapas to past, creating moderate atraso
+            # Only shift etapas where hash is even (deterministic)
+            etapa_hash = int(hashlib.md5(f"{obra['nome']}_{i}".encode()).hexdigest()[:4], 16)
+            if etapa_hash % 3 == 0:  # ~33% of etapas shifted to past
+                offset = offset - 250  # moderate past shift
+
+        fim_previsto = base_date + timedelta(days=offset)
+        # inicio = 2-4 months before fim (proportional to etapa position)
+        inicio_offset = offset - 60 - (i * 15)  # earlier etapas start earlier
+        inicio_previsto = base_date + timedelta(days=inicio_offset)
+
         rows.append({
-            headers["etapa"]:     etapa,
+            headers["etapa"]: etapa,
             headers["concluido"]: conc,
-            headers["peso"]:      peso,
-            headers["inicio"]:    f"2025-{min((i+1)*2, 12):02d}-01",
-            headers["fim"]:       f"2025-{min((i+1)*2 + 2, 12):02d}-28",
+            headers["peso"]: peso,
+            headers["inicio"]: inicio_previsto.strftime("%Y-%m-%d"),
+            headers["fim"]: fim_previsto.strftime("%Y-%m-%d"),
         })
     return pd.DataFrame(rows)
 
