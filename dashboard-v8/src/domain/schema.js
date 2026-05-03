@@ -6,7 +6,7 @@ export const obraSchema = {
   fields: {
     nome: { type: 'string', required: true },
     // Mantenha o nome da entidade como Obra, apenas atualize os valores de tipo para refletir a clínica veterinária
-    tipo: { type: 'enum', values: ['Clínica', 'Pet Shop', 'Laboratório', 'Infraestrutura'], required: true },
+    tipo: { type: 'enum', values: ['Clínica', 'Pet Shop', 'Laboratório', 'Hospital Veterinário'], required: true },
     status: { type: 'enum', values: ['Em progresso', 'Atenção', 'Pendente', 'Concluída', 'Planejado'], required: true },
     avanco: { type: 'percent', required: true, range: [0, 100] },
     orcado: { type: 'currency', required: true, currency: 'BRL' },

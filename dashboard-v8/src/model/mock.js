@@ -18,8 +18,8 @@ export let obras = [
   { nome: 'Clínica Oeste', tipo: 'Clínica', status: 'Em progresso', avanco: 57, orcado: 11300000, executado: 6441000, gap: -4.2, atrasoDias: 2 },
   { nome: 'Pet Shop Bosque', tipo: 'Pet Shop', status: 'Atenção', avanco: 29, orcado: 6200000, executado: 1798000, gap: -8.1, atrasoDias: 5 },
   { nome: 'Lab Veterinário', tipo: 'Laboratório', status: 'Em progresso', avanco: 91, orcado: 8900000, executado: 8100000, gap: 3.7, atrasoDias: 0 },
-  { nome: 'Canil Municipal', tipo: 'Infraestrutura', status: 'Atenção', avanco: 46, orcado: 18700000, executado: 8602000, gap: -6.3, atrasoDias: 4 },
-  { nome: 'Centro de Reabilitação', tipo: 'Infraestrutura', status: 'Em progresso', avanco: 73, orcado: 5100000, executado: 3723000, gap: 0.4, atrasoDias: 0 }
+  { nome: 'Canil Municipal', tipo: 'Hospital Veterinário', status: 'Atenção', avanco: 46, orcado: 18700000, executado: 8602000, gap: -6.3, atrasoDias: 4 },
+  { nome: 'Centro de Reabilitação', tipo: 'Hospital Veterinário', status: 'Em progresso', avanco: 73, orcado: 5100000, executado: 3723000, gap: 0.4, atrasoDias: 0 }
 ];
 
 // ─── Dados de série temporal (overview) ──────────────────────────────────────
@@ -31,9 +31,10 @@ export let meses12 = ['Abr/25','Mai/25','Jun/25','Jul/25','Ago/25','Set/25','Out
 export let receitaMensal = [6200000,7100000,7500000,8200000,8600000,9000000,9200000,8800000,9500000,9800000,9400000,8734281];
 
 export let composicaoTipo = [
-  { name: 'Clínicas', value: 58 },
-  { name: 'Pet Shops', value: 27 },
-  { name: 'Laboratórios', value: 15 }
+  { name: 'Clínicas', value: 43 },
+  { name: 'Pet Shops', value: 29 },
+  { name: 'Laboratórios', value: 14 },
+  { name: 'Hosp. Veterinários', value: 14 }
 ];
 
 export let margemSpark = [38, 40, 39, 42, 41, 43, 42, 40, 44, 43, 41, 40];

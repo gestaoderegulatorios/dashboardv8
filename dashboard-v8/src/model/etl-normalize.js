@@ -16,7 +16,7 @@ export const TIPO_ETL_TO_V8 = {
   'Edificio': 'Clínica',
   'Loteamento': 'Pet Shop',
   'Comercial': 'Laboratório',
-  'Infraestrutura': 'Infraestrutura',
+  'Infraestrutura': 'Hospital Veterinário',
 };
 
 export const NOME_ETL_TO_V8 = {
