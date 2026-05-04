@@ -52,7 +52,6 @@ export function orderKPIsByPersona(kpis: any[], persona: any): any[];
 export const obraSchema: any;
 
 // ─── storytelling.js ───────────────────────────────────────────────────────────
-export const storyPatterns: any;
 export function applyStorytelling(obras: any[], pattern?: string): any[];
 
 // ─── table.js ──────────────────────────────────────────────────────────────────

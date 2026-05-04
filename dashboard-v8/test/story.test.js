@@ -1,6 +1,6 @@
 ﻿// Testes do storytelling. Cada padrão é função pura.
 import { it, expect } from './runner.js';
-import { applyStorytelling, storyPatterns } from '../src/domain/storytelling.js';
+import { applyStorytelling } from '../src/domain/storytelling.js';
 import { obras } from '../src/model/mock.js';
 
 it('applyStorytelling hierarchical preserva ordem original', () => {
@@ -45,11 +45,11 @@ it('applyStorytelling com pattern desconhecido cai em hierarchical', () => {
   expect(out.map((o) => o.nome)).toEqual(obras.map((o) => o.nome));
 });
 
-it('storyPatterns expõe 3 padrões com label/icon/description', () => {
-  expect(Object.keys(storyPatterns)).toEqual(['hierarchical', 'comparative', 'drilldown']);
-  Object.values(storyPatterns).forEach((p) => {
-    expect(typeof p.label).toBe('string');
-    expect(typeof p.icon).toBe('string');
-    expect(typeof p.description).toBe('string');
+it('applyStorytelling aceita 3 patterns válidos', () => {
+  // Os 3 patterns suportados são hierarchical, comparative, drilldown
+  const patterns = ['hierarchical', 'comparative', 'drilldown'];
+  patterns.forEach((p) => {
+    const out = applyStorytelling(obras, p);
+    expect(out.length).toBe(obras.length);
   });
 });

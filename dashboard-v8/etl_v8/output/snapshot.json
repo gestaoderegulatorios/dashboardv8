@@ -1,9 +1,9 @@
 {
   "meta": {
-    "versao_schema": "1.0",
-    "gerado_em": "2026-04-29T21:31:56",
+    "versao_schema": "1.1",
+    "gerado_em": "2026-05-03T18:26:34",
     "total_obras": 14,
-    "fonte": "etl_v8"
+    "fonte": "etl_v8_real"
   },
   "obras": [
     {
@@ -24,7 +24,7 @@
       "executado": 4119999.99,
       "avanco": 45.9,
       "gap": 3.8,
-      "atrasoDias": 0
+      "atrasoDias": 64
     },
     {
       "nome": "Torre C",
@@ -34,7 +34,7 @@
       "executado": 3100000.01,
       "avanco": 33.0,
       "gap": -13.3,
-      "atrasoDias": 13
+      "atrasoDias": 27
     },
     {
       "nome": "Torre D",
@@ -64,7 +64,7 @@
       "executado": 2128000.0,
       "avanco": 40.5,
       "gap": 2.5,
-      "atrasoDias": 0
+      "atrasoDias": 7
     },
     {
       "nome": "Horizon Hills",
@@ -114,7 +114,7 @@
       "executado": 1798000.02,
       "avanco": 30.9,
       "gap": 1.9,
-      "atrasoDias": 0
+      "atrasoDias": 25
     },
     {
       "nome": "Galpao Logistico",
@@ -134,7 +134,7 @@
       "executado": 8602000.0,
       "avanco": 49.0,
       "gap": 3.0,
-      "atrasoDias": 0
+      "atrasoDias": 1
     },
     {
       "nome": "Estacao de Tratamento",
@@ -149,6 +149,9 @@
   ],
   "series": {
     "meses12": [
+      "Jan/25",
+      "Fev/25",
+      "Mar/25",
       "Abr/25",
       "Mai/25",
       "Jun/25",
@@ -157,24 +160,21 @@
       "Set/25",
       "Out/25",
       "Nov/25",
-      "Dez/25",
-      "Jan/26",
-      "Fev/26",
-      "Mar/26"
+      "Dez/25"
     ],
     "receitaMensal": [
-      6200000,
-      7100000,
-      7500000,
-      8200000,
-      8600000,
-      9000000,
-      9200000,
-      8800000,
-      9500000,
-      9800000,
-      9400000,
-      8734281
+      5469991.0,
+      5860207.0,
+      5689261.0,
+      9513896.0,
+      4937926.0,
+      4794459.0,
+      9741107.0,
+      6637844.0,
+      7828621.0,
+      3117478.0,
+      6818658.0,
+      7248552.0
     ],
     "composicaoTipo": [
       {

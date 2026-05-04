@@ -3,7 +3,7 @@
 // Cada chart é uma instância isolada com ResizeObserver próprio.
 //
 // Estilo = espelho V7 (borgChartDefaults: paleta Inter 11px, easeinout 800ms,
-// grid #e0e3e5 strokeDashArray 4, BRL formatter).
+// grid var(--chart-grid) strokeDashArray 4, BRL formatter).
 //
 // F2: borgChartDefaults é uma FUNÇÃO (lazy init) — cores CSS vars são lidas
 // quando mountChart() é chamado, não no import time. Isso permite tree-shaking

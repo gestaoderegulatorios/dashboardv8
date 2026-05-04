@@ -59,9 +59,9 @@ const escapeHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
 export function statusBadge(status) {
   const s = String(status || '').toLowerCase();
   let cls = 'bg-surface-container text-on-surface-variant';
-  if (s.includes('progresso') || s.includes('andamento') || s.includes('em ')) cls = 'bg-green-50 text-green-700';
-  else if (s.includes('aten')) cls = 'bg-amber-50 text-on-tertiary-container';
-  else if (s.includes('conclu')) cls = 'bg-green-50 text-green-700';
+  if (s.includes('progresso') || s.includes('andamento') || s.includes('em ')) cls = 'status-success';
+  else if (s.includes('aten')) cls = 'status-warning';
+  else if (s.includes('conclu')) cls = 'status-success';
   else if (s.includes('plan')) cls = 'bg-surface-container text-on-surface-variant';
   else if (s.includes('pend')) cls = 'bg-surface-container text-on-surface-variant';
   return `<span class="px-2 py-0.5 rounded-[9999px] ${cls} text-xs font-semibold">${escapeHTML(status)}</span>`;

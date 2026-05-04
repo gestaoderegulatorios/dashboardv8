@@ -47,44 +47,10 @@ export let metaAnualPercent = 72;
 // Called by snapshot.js when ETL data is available at runtime.
 // Overwrites mutable exports with real data; heroSpark stays derived.
 
-// ─── ETL→V8 normalization ──────────────────────────────────────────────────
-// ETL Python outputs ASCII-only (no accents). V8 canonical values have accents.
-// This is the ONLY place where normalization happens — all downstream code
-// (schema.js, views, E2E) sees canonical Portuguese.
-
-const STATUS_ETL_TO_V8 = {
-  'Atencao': 'Atenção',
-  'Concluida': 'Concluída',
-  'Em progresso': 'Em progresso',
-  'Pendente': 'Pendente',
-  'Planejado': 'Planejado',
-};
-
-const TIPO_ETL_TO_V8 = {
-  'Edificio': 'Edifício',
-  'Loteamento': 'Loteamento',
-  'Comercial': 'Comercial',
-  'Infraestrutura': 'Infraestrutura',
-};
-
-const NOME_ETL_TO_V8 = {
-  'Galpao Logistico': 'Galpão Logístico',
-  'Ponte Viaria': 'Ponte Viária',
-  'Estacao de Tratamento': 'Estação de Tratamento',
-  'Ed Central': 'Ed. Central',
-};
-
-function _normalizeObra(o) {
-  return {
-    ...o,
-    status: STATUS_ETL_TO_V8[o.status] || o.status,
-    tipo: TIPO_ETL_TO_V8[o.tipo] || o.tipo,
-    nome: NOME_ETL_TO_V8[o.nome] || o.nome,
-  };
-}
+import { normalizeObra } from './etl-normalize.js';
 
 export function _hydrateFromSnapshot(s) {
-  obras = s.obras.map(_normalizeObra);
+  obras = s.obras.map(normalizeObra);
   meses12 = s.meses12;
   receitaMensal = s.receitaMensal;
   composicaoTipo = s.composicaoTipo;

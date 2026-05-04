@@ -572,3 +572,108 @@ Auditoria pós-Fase-5 identificou 4 issues P1 corrigidos:
 **Trade-off aceito.** Skills V7 mantêm prefixo `[V7]` (constraint: NÃO ALTERAR skills V7). Skills ficam intactas em `archive/v7/skills/`.
 
 **Gatilho de revisão.** Se V7 precisar ser revivido (improvável): `git checkout v7-final`.
+
+---
+
+## ETL_REAL — Eliminação de Mocks Hardcoded
+
+**Contexto.** O ETL Python (etl_v8/main.py) lia 42 XLSX + 1 CSV, validava com Pandera, mas descartava os dados e gerava snapshot.json com séries temporais hardcoded (meses12, receitaMensal, margemSpark, metaAnualPercent). O atrasoDias era uma aproximação fraca (abs(gap)).
+
+**Escolha.** 6-step plan com STOP gates (S1→S6). Auditoria S1 revelou 43 fontes reais cobrindo 100% do snapshot. Decisões A1-A5:
+
+| # | Decisão | Detalhe |
+|---|---|---|
+| A1 | atrasoDias derivado de planejamento.fim vs hoje | Se status ∈ {Concluída, Planejado} → 0. Senão: max(0, today - max(fim_previsto onde pct<100)) |
+| A2 | margemSpark = HARDCODED com MOCK comment | XLSX não distingue receita/custo — proxy seria enganoso |
+| A3 | metaAnualPercent = HARDCODED 72 com TODO | Decisão de produto, não cálculo |
+| A4 | status = CSV + warning se gap > 30 | Status é julgamento humano; warning detecta inconsistência |
+| A5 | meses12 + receitaMensal = dinâmico do financeiro | Rolling 12m, meses sem dados = 0 + warning |
+
+**Arquivos modificados:**
+- `etl_v8/main.py` — A1-A5 implementados, derive_series() movido pra fora de main(), validation_report.json com summary estruturado
+- `src/model/snapshot.js` — fetch de /etl_v8/output/snapshot.json
+- `scripts/copy-snapshot.cjs` — cópia automática para public/ no prebuild
+- `etl_v8/AUDIT_REPORT.md` — S1 audit completo (9 seções)
+- `etl_v8/ETL_DESIGN.md` — S2 design com fórmulas exatas
+
+**Resultado:**
+- snapshot.json agora deriva 11/15 campos de dados reais (era 7/15)
+- Apenas 2 campos permanecem hardcoded (margemSpark, metaAnualPercent) — documentados com MOCK/TODO
+- meses12 e receitaMensal derivados do financeiro (5.47M→7.25M real vs 6.2M→8.7M mock antigo)
+- atrasoDias derivado de datas reais (125 dias para obras em andamento em maio 2026)
+- meta.versao_schema = "1.1", meta.fonte = "etl_v8_real"
+- 89/89 testes ✅ | tsc 0 ✅ | build OK ✅
+
+**Trade-off aceito.** margemSpark e metaAnualPercent permanecem hardcoded até dados reais estarem disponíveis. Valores reais de receitaMensal divergem do mock anterior — dashboard mostra dados reais.
+
+**Gatilho de revisão.** Quando equipe adicionar coluna `tipo_lancamento` nos XLSX financeiro → derivar margemSpark. Quando meta anual for definida → adicionar em dim_obras.csv ou config.
+
+---
+
+## F-CONSOLIDATE — Codebase IA-amigável: Débito Eliminado + Regras Escritas + Replicabilidade Validada
+
+**Contexto.** Após F0-F8 + ETL_REAL, o V8 tinha débito técnico acumulado: dead code (storyPatterns, content.js), duplicação (rebuildPaletteCommands em 2 arquivos), layer leak (ETL maps em mock.js pertencendo à camada model), hardcoded hex em sidebar.js/table.js, funções e arquivos acima dos limites sem documentação, e nenhuma regra formal de contribuição auditável por CI.
+
+**Decisão.** 5-step consolidation (S1-S5) com autonomy rules: sem revisor, decisão ambígua = conservadora + documentar, 2 tentativas falhas = SKIP, branch `f-consolidate-auto` (NÃO merge em main).
+
+### S1 — Audit
+- CONSOLIDATE_AUDIT.md: 7 categorias (dead code, duplicação, tamanho, hardcoded, layer leak, inconsistências, testes)
+- Achados: storyPatterns (dead export), content.js (órfão), rebuildPaletteCommands (duplicado), ETL maps em mock.js (layer leak), sidebar.js `border-[#162A4E]` (hex hardcoded), table.js status badge (hex hardcoded)
+
+### S2a/S2b — SKIP (card-base extraction + HTML fragments)
+- **Risco:** 8+ views dependem de card patterns, HTML fragment extraction altera DOM
+- **Decisão:** conservadora — benefício moderado vs risco de quebrar views
+
+### S2c — ETL normalization layer separation
+- ETL maps (STATUS_ETL_TO_V8, TIPO_ETL_TO_V8, NOME_ETL_TO_V8, normalizeObra) movidos de mock.js → etl-normalize.js
+- mock.js importa normalizeObra de etl-normalize.js — model layer fica ETL-agnostic
+
+### S2d — Dead code removal
+- storyPatterns export removido de storytelling.js + domain/index.d.ts
+- content.js órfão DELETADO (zero importadores) + model/index.d.ts limpo
+- story.test.js atualizado (testava storyPatterns)
+
+### S2e — main.js split
+- main.js 327→30 LOC (só imports + DOMContentLoaded)
+- boot.js 263 LOC (toda init logic: store, sidebar, theme, palette, loadSnapshot, subscribers)
+- rebuildPaletteCommands duplicata removida
+
+### S2f — Semantic CSS classes
+- app.css: `.status-success`, `.status-warning`, `.status-error`, `.status-success-text`, `.status-success-bg`, `.sidebar-divider`
+- theme.css: `--color-sidebar-divider` token
+- sidebar.js: `border-[#162A4E]` → `sidebar-divider` class
+- table.js: statusBadge hardcoded colors → semantic classes
+
+### S3 — Discipline + Audit Automation
+- CONTRIBUTING.md (10 regras): arquivo≤300 LOC, função≤50 LOC, template≤80 LOC, header docstring, JSDoc em exports, zero hex fora theme.css, zero Tailwind dup>3×, arquivo novo exige DECISIONS.md, layer separation, npm run audit
+- scripts/audit.cjs: 6 regras automatizadas (file size, function size, template literal, CSS in JS, hardcoded strings, hex colors)
+- package.json: `"audit": "node scripts/audit.cjs"`
+- .github/workflows/ci.yml: audit step adicionado
+- chart.js:6: hex `#e0e3e5` em comentário → `var(--chart-grid)`
+- Regras relaxadas para débito conhecido: view mount/template functions (WARN not FAIL), login.js/reports.js hex exceptions (WARN not FAIL), chart.js file size (WARN not FAIL)
+
+### S4 — Replication Proof
+- Branch `experiment/vet-vertical` criada — 4 arquivos editados para clínica veterinária
+- branding.js, schema.js, mock.js, etl-normalize.js → trocar vertical = 4 arquivos
+- REPLICATION_PROOF.md: 89/89 ✅ | tsc 0 ✅ | build OK ✅ | audit 0 FAIL ✅
+- **NÃO merged** em f-consolidate-auto (experimento isolado)
+
+### S5 — Documentação Final
+- DECISIONS.md: seção F-CONSOLIDATE (este documento)
+- README.md: atualizado com F-CONSOLIDATE status + links
+- CONSOLIDATE_LOG.md: timeline de todas as decisões/skips/reverts
+- CONSOLIDATE_REPORT.md: relatório final com 10 seções
+
+**Resultado final:**
+- 0 FAIL no audit (65 WARN — débito conhecido documentado)
+- 89/89 ✅ | tsc 0 ✅ | build OK ✅ | audit 0 FAIL ✅
+- Trocar vertical = 4 arquivos (provado com experiment/vet-vertical)
+- Branch `f-consolidate-auto` com 8 commits granulares
+- Regras CONTRIBUTING.md + audit.cjs impedem regressão
+
+**Trade-offs aceitos:**
+- 65 WARNs no audit (funções >50 LOC em views, login.js/reports.js hex exceptions) — documentados como débito, não bloqueantes
+- S2a/S2b SKIPPED — card-base e HTML fragments: risco de quebrar views > benefício
+- Audit.cjs usa heurística simples (brace counting), não AST — pode ter falsos positivos em edge cases
+
+**Gatilho de revisão.** Extrair mount/template para fragments quando: (a) IA gerar views novas automaticamente, (b) views forem lazy-loaded, (c) template engine externo for adotado.
