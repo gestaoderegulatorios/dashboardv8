@@ -24,6 +24,11 @@ export function getLastSnapshot(): any;
 export function getLastFetchTs(): number;
 export function resetSnapshotCache(): void;
 
+// ─── auto-refresh.js
+export function startAutoRefresh(opts?: any): void;
+export function stopAutoRefresh(): void;
+export function isAutoRefreshActive(): boolean;
+
 // ─── demo.js
 export const obrasDemo: any[];
 export function resolveDataset(): { obras: any[]; isDemo: boolean };
