@@ -52,3 +52,7 @@ export function loadUIState(): any;
 export function saveUIState(ui: any): void;
 export const STORAGE_KEY_SIDEBAR: string;
 export const STORAGE_KEY_THEME: string;
+
+// ─── snapshot-delta.js
+export function diff(prev: any | null, next: any): { added: any[]; modified: any[]; removed: any[]; unchanged: number; seriesChanged: boolean; next: any };
+export function hasChanges(delta: any): boolean;
