@@ -3,99 +3,174 @@ title Atualizar Dashboard V8
 chcp 65001 >nul
 
 echo.
-echo ══════════════════════════════════════════════════
-echo   Atualizar Dashboard V8 — Atualizacao Automatica
-echo ══════════════════════════════════════════════════
+echo ══════════════════════════════════════════════════════════
+echo   Atualizar Dashboard V8
+echo   Este script faz TUDO automaticamente:
+echo   [1/3] Le as planilhas Excel e gera os dados (Python)
+echo   [2/3] Compila o dashboard (Node.js)
+echo   [3/3] Publica no site (Cloudflare)
+echo ══════════════════════════════════════════════════════════
 echo.
 
-:: Volta para a pasta do dashboard (onde este .bat esta)
+:: ─── Volta para a pasta do dashboard ──────────────────────
 cd /d "%~dp0"
+echo Pasta de trabalho: %CD%
+echo.
 
 :: ─── PASSO 1: Rodar Python ETL ───────────────────────────
+echo ─────────────────────────────────────────
 echo [1/3] Lendo planilhas e gerando dados...
+echo ─────────────────────────────────────────
 echo.
-
-cd etl_v8
 
 :: Verifica Python
-python --version >nul 2>&1
+python --version 2>nul
 if %ERRORLEVEL% neq 0 (
-    echo [ERRO] Python nao encontrado.
+    echo.
+    echo [ERRO] Python nao encontrado no PATH.
     echo Instale em: https://www.python.org/downloads/
     echo.
-    pause
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
     exit /b 1
 )
 
-:: Ativa venv se existe
-if exist ".venv\Scripts\activate.bat" (
-    call ".venv\Scripts\activate.bat"
+:: Verifica se dados_raw existe
+if not exist "dados_raw" (
+    echo.
+    echo [ERRO] Pasta dados_raw nao encontrada em:
+    echo %CD%\dados_raw
+    echo.
+    echo Coloque as planilhas XLSX dentro dessa pasta.
+    echo.
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
+    exit /b 1
 )
 
-:: Roda o ETL
-python main.py
+:: Verifica se venv existe
+if not exist "etl_v8\.venv\Scripts\python.exe" (
+    echo.
+    echo [ERRO] Ambiente Python (venv) nao encontrado.
+    echo Rode primeiro: etl_v8\gerar_xlsx.bat
+    echo.
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
+    exit /b 1
+)
+
+:: Roda o ETL com o python do venv
+echo Rodando Python ETL...
+echo.
+call "etl_v8\.venv\Scripts\python.exe" "etl_v8\main.py"
 if %ERRORLEVEL% neq 0 (
     echo.
-    echo [ERRO] ETL falhou. Verifique as planilhas.
+    echo [ERRO] ETL falhou. Veja a mensagem acima.
     echo.
-    pause
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
+    exit /b 1
+)
+
+:: Verifica se snapshot.json foi gerado
+if not exist "etl_v8\output\snapshot.json" (
+    echo.
+    echo [ERRO] snapshot.json nao foi gerado.
+    echo.
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
     exit /b 1
 )
 
 echo.
-echo [1/3] ETL concluido com sucesso.
+echo [1/3] ETL concluido! snapshot.json gerado.
 echo.
 
-cd /d "%~dp0"
-
 :: ─── PASSO 2: Compilar o dashboard ───────────────────────
+echo ─────────────────────────────────────────
 echo [2/3] Compilando dashboard...
+echo ─────────────────────────────────────────
+echo.
 
 :: Verifica Node.js
 where node >nul 2>&1
 if %ERRORLEVEL% neq 0 (
+    echo.
     echo [ERRO] Node.js nao encontrado.
     echo Instale em: https://nodejs.org/
     echo.
-    pause
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
     exit /b 1
 )
 
-:: Copia snapshot + build
+:: Verifica se node_modules existe
+if not exist "node_modules" (
+    echo Instalando dependencias (primeira vez)...
+    call npm install
+    if %ERRORLEVEL% neq 0 (
+        echo.
+        echo [ERRO] npm install falhou.
+        echo.
+        echo Pressione qualquer tecla para fechar...
+        pause >nul
+        exit /b 1
+    )
+)
+
+:: Copia snapshot + compila
 call npm run build
 if %ERRORLEVEL% neq 0 (
     echo.
-    echo [ERRO] Build falhou.
+    echo [ERRO] Build falhou. Veja a mensagem acima.
     echo.
-    pause
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
+    exit /b 1
+)
+
+:: Verifica se dist/ foi gerado
+if not exist "dist\index.html" (
+    echo.
+    echo [ERRO] Build nao gerou dist/index.html.
+    echo.
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
     exit /b 1
 )
 
 echo.
-echo [2/3] Dashboard compilado com sucesso.
+echo [2/3] Dashboard compilado!
 echo.
 
 :: ─── PASSO 3: Publicar no Cloudflare ─────────────────────
+echo ─────────────────────────────────────────
 echo [3/3] Publicando no site...
+echo ─────────────────────────────────────────
+echo.
 
 call npx wrangler pages deploy dist --project-name=dashboard-borgonovi --branch=main
 if %ERRORLEVEL% neq 0 (
     echo.
-    echo [ERRO] Deploy falhou. Verifique internet e Wrangler.
+    echo [ERRO] Deploy falhou. Possiveis causas:
+    echo   - Sem internet
+    echo   - Wrangler desatualizado (rode: npm install wrangler -g)
     echo.
-    pause
+    echo Pressione qualquer tecla para fechar...
+    pause >nul
     exit /b 1
 )
 
 echo.
-echo ══════════════════════════════════════════════════
-echo   SUCESSO! Dashboard atualizado e publicado.
-echo   O site esta no ar com os dados mais recentes.
-echo ══════════════════════════════════════════════════
+echo ══════════════════════════════════════════════════════════
+echo   SUCESSO! Dashboard atualizado e publicado no ar.
+echo   O site esta com os dados mais recentes das planilhas.
+echo ══════════════════════════════════════════════════════════
 echo.
 
 :: Registra a data/hora da atualizacao
 echo Atualizado em %date% as %time% >> atualizacao-log.txt
 
-pause
+echo Pressione qualquer tecla para fechar...
+pause >nul
 exit /b 0
