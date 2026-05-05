@@ -19,6 +19,7 @@ import { initRipple } from './src/ui/ripple.js';
 import { loadSettings, saveSettings } from './src/model/settings.js';
 import { loadUIState, saveUIState } from './src/model/ui-state.js';
 import { loadSnapshot } from './src/model/snapshot.js';
+import { startAutoRefresh } from './src/model/auto-refresh.js';
 
 /**
  * Boot the V8 dashboard application.
@@ -245,6 +246,26 @@ export async function boot(views) {
     demo: isDemo
   });
   console.log('[V8] booted with', store.get().data.obras.length, 'obras', isDemo ? '(DEMO MODE)' : '', '· view:', store.get().activeView);
+
+  // P0: Auto-refresh — polling for ETL snapshot updates
+  try {
+    const intervalSec = store.get().settings?.refreshIntervalSec ?? 300;
+    if (intervalSec > 0) {
+      startAutoRefresh({
+        intervalSec,
+        onChange: (delta) => {
+          console.log('[V8] data updated:', delta.added.length, 'added,', delta.modified.length, 'modified,', delta.removed.length, 'removed');
+          // Re-render active view to reflect new data
+          if (typeof controller.remount === 'function') {
+            controller.remount();
+            initReveal(hostEl);
+          }
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('[V8] auto-refresh init failed:', e.message);
+  }
 }
 
 // Helper: show login overlay and wait for authentication

@@ -9,6 +9,8 @@ export const BRANDING_DEFAULTS = {
   role: 'Diretor de Obras',
   companyName: 'Construtora Horizonte',
   projectName: 'Horizonte Premium',
+  // Polling interval em segundos. 300=5min. 0=desabilitado.
+  refreshIntervalSec: 300,
 };
 
 // Navigation items (sidebar)

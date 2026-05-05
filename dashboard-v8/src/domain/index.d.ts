@@ -37,6 +37,9 @@ export function listStatuses(obras: any[]): string[];
 export function emptyFilterState(): any;
 export function renderFilterBar(container: HTMLElement, opts: any): void;
 
+// ─── query-engine.js ──────────────────────────────────────────────────────────
+export function query(input: { data: any[]; filters?: any; groupBy?: string; aggregates?: any[] }): { rows: any[]; totals: any };
+
 // ─── kpi.js ────────────────────────────────────────────────────────────────────
 export const obraKPIs: any[];
 export function computeKPI(descriptor: any, data: any[]): any;

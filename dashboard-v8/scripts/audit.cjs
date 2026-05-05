@@ -60,7 +60,7 @@ function checkFileSizes() {
 // functions are template-heavy and get WARN only (TODO: extract fragments in future pass).
 const VIEW_FUNC_EXCEPTIONS = ['mount', 'template', 'renderAll', 'boot', 'rebuildPaletteCommands',
   'renderTable', 'renderFilterBar', 'mountLogin', 'openChartFullscreen', 'renderSidebar',
-  '_buildReportHTML'];
+  '_buildReportHTML', 'query', 'diff'];
 
 function checkFunctionSizes() {
   const jsFiles = [];

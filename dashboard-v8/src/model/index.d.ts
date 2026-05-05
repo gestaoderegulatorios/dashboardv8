@@ -10,6 +10,7 @@ export let margemSpark: number[];
 export let heroSpark: number[];
 export let metaAnualPercent: number;
 export function _hydrateFromSnapshot(s: any): void;
+export function _applyDelta(delta: any): void;
 
 // ─── etl-normalize.js — ETL→V8 value normalization
 export const STATUS_ETL_TO_V8: Record<string, string>;
@@ -17,8 +18,16 @@ export const TIPO_ETL_TO_V8: Record<string, string>;
 export const NOME_ETL_TO_V8: Record<string, string>;
 export function normalizeObra(o: any): any;
 
-// ─── snapshot.js (F6.6)
-export function loadSnapshot(): Promise<void>;
+// ─── snapshot.js (F6.6 → P0: cache API)
+export function loadSnapshot(force?: boolean): Promise<void>;
+export function getLastSnapshot(): any;
+export function getLastFetchTs(): number;
+export function resetSnapshotCache(): void;
+
+// ─── auto-refresh.js
+export function startAutoRefresh(opts?: any): void;
+export function stopAutoRefresh(): void;
+export function isAutoRefreshActive(): boolean;
 
 // ─── demo.js
 export const obrasDemo: any[];
@@ -52,3 +61,7 @@ export function loadUIState(): any;
 export function saveUIState(ui: any): void;
 export const STORAGE_KEY_SIDEBAR: string;
 export const STORAGE_KEY_THEME: string;
+
+// ─── snapshot-delta.js
+export function diff(prev: any | null, next: any): { added: any[]; modified: any[]; removed: any[]; unchanged: number; seriesChanged: boolean; next: any };
+export function hasChanges(delta: any): boolean;

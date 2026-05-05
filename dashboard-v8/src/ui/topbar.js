@@ -4,6 +4,8 @@
 
 import { NAV_ITEMS, SIDEBAR_LOGO_ICON } from '../model/branding.js';
 import { escape, showToast } from '../view/shared.js';
+import { on } from '../model/bus.js';
+import { getLastFetchTs } from '../model/snapshot.js';
 
 function isDarkMode() {
   if (typeof document === 'undefined') return false;
@@ -52,6 +54,7 @@ export function renderTopbar({ activeView, isDemo }) {
       <div class="hidden sm:flex items-center gap-1.5 text-on-surface-variant">
         <span class="material-symbols-outlined text-sm" aria-hidden="true">schedule</span>
         <span id="last-update" class="text-[11px] font-medium">${escape(formattedNow())}</span>
+      <span id="refresh-status" class="text-[11px] font-medium text-on-surface-variant ml-2"></span>
       </div>
       <div class="h-6 w-px bg-outline-variant mx-2 hidden sm:block"></div>
       <button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Notificações" data-action="notifications" data-ripple>
@@ -97,4 +100,21 @@ export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalett
   document.addEventListener('v8:theme-change', () => {
     renderTopbar({ activeView: store.get().activeView, isDemo: store.get().isDemo });
   });
+
+  // P0: Refresh badge — shows "• há Xmin" or "• agora"
+  function _updateRefreshBadge() {
+    const el = document.getElementById('refresh-status');
+    if (!el) return;
+    const ts = getLastFetchTs();
+    if (!ts) { el.textContent = ''; return; }
+    const minAgo = Math.floor((Date.now() - ts) / 60000);
+    el.textContent = minAgo === 0 ? '• agora' : `• há ${minAgo}min`;
+  }
+  setInterval(_updateRefreshBadge, 60000);
+  on('v8:snapshot-updated', () => {
+    const el = document.getElementById('refresh-status');
+    if (el) el.textContent = '• atualizando...';
+    setTimeout(_updateRefreshBadge, 1500);
+  });
+  setTimeout(_updateRefreshBadge, 1000);
 }
