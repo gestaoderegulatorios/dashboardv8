@@ -5,7 +5,9 @@
 import { NAV_ITEMS, SIDEBAR_LOGO_ICON } from '../model/branding.js';
 import { escape, showToast } from '../view/shared.js';
 import { on } from '../model/bus.js';
-import { getLastFetchTs } from '../model/snapshot.js';
+import { getLastFetchTs, loadSnapshot } from '../model/snapshot.js';
+import * as mockData from '../model/mock.js';
+import { diff, hasChanges } from '../model/snapshot-delta.js';
 
 function isDarkMode() {
   if (typeof document === 'undefined') return false;
@@ -61,6 +63,9 @@ export function renderTopbar({ activeView, isDemo }) {
         <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
         <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-[9999px] border-2 border-surface-container-lowest"></span>
       </button>
+      <button data-action="refresh-data" class="p-2 text-on-surface-variant hover:text-primary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Atualizar dados" title="Atualizar dados" data-ripple>
+        <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+      </button>
       <button data-action="toggle-dark" class="p-2 text-on-surface-variant hover:text-primary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center" aria-label="Alternar tema claro/escuro" title="Tema" data-ripple>
         <span class="material-symbols-outlined" aria-hidden="true">${isDarkMode() ? 'light_mode' : 'dark_mode'}</span>
       </button>
@@ -68,15 +73,17 @@ export function renderTopbar({ activeView, isDemo }) {
   `;
 }
 
-/** @param {{ store: any, onToggleSidebar: () => void, onToggleDark: () => void, onOpenPalette: () => void }} ctx */
-export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalette }) {
+/** @param {{ store: any, onToggleSidebar: () => void, onToggleDark: () => void, onOpenPalette: () => void, onRefreshData?: () => Promise<void> }} ctx */
+export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalette, onRefreshData }) {
   const top = document.getElementById('top-bar');
   if (!top) return;
 
   const state = store.get();
   renderTopbar({ activeView: state.activeView, isDemo: state.isDemo });
 
-  top.addEventListener('click', (e) => {
+  let _refreshing = false;
+
+  top.addEventListener('click', async (e) => {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
     const action = btn.dataset.action;
@@ -84,6 +91,27 @@ export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalett
     if (action === 'toggle-dark') onToggleDark();
     if (action === 'open-palette') onOpenPalette();
     if (action === 'notifications') showToast('Sem notificações novas', 'info');
+    if (action === 'refresh-data') {
+      if (_refreshing) return;
+      _refreshing = true;
+      // Spin the icon
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (icon) icon.style.animation = 'spin 1s linear';
+      try {
+        if (onRefreshData) {
+          await onRefreshData();
+        } else {
+          // Fallback: force reload snapshot and re-render
+          await loadSnapshot(true);
+        }
+        showToast('Dados atualizados', 'success');
+      } catch (err) {
+        showToast('Erro ao atualizar dados', 'error');
+      } finally {
+        _refreshing = false;
+        if (icon) icon.style.animation = '';
+      }
+    }
   });
 
   // Re-render page-title quando view muda

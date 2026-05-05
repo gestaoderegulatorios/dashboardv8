@@ -213,3 +213,9 @@ body[data-density="high"] .density-pad { padding: 0.875rem; }
 .motion-reduced .border-glow { animation: none; }
 .motion-reduced .animate-shimmer-pro { animation: none; }
 .motion-reduced .animate-shimmer { animation: none !important; }
+
+/* ===== Refresh button spin animation ===== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

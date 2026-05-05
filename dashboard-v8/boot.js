@@ -18,8 +18,10 @@ import { initReveal } from './src/ui/reveal.js';
 import { initRipple } from './src/ui/ripple.js';
 import { loadSettings, saveSettings } from './src/model/settings.js';
 import { loadUIState, saveUIState } from './src/model/ui-state.js';
-import { loadSnapshot } from './src/model/snapshot.js';
+import { loadSnapshot, getLastSnapshot } from './src/model/snapshot.js';
 import { startAutoRefresh } from './src/model/auto-refresh.js';
+import { diff, hasChanges } from './src/model/snapshot-delta.js';
+import * as mockData from './src/model/mock.js';
 
 /**
  * Boot the V8 dashboard application.
@@ -171,7 +173,32 @@ export async function boot(views) {
     store,
     onToggleSidebar: () => toggleSidebar(store),
     onToggleDark: () => toggleDarkMode(store),
-    onOpenPalette: () => openPalette()
+    onOpenPalette: () => openPalette(),
+    onRefreshData: async () => {
+      // Force re-fetch snapshot, apply delta, remount active view
+      const prev = getLastSnapshot();
+      try {
+        const r = await fetch('/etl_v8/output/snapshot.json', { cache: 'no-store' });
+        if (!r.ok) return;
+        const next = await r.json();
+        if (prev && next.meta?.gerado_em === prev.meta?.gerado_em) {
+          // Same data — no need to remount
+          return;
+        }
+        const delta = diff(prev, next);
+        if (hasChanges(delta)) {
+          mockData._applyDelta(delta);
+          await loadSnapshot(true);
+          emit('v8:snapshot-updated', { delta, ts: Date.now() });
+          if (typeof controller.remount === 'function') {
+            controller.remount();
+            initReveal(hostEl);
+          }
+        }
+      } catch (e) {
+        console.warn('[V8 refresh]', e.message);
+      }
+    }
   });
 
   // Backdrop mobile fecha sidebar
