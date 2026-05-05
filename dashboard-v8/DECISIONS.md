@@ -677,3 +677,33 @@ Auditoria pós-Fase-5 identificou 4 issues P1 corrigidos:
 - Audit.cjs usa heurística simples (brace counting), não AST — pode ter falsos positivos em edge cases
 
 **Gatilho de revisão.** Extrair mount/template para fragments quando: (a) IA gerar views novas automaticamente, (b) views forem lazy-loaded, (c) template engine externo for adotado.
+
+---
+
+## P0 — Motor de Dados
+
+### Decisões
+
+- **query-engine.js**: filter+aggregate puro, OPT-IN. Coexiste com filter.js. Migração de views é P1 (cross-filter).
+- **snapshot-delta.js**: chave obra.nome. Series via JSON.stringify (deep simples). prev=null → tudo added, seriesChanged=true.
+- **snapshot.js**: `_loaded` boolean → `_lastFetchTs` timestamp + `_lastSnapshot` cache. `loadSnapshot(force=true)` permite re-fetch.
+- **mock.js `_applyDelta`**: in-place via splice/Object.assign/array.length=0+push (preserva live-binding ESM). Não reassign arrays.
+- **auto-refresh.js**: 300s default, exit early via `gerado_em` timestamp + `visibilitychange` skip. Não pausa interval (só skip tick).
+- **etl-watcher.cjs**: dev-only, fora do CI. Observa `etl_v8/dados_raw/`, debounce 1500ms, spawn Python ETL + copy-snapshot.
+- **topbar.js**: refresh-status badge "• há Xmin" / "• agora" / "• atualizando..." — atualiza a cada 60s + on bus event.
+- **audit.cjs**: `query` e `diff` adicionados a VIEW_FUNC_EXCEPTIONS (WARN only) — funções de domínio central, sem template inline.
+
+### Tradeoffs
+
+- query-engine NÃO substitui domain/filter.js — coexistem. filter.js continua para views.
+- Polling 5min default: cache CDN beneficia, sem servidor exigido.
+- `_applyDelta` muta arrays via array.length=0; live-binding ESM propaga aos consumidores.
+- visibilitychange skip: economiza polling quando aba inativa.
+- Fake timers + async _tick: testes 5/6 do auto-refresh focam em lifecycle/sync guards. O fluxo async completo (fetch→diff→emit) é validado indiretamente pelos testes de snapshot-delta e mock.
+
+### Backward compat
+
+- Zero mudança em views, store, persona, kpi.js, table.js, filter.js, chart.js.
+- 89 testes existentes intactos. 41 novos adicionados (23 query-engine + 12 snapshot-delta + 6 auto-refresh).
+- boot.js: import de startAutoRefresh + bloco try/catch no final — não bloqueia boot se falhar.
+- index.d.ts: 3 arquivos atualizados com novas declarações (domain, model, model).
