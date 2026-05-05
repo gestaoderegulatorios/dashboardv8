@@ -10,6 +10,7 @@ export let margemSpark: number[];
 export let heroSpark: number[];
 export let metaAnualPercent: number;
 export function _hydrateFromSnapshot(s: any): void;
+export function _applyDelta(delta: any): void;
 
 // ─── etl-normalize.js — ETL→V8 value normalization
 export const STATUS_ETL_TO_V8: Record<string, string>;

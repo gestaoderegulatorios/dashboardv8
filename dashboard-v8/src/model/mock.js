@@ -59,3 +59,54 @@ export function _hydrateFromSnapshot(s) {
   // Recompute heroSpark from updated receitaMensal (derived metric, not in ETL)
   heroSpark = receitaMensal.map((v) => Math.round(v / 1000));
 }
+
+// ─── P0: Delta refresh (in-place mutation) ─────────────────────────────────
+// Applies a snapshot delta without full reassign of the obras array.
+// In-place mutation: splice/Object.assign preserve references.
+// Required for ESM live-binding to propagate to consumers.
+//
+// @param {Object} delta — output of snapshot-delta.diff()
+
+export function _applyDelta(delta) {
+  // 1. Remove (silent skip if not found)
+  for (const r of delta.removed) {
+    const idx = obras.findIndex(o => o.nome === r.nome);
+    if (idx >= 0) obras.splice(idx, 1);
+  }
+
+  // 2. Modify (in-place merge — preserves object ref)
+  for (const m of delta.modified) {
+    const target = obras.find(o => o.nome === m.nome);
+    if (target) Object.assign(target, m);
+  }
+
+  // 3. Add
+  for (const a of delta.added) {
+    obras.push(a);
+  }
+
+  // 4. Series (if changed)
+  if (delta.seriesChanged && delta.next?.series) {
+    const s = delta.next.series;
+    if (s.meses12) {
+      meses12.length = 0;
+      meses12.push(...s.meses12);
+    }
+    if (s.receitaMensal) {
+      receitaMensal.length = 0;
+      receitaMensal.push(...s.receitaMensal);
+    }
+    if (s.composicaoTipo) {
+      composicaoTipo.length = 0;
+      composicaoTipo.push(...s.composicaoTipo);
+    }
+    if (s.margemSpark) {
+      margemSpark.length = 0;
+      margemSpark.push(...s.margemSpark);
+    }
+    if (s.metaAnualPercent !== undefined) metaAnualPercent = s.metaAnualPercent;
+    // Recompute heroSpark (derived)
+    heroSpark.length = 0;
+    heroSpark.push(...receitaMensal.map((v) => Math.round(v / 1000)));
+  }
+}
