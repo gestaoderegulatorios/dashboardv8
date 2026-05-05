@@ -18,7 +18,8 @@
     "capture:baseline": "node scripts/capture-baseline.cjs",
     "test:visual": "node scripts/visual-diff.cjs test/baseline test/current",
     "test:e2e": "npx playwright test",
-"audit": "node scripts/audit.cjs"
+    "audit": "node scripts/audit.cjs",
+    "etl:watch": "node scripts/etl-watcher.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
