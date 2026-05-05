@@ -17,8 +17,11 @@ export const TIPO_ETL_TO_V8: Record<string, string>;
 export const NOME_ETL_TO_V8: Record<string, string>;
 export function normalizeObra(o: any): any;
 
-// ─── snapshot.js (F6.6)
-export function loadSnapshot(): Promise<void>;
+// ─── snapshot.js (F6.6 → P0: cache API)
+export function loadSnapshot(force?: boolean): Promise<void>;
+export function getLastSnapshot(): any;
+export function getLastFetchTs(): number;
+export function resetSnapshotCache(): void;
 
 // ─── demo.js
 export const obrasDemo: any[];
