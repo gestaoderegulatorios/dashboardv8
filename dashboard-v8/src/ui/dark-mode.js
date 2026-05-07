@@ -33,7 +33,16 @@ export function toggleDarkMode(store) {
 
 /** @param {any} [store] */
 export function initDarkMode(store) {
+  let enabled = false;
   // P1.1: lê do store em vez de localStorage
-  const enabled = store ? store.get().ui.theme === 'dark' : false;
+  if (store) {
+    const state = store.get();
+    if (state?.ui?.theme) {
+      enabled = state.ui.theme === 'dark';
+    }
+  } else if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    // P4.1: detecta preferência do sistema
+    enabled = true;
+  }
   applyDarkMode(enabled);
 }
