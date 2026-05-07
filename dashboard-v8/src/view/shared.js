@@ -1,16 +1,11 @@
 // View: Shared utilities. Funções comuns extraídas de views para eliminar duplicação.
 // Fase 4: escape() era duplicado em 7 arquivos; showToast() em 2 arquivos.
+// F2.1: escape() moved to domain/escape.js — re-exported here for backward compat.
 
-/**
- * HTML-escape para prevenir XSS em templates de string.
- * @param {string|number|undefined|null} s
- * @returns {string}
- */
-export function escape(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
+import { escape } from '../domain/escape.js';
+import { safeRemove } from '../ui/safe-cleanup.js';
+
+export { escape } from '../domain/escape.js';
 
 /**
  * Exibe toast temporário no container #toast-container.
@@ -33,5 +28,23 @@ export function showToast(msg, kind = 'info') {
   el.innerHTML = `<span class="material-symbols-outlined text-base" aria-hidden="true">${icon}</span><span>${escape(msg)}</span>`;
   container.appendChild(el);
   setTimeout(() => { el.style.transition = 'opacity 240ms'; el.style.opacity = '0'; }, 2200);
-  setTimeout(() => { try { container.removeChild(el); } catch {} }, 2600);
+  setTimeout(() => { safeRemove(el); }, 2600);
+}
+
+/**
+ * Dispara download de CSV no browser.
+ * Moved from domain/table.js (F2.2) — DOM access doesn't belong in domain/.
+ * @param {string} filename
+ * @param {string} csvText
+ */
+export function downloadCSV(filename, csvText) {
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

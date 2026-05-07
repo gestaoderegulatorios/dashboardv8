@@ -1,6 +1,7 @@
 // Minimal pub/sub store. ~30 lines. No magic.
 // Why: avoid IIFE-mutable global state from V7. Predictable + testable.
 
+/** Cria um store simples de pub/sub com estado imutável público. */
 /**
  * @template T
  * @param {T} initialState

@@ -4,6 +4,7 @@
 
 import { BRANDING_DEFAULTS, STORAGE_PREFIX } from './branding.js';
 
+/** Chave de armazenamento para as configurações. */
 const STORAGE_KEY = `${STORAGE_PREFIX}-settings-v8`;
 
 // Build defaults from branding defaults + non-branding defaults
@@ -18,6 +19,7 @@ const DEFAULTS = {
  * Remove chaves órfãs (ex.: visibility — removido na Fase 2).
  * @returns {typeof DEFAULTS}
  */
+/** Carrega as configurações com fallback para DEFAULTS. */
 export function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -34,6 +36,7 @@ export function loadSettings() {
  * @param {typeof DEFAULTS} settings
  * @returns {boolean} true se persistiu com sucesso
  */
+/** Persiste as configurações no armazenamento local. */
 export function saveSettings(settings) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -43,4 +46,5 @@ export function saveSettings(settings) {
   }
 }
 
+/** Exporta defaults e chave de armazenamento para uso externo. */
 export { DEFAULTS, STORAGE_KEY };

@@ -3,25 +3,25 @@
 // Suporta data-animate-value (animação contador 1200ms via ui/animate.js).
 
 import { obraSchema } from './schema.js';
-import { escape } from '../view/shared.js';
+import { escape } from './escape.js';
 
 /**
  * @typedef {Object} KPIDescriptor
  * @property {string} id
- * @property {string} label
+ * @property {string} [label]
  * @property {string} [icon]
- * @property {(data: any[]) => number} compute
- * @property {(value: number) => string} format
+ * @property {(data: any[]) => number} [compute]
+ * @property {(value: number) => string} [format]
  * @property {string} [subtitle]
- * @property {'primary'|'error'|'tertiary'|'success'} [color]
- * @property {'hero'|'standard'} [variant]
- * @property {string} [period]    // hero only — ex.: "Mar/26"
- * @property {string} [unit]      // hero only — ex.: "ÚLTIMA MEDIDA"
- * @property {string} [prefix]    // animateValue prefix (ex.: "R$ ")
- * @property {string} [suffix]    // animateValue suffix (ex.: "%")
- * @property {string} [animateFormat] // 'full' | 'decimal' | undefined
- * @property {number} [target]    // valor numérico para animação
- * @property {string} [sparklineId] // id <div> do sparkline (hero)
+ * @property {string} [color]
+ * @property {string} [variant]
+ * @property {string} [period]
+ * @property {string} [unit]
+ * @property {string} [prefix]
+ * @property {string} [suffix]
+ * @property {string} [animateFormat]
+ * @property {number} [target]
+ * @property {string} [sparklineId]
  */
 
 /** @type {KPIDescriptor[]} */

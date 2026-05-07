@@ -8,9 +8,9 @@ import { getAuthUser, logout } from '../model/auth.js';
 import { escape } from '../view/shared.js';
 
 /**
- * @param {{ activeView: string, items?: NavItem[], settings?: { companyName?: string, projectName?: string, username?: string, role?: string } }} options
+ * @param {{ activeView?: string, items?: NavItem[], settings?: { companyName?: string, projectName?: string, username?: string, role?: string } }} options
  */
-export function renderSidebar({ activeView, items = NAV_ITEMS, settings = {} } = {}) {
+export function renderSidebar({ activeView = '', items = NAV_ITEMS, settings = {} } = {}) {
   const sidebar = document.getElementById('sidebar');
   if (!sidebar) return;
 
@@ -129,10 +129,9 @@ export function mountSidebar({ store }) {
 }
 
 // ─── colapse/expand ──────────────────────────────────────────────────────────
-/** @param {import('../model/store.js').ReturnType<typeof import('../model/store.js').createStore>} [store] */
+/** @param {any} [store] */
 export function toggleSidebar(store) {
   const sidebar = document.getElementById('sidebar');
-  const main = document.querySelectorAll('.main-content');
   if (!sidebar) return;
   const open = sidebar.classList.contains('sidebar-expanded');
   applySidebarState(!open);

@@ -1,9 +1,11 @@
 // Centralized branding data for the dashboard
 
 // Storage key prefix — changes per vertical/brand
+/** Prefixo de armazenamento utilizado para branding (localStorage). */
 export const STORAGE_PREFIX = 'borg';
 
 // User/Company defaults (brand-wide defaults)
+/** Defaults de branding da aplicação. */
 export const BRANDING_DEFAULTS = {
   username: 'Reinaldo Silva',
   role: 'Diretor de Obras',
@@ -14,6 +16,7 @@ export const BRANDING_DEFAULTS = {
 };
 
 // Navigation items (sidebar)
+/** Itens da barra lateral (nav). */
 export const NAV_ITEMS = [
   { id: 'overview', label: 'Visão Geral', icon: 'dashboard', group: 'geral' },
   { id: 'works', label: 'Obras', icon: 'construction', group: 'geral' },
@@ -26,6 +29,7 @@ export const NAV_ITEMS = [
 ];
 
 // View labels (per-View metadata used by many exports)
+/** Labels de visualização por rota. */
 export const VIEW_LABELS = {
   overview: { label: 'Visão Geral', icon: 'dashboard' },
   works: { label: 'Obras', icon: 'construction' },
@@ -38,6 +42,7 @@ export const VIEW_LABELS = {
 };
 
 // Report definitions (cards + summaries)
+/** Relatórios disponíveis no painel. */
 export const REPORTS = [
   { id: 'executive', title: 'Relatório Executivo', subtitle: 'Visão geral do empreendimento', icon: 'analytics', hero: true, description: 'KPIs, receita, custos, margem, obras e loteamentos consolidados em formato PDF.' },
   { id: 'works', title: 'Relatório de Obras', subtitle: 'Detalhamento por obra', icon: 'construction', description: 'Avanço físico/financeiro, cronograma, GAP orçamentário e atrasos por torre.' },
@@ -47,6 +52,7 @@ export const REPORTS = [
   { id: 'custom', title: 'Relatório Personalizado', subtitle: 'Monte o seu', icon: 'tune', description: 'Selecione seções, período e formato para gerar um relatório sob medida.' }
 ];
 
+/** Resumos descritivos dos relatórios (texto para previews). */
 export const REPORT_SUMMARIES = {
   executive: 'Receita acumulada de R$ 87,3M no período, com margem bruta de 19,8% e margem líquida de 14,2%. 14 obras ativas com avanço médio de 53,5%. Atraso médio de 3,4%. 127 lotes vendidos de 200 disponíveis. Infraestrutura 64,3% concluída nos loteamentos.',
   works: 'Torre A lidera com 68% de avanço. Torre C com 31% — atenção à fundação pendente. GAP orçamentário negativo em 3 obras. Dias sem acidente: 47. Mão de obra: 387 colaboradores.',
@@ -57,4 +63,5 @@ export const REPORT_SUMMARIES = {
 };
 
 // Sidebar logo/icon (logo header in the drawer)
+/** Ícone do logo da sidebar. */
 export const SIDEBAR_LOGO_ICON = 'apartment';

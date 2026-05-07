@@ -23,7 +23,7 @@ export function applyDarkMode(enabled) {
   // P1.1: NÃO escreve mais em localStorage — store faz isso via subscriber
 }
 
-/** @param {import('../model/store.js').ReturnType<typeof import('../model/store.js').createStore>} [store] */
+/** @param {any} [store] */
 export function toggleDarkMode(store) {
   const enabled = !isDarkMode();
   applyDarkMode(enabled);
@@ -31,7 +31,7 @@ export function toggleDarkMode(store) {
   if (store) store.set((s) => ({ ui: { ...s.ui, theme: enabled ? 'dark' : 'light' } }));
 }
 
-/** @param {import('../model/store.js').ReturnType<typeof import('../model/store.js').createStore>} [store] */
+/** @param {any} [store] */
 export function initDarkMode(store) {
   // P1.1: lê do store em vez de localStorage
   const enabled = store ? store.get().ui.theme === 'dark' : false;

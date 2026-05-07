@@ -1,4 +1,4 @@
-// ETL integration — live-binding via mock.js exports.
+// ETL integration -- live-binding via mock.js exports.
 // Fetches snapshot.json at boot; if available, hydrates mock.js exports in-place.
 // Consumers (overview.js, finance.js, works.js, demo.js, kpi.js, schema.js) unchanged.
 // heroSpark stays in mock.js (derived metric, not in ETL).
@@ -16,7 +16,7 @@ let _lastSnapshot = null;
  * On success, hydrates mock.js exports via _hydrateFromSnapshot().
  * On failure (file missing, network error), falls back to mock defaults.
  *
- * @param {boolean} [force=false] — If true, re-fetches even if already loaded.
+ * @param {boolean} [force=false] -- If true, re-fetches even if already loaded.
  *   Auto-refresh uses force=true to update cache after detecting changes.
  */
 export async function loadSnapshot(force = false) {
@@ -51,7 +51,7 @@ export function getLastFetchTs() {
   return _lastFetchTs;
 }
 
-/** Resets the snapshot cache — useful for tests. */
+/** Resets the snapshot cache -- useful for tests. */
 export function resetSnapshotCache() {
   _lastFetchTs = 0;
   _lastSnapshot = null;

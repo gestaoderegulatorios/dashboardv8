@@ -4,6 +4,15 @@
 
 /** @typedef {{ search?: string, tipo?: string, status?: string, avancoMin?: number, avancoMax?: number }} FilterState */
 
+/**
+ * Aplica filtros aos dados de obras de forma pura, retornando uma nova lista filtrada.
+ * @param {any[]} obras - Array de obras a serem filtradas
+ * @param {FilterState} [state] - Estado atual dos filtros (search, tipo, status, avancoMin, avancoMax)
+ * @returns {any[]} Obras filtradas
+ */
+
+import { escape } from './escape.js';
+
 const filterFns = {
   search: (obras, q) => {
     if (!q || typeof q !== 'string') return obras;
@@ -40,18 +49,35 @@ export function applyFilters(obras, state = {}) {
   }, obras);
 }
 
+/**
+ * Retorna as categorias distintas de tipo de obra, em ordem alfabética.
+ * @param {any[]} obras
+ * @returns {string[]}
+ */
 export function listTipos(obras) {
   return [...new Set(obras.map((o) => o.tipo))].sort();
 }
+/**
+ * Retorna os statuses distintos das obras, em ordem alfabética.
+ * @param {any[]} obras
+ * @returns {string[]}
+ */
 export function listStatuses(obras) {
   return [...new Set(obras.map((o) => o.status))].sort();
 }
+/**
+ * Estado inicial padrão dos filtros (sem filtros ativos).
+ * @returns {FilterState}
+ */
 export function emptyFilterState() { return {}; }
-
-import { escape } from '../view/shared.js';
 
 /**
  * Renderiza barra de filtros (espelho V7). Auto-aplica em input/change.
+ * @param {HTMLElement} container
+ * @param {{ obras: any[], state: FilterState, onChange: (newState: FilterState) => void, onReset: () => void }} ctx
+ */
+/**
+ * Renderiza a barra de filtros e vincula eventos de mudança e reset.
  * @param {HTMLElement} container
  * @param {{ obras: any[], state: FilterState, onChange: (newState: FilterState) => void, onReset: () => void }} ctx
  */

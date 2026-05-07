@@ -1,6 +1,8 @@
 // Ripple V8 — onda circular ao clicar em [data-ripple]. Espelho V7.
 // Listener delegado no document; não polui DOM nem requer wrapping manual.
 
+import { safeRemove } from './safe-cleanup.js';
+
 function reduced() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -22,6 +24,6 @@ export function initRipple() {
     wave.style.left = `${x}px`;
     wave.style.top = `${y}px`;
     target.appendChild(wave);
-    setTimeout(() => { try { wave.remove(); } catch {} }, 650);
+    setTimeout(() => { safeRemove(wave); }, 650);
   });
 }

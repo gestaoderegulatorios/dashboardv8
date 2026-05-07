@@ -7,6 +7,18 @@ declare module '*.css' {
   export default content;
 }
 
+/** KPIDescriptor — fully permissive for JSDoc code */
+type KPIDescriptor = Record<string, any> & { id: string };
+
+/** NavItem type for sidebar */
+interface NavItem {
+  id: string;
+  label: string;
+  icon: string;
+  group?: string;
+  [key: string]: any;
+}
+
 /** Window.__V8 global API */
 interface Window {
   __V8: {
@@ -21,6 +33,14 @@ interface Window {
     toggleDarkMode: (store: any) => void;
     openPalette: () => void;
     reset: () => void;
+  };
+  __dashboard_health: () => {
+    version: string;
+    uptime: number;
+    errors: number;
+    lastError: string;
+    viewsMounted: number;
+    timestamp: number;
   };
 }
 

@@ -16,6 +16,12 @@
  * @param {any[]} obras
  * @param {StoryPattern} pattern
  */
+/**
+ * Aplica o padrão de storytelling aos dados de obras.
+ * @param {any[]} obras - Obras a serem ordenadas segundo o padrão
+ * @param {'hierarchical'|'comparative'|'drilldown'} [pattern='hierarchical'] - Padrão de storytelling
+ * @returns {any[]} Obras reordenadas
+ */
 export function applyStorytelling(obras, pattern = 'hierarchical') {
   if (pattern === 'comparative') {
     // Ordena por tipo, depois avanço descendente dentro de cada tipo.

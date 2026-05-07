@@ -1,47 +1,36 @@
 @echo off
 title Atualizar Dashboard V8
-chcp 65001 >nul
 
 echo.
-echo ══════════════════════════════════════════════════════════
-echo   Atualizar Dashboard V8
-echo   Este script faz TUDO automaticamente:
-echo   [1/3] Le as planilhas Excel e gera os dados (Python)
-echo   [2/3] Compila o dashboard (Node.js)
-echo   [3/3] Publica no site (Cloudflare)
-echo ══════════════════════════════════════════════════════════
+echo ========================================================
+echo  Atualizar Dashboard V8
+echo  Este script faz TUDO automaticamente:
+echo  [1/3] Le as planilhas Excel e gera os dados - Python
+echo  [2/3] Compila o dashboard - Node.js
+echo  [3/3] Publica no site - Cloudflare
+echo ========================================================
 echo.
 
-:: ─── Volta para a pasta do dashboard ──────────────────────
+:: Volta para a pasta do dashboard
 cd /d "%~dp0"
 echo Pasta de trabalho: %CD%
 echo.
 
-:: ─── PASSO 1: Rodar Python ETL ───────────────────────────
-echo ─────────────────────────────────────────
+:: -------------------------------------------------------
+:: PASSO 1: Rodar Python ETL
+:: -------------------------------------------------------
+echo --------------------------------------------------------
 echo [1/3] Lendo planilhas e gerando dados...
-echo ─────────────────────────────────────────
+echo --------------------------------------------------------
 echo.
-
-:: Verifica Python
-python --version 2>nul
-if %ERRORLEVEL% neq 0 (
-    echo.
-    echo [ERRO] Python nao encontrado no PATH.
-    echo Instale em: https://www.python.org/downloads/
-    echo.
-    echo Pressione qualquer tecla para fechar...
-    pause >nul
-    exit /b 1
-)
 
 :: Verifica se dados_raw existe
 if not exist "dados_raw" (
     echo.
     echo [ERRO] Pasta dados_raw nao encontrada em:
-    echo %CD%\dados_raw
+    echo        %CD%\dados_raw
     echo.
-    echo Coloque as planilhas XLSX dentro dessa pasta.
+    echo        Coloque as planilhas XLSX dentro dessa pasta.
     echo.
     echo Pressione qualquer tecla para fechar...
     pause >nul
@@ -51,8 +40,12 @@ if not exist "dados_raw" (
 :: Verifica se venv existe
 if not exist "etl_v8\.venv\Scripts\python.exe" (
     echo.
-    echo [ERRO] Ambiente Python (venv) nao encontrado.
-    echo Rode primeiro: etl_v8\gerar_xlsx.bat
+    echo [ERRO] Ambiente Python - venv - nao encontrado.
+    echo.
+    echo        Para criar, abra um CMD e rode:
+    echo        cd /d "%~dp0etl_v8"
+    echo        python -m venv .venv
+    echo        .venv\Scripts\pip.exe install -r requirements.txt
     echo.
     echo Pressione qualquer tecla para fechar...
     pause >nul
@@ -86,10 +79,12 @@ echo.
 echo [1/3] ETL concluido! snapshot.json gerado.
 echo.
 
-:: ─── PASSO 2: Compilar o dashboard ───────────────────────
-echo ─────────────────────────────────────────
+:: -------------------------------------------------------
+:: PASSO 2: Compilar o dashboard
+:: -------------------------------------------------------
+echo --------------------------------------------------------
 echo [2/3] Compilando dashboard...
-echo ─────────────────────────────────────────
+echo --------------------------------------------------------
 echo.
 
 :: Verifica Node.js
@@ -97,7 +92,7 @@ where node >nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo.
     echo [ERRO] Node.js nao encontrado.
-    echo Instale em: https://nodejs.org/
+    echo        Instale em: https://nodejs.org/
     echo.
     echo Pressione qualquer tecla para fechar...
     pause >nul
@@ -106,7 +101,7 @@ if %ERRORLEVEL% neq 0 (
 
 :: Verifica se node_modules existe
 if not exist "node_modules" (
-    echo Instalando dependencias (primeira vez)...
+    echo Instalando dependencias - primeira vez...
     call npm install
     if %ERRORLEVEL% neq 0 (
         echo.
@@ -118,7 +113,7 @@ if not exist "node_modules" (
     )
 )
 
-:: Copia snapshot + compila
+:: Compila
 call npm run build
 if %ERRORLEVEL% neq 0 (
     echo.
@@ -132,7 +127,7 @@ if %ERRORLEVEL% neq 0 (
 :: Verifica se dist/ foi gerado
 if not exist "dist\index.html" (
     echo.
-    echo [ERRO] Build nao gerou dist/index.html.
+    echo [ERRO] Build nao gerou dist\index.html.
     echo.
     echo Pressione qualquer tecla para fechar...
     pause >nul
@@ -143,18 +138,20 @@ echo.
 echo [2/3] Dashboard compilado!
 echo.
 
-:: ─── PASSO 3: Publicar no Cloudflare ─────────────────────
-echo ─────────────────────────────────────────
+:: -------------------------------------------------------
+:: PASSO 3: Publicar no Cloudflare
+:: -------------------------------------------------------
+echo --------------------------------------------------------
 echo [3/3] Publicando no site...
-echo ─────────────────────────────────────────
+echo --------------------------------------------------------
 echo.
 
 call npx wrangler pages deploy dist --project-name=dashboard-borgonovi --branch=main
 if %ERRORLEVEL% neq 0 (
     echo.
     echo [ERRO] Deploy falhou. Possiveis causas:
-    echo   - Sem internet
-    echo   - Wrangler desatualizado (rode: npm install wrangler -g)
+    echo        - Sem internet
+    echo        - Wrangler desatualizado. Rode: npm install wrangler -g
     echo.
     echo Pressione qualquer tecla para fechar...
     pause >nul
@@ -162,10 +159,10 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo.
-echo ══════════════════════════════════════════════════════════
-echo   SUCESSO! Dashboard atualizado e publicado no ar.
-echo   O site esta com os dados mais recentes das planilhas.
-echo ══════════════════════════════════════════════════════════
+echo ========================================================
+echo  SUCESSO! Dashboard atualizado e publicado no ar.
+echo  O site esta com os dados mais recentes das planilhas.
+echo ========================================================
 echo.
 
 :: Registra a data/hora da atualizacao

@@ -5,6 +5,16 @@
 // F6.6: exports mutáveis (export let) para permitir hidratação via ETL snapshot.
 // heroSpark permanece const (métrica derivada de receitaMensal — não está no ETL).
 
+// ─── ETL hydration (F6.6) ────────────────────────────────────────────────────
+// Called by snapshot.js when ETL data is available at runtime.
+// Overwrites mutable exports with real data; heroSpark stays derived.
+
+import { normalizeObra } from './etl-normalize.js';
+
+/**
+ * Obra base mock (lista de obras). Mantém a estrutura esperada pela view.
+ * @type {Array<Object>}
+ */
 export let obras = [
   { nome: 'Torre A', tipo: 'Edifício', status: 'Em progresso', avanco: 68, orcado: 12000000, executado: 8500000, gap: -3.5, atrasoDias: 2 },
   { nome: 'Torre B', tipo: 'Loteamento', status: 'Atenção', avanco: 43, orcado: 9800000, executado: 4120000, gap: -7.4, atrasoDias: 1 },
@@ -27,28 +37,32 @@ export let obras = [
 // V7 hardcoda estes arrays no overview. Movidos para mock.js (Fase 4) para
 // serem single source of truth. Em V8 puro, viriam de API; aqui documentamos.
 
+/** Array de meses para a série temporal (12 meses). */
 export let meses12 = ['Abr/25','Mai/25','Jun/25','Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26'];
 
+/** Montante mensal de receita (mock). */
 export let receitaMensal = [6200000,7100000,7500000,8200000,8600000,9000000,9200000,8800000,9500000,9800000,9400000,8734281];
 
+/** Distribuição por tipo de obra (mock). */
 export let composicaoTipo = [
   { name: 'Edifícios', value: 58 },
   { name: 'Loteamentos', value: 27 },
   { name: 'Comercial', value: 15 }
 ];
 
+/** Série de margens de lucro por mês (mock). */
 export let margemSpark = [38, 40, 39, 42, 41, 43, 42, 40, 44, 43, 41, 40];
 
+/** Sparkline de hero derived from receitaMensal (mock). */
 export let heroSpark = receitaMensal.map((v) => Math.round(v / 1000));
 
+/** Meta anual em percentuais (mock). */
 export let metaAnualPercent = 72;
 
-// ─── ETL hydration (F6.6) ────────────────────────────────────────────────────
-// Called by snapshot.js when ETL data is available at runtime.
-// Overwrites mutable exports with real data; heroSpark stays derived.
-
-import { normalizeObra } from './etl-normalize.js';
-
+/**
+ * Aplica um snapshot de dados de origem para hydratar o estado mock (em ambiente real, ETL substituiria).
+ * @param {Object} s
+ */
 export function _hydrateFromSnapshot(s) {
   obras = s.obras.map(normalizeObra);
   meses12 = s.meses12;
@@ -67,6 +81,10 @@ export function _hydrateFromSnapshot(s) {
 //
 // @param {Object} delta — output of snapshot-delta.diff()
 
+/**
+ * Aplica um delta de snapshot para atualizar dados mock in-place.
+ * @param {Object} delta
+ */
 export function _applyDelta(delta) {
   // 1. Remove (silent skip if not found)
   for (const r of delta.removed) {

@@ -2,20 +2,21 @@ import { loadSnapshot, getLastSnapshot } from './snapshot.js';
 import { diff, hasChanges } from './snapshot-delta.js';
 import * as mockData from './mock.js';
 import { emit } from './bus.js';
+import { REFRESH_MIN_SEC, REFRESH_MAX_SEC, REFRESH_DEFAULT_SEC } from './constants.js';
 
 let _intervalId = null;
 let _isPolling = false;
-let _intervalSec = 300;
+let _intervalSec = REFRESH_DEFAULT_SEC;
 
 /**
  * Inicia polling em background.
  * @param {Object} [opts]
- * @param {number} [opts.intervalSec=300] — polling interval (mín 30s, máx 3600s)
- * @param {(delta: Object) => void} [opts.onChange] — callback quando snapshot muda
+ * @param {number} [opts.intervalSec=300] -- polling interval (mín 30s, máx 3600s)
+ * @param {(delta: Object) => void} [opts.onChange] -- callback quando snapshot muda
  */
 export function startAutoRefresh(opts = {}) {
   if (_intervalId) return; // já rodando
-  _intervalSec = Math.max(30, Math.min(3600, opts.intervalSec || 300));
+  _intervalSec = Math.max(REFRESH_MIN_SEC, Math.min(REFRESH_MAX_SEC, opts.intervalSec || REFRESH_DEFAULT_SEC));
   document.addEventListener('visibilitychange', _handleVisibility);
   _intervalId = setInterval(() => _tick(opts), _intervalSec * 1000);
   console.log('[V8 auto-refresh] started, interval=' + _intervalSec + 's');

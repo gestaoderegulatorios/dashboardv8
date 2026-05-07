@@ -19,8 +19,11 @@ import { initRipple } from './src/ui/ripple.js';
 import { loadSettings, saveSettings } from './src/model/settings.js';
 import { loadUIState, saveUIState } from './src/model/ui-state.js';
 import { loadSnapshot, getLastSnapshot } from './src/model/snapshot.js';
+import { showToast } from './src/view/shared.js';
 import { startAutoRefresh } from './src/model/auto-refresh.js';
 import { diff, hasChanges } from './src/model/snapshot-delta.js';
+import { initTelemetry } from './src/model/telemetry.js';
+import { initHealth, getHealth, getHealthReport, incrementViewMounts } from './src/model/health.js';
 import * as mockData from './src/model/mock.js';
 
 /**
@@ -29,6 +32,10 @@ import * as mockData from './src/model/mock.js';
  * @param {Array} views - registered view objects
  */
 export async function boot(views) {
+  // F1.3: Initialize telemetry FIRST — captures errors from boot onward
+  initTelemetry();
+  initHealth();
+
   // Gate boot by auth before rendering the app fully
   if (!isAuthenticated()) {
     await showLoginAndWait();
@@ -58,22 +65,23 @@ export async function boot(views) {
 
   // ─── API global ───────────────────────────────────────────────────────────
   window.__V8 = {
-    store,
-    on,
-    emit,
-    setPersona: (id) => store.set({ persona: id }),
-    setView: (id) => store.set({ activeView: id }),
-    setFilter: (k, v) => store.set((s) => ({ filters: { ...s.filters, [k]: v } })),
-    setStory: (p) => store.set({ story: p }),
-    toggleSidebar,
-    toggleDarkMode,
-    openPalette,
-    /** Reset filters, view state, persona and story — preserves ui (sidebar/theme) and settings (branding). */
-    reset: () => store.set({
-      filters: {}, view: { page: 1, pageSize: 8 }, persona: 'managerial',
-      activeView: 'overview', story: 'hierarchical'
-    })
-  };
+  store,
+  on,
+  emit,
+  setPersona: (id) => store.set({ persona: id }),
+  setView: (id) => store.set({ activeView: id }),
+  setFilter: (k, v) => store.set((s) => ({ filters: { ...s.filters, [k]: v } })),
+  setStory: (p) => store.set({ story: p }),
+  toggleSidebar,
+  toggleDarkMode,
+  openPalette,
+  /** Reset filters, view state, persona and story — preserves ui (sidebar/theme) and settings (branding). */
+  reset: () => store.set({
+    filters: {}, view: { sortKey: undefined, sortDir: undefined, page: 1, pageSize: 8 }, persona: 'managerial',
+    activeView: 'overview', story: 'hierarchical'
+  })
+};
+window.__dashboard_health = getHealth;
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
   function applyPersonaSideEffects() {
@@ -137,12 +145,23 @@ export async function boot(views) {
       action: () => window.__V8.reset()
     });
 
-    registerCommand({
-      label: 'Imprimir / Exportar PDF',
-      hint: 'Relatório',
-      icon: 'print',
-      action: () => window.print()
-    });
+registerCommand({
+    label: 'Imprimir / Exportar PDF',
+    hint: 'Relatório',
+    icon: 'print',
+    action: () => window.print()
+  });
+
+  registerCommand({
+    label: 'Dashboard Health',
+    hint: 'Sistema',
+    icon: 'monitor_heart',
+    action: () => {
+      const report = getHealthReport();
+      console.log('[V8 health]', getHealth());
+      showToast(report, 'info');
+    }
+  });
   }
 
   const hostEl = document.getElementById('view-host');
@@ -220,6 +239,7 @@ export async function boot(views) {
   const ctx = { store, emit, on };
   const controller = createViewController(hostEl, views, ctx);
   controller.show(store.get().activeView);
+  incrementViewMounts();
 
   initReveal(hostEl);
   rebuildPaletteCommands();

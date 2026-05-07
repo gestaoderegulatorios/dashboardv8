@@ -3,6 +3,7 @@
 // Espelho V7: openChartFullscreen clona state.chartConfigs via JSON.parse(JSON.stringify()).
 
 import { mountChart, getChartConfig } from '../domain/chart.js';
+import { safeDestroy, safeDisconnect, safeUpdate } from './safe-cleanup.js';
 
 let activeModal = null;
 let modalResizeObserver = null;
@@ -53,11 +54,11 @@ export function openChartFullscreen(chartId, title) {
 
     // ResizeObserver para reflow (espelho V7)
     if (typeof window.ResizeObserver !== 'undefined') {
-      if (modalResizeObserver) { try { modalResizeObserver.disconnect(); } catch {} }
-      modalResizeObserver = new window.ResizeObserver(() => {
-        if (!activeModal) return;
-        const d = computeDims(body);
-        try { activeModal.updateOptions({ chart: { height: d.height, width: d.width } }, false, false); } catch {}
+safeDisconnect(modalResizeObserver);
+    modalResizeObserver = new window.ResizeObserver(() => {
+      if (!activeModal) return;
+      const d = computeDims(body);
+      safeUpdate(activeModal, { chart: { height: d.height, width: d.width } }, false, false);
       });
       modalResizeObserver.observe(body);
     }
@@ -78,12 +79,12 @@ function computeDims(modalBody) {
 /** Fecha modal e destrói chart cópia (espelho V7 closeModal). */
 export function closeModal() {
   if (activeModal) {
-    try { activeModal.destroy(); } catch {}
+    safeDestroy(activeModal);
     activeModal = null;
   }
 
   if (modalResizeObserver) {
-    try { modalResizeObserver.disconnect(); } catch {}
+    safeDisconnect(modalResizeObserver);
     modalResizeObserver = null;
   }
 

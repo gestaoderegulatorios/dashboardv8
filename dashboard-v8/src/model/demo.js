@@ -47,6 +47,7 @@ const _demoExtra = generateDemoObras();
 /**
  * Conjunto demo = base (8) + 22 procedurais = 30 obras.
  */
+/** Demo obras dataset (30 obras total). */
 export const obrasDemo = [...baseObras, ..._demoExtra];
 
 /**

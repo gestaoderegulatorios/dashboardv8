@@ -1,6 +1,8 @@
 // Reveal V8 — IntersectionObserver. Adiciona .revealed quando .reveal entra
 // no viewport (espelho V7). Não dispara em prefers-reduced-motion.
 
+import { safeDisconnect } from './safe-cleanup.js';
+
 let _observer = null;
 
 function shouldAnimate() {
@@ -14,7 +16,7 @@ export function initReveal(root) {
     return;
   }
   if (_observer) {
-    try { _observer.disconnect(); } catch {}
+    safeDisconnect(_observer);
   }
   _observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {

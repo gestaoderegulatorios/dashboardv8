@@ -707,3 +707,101 @@ Auditoria pós-Fase-5 identificou 4 issues P1 corrigidos:
 - 89 testes existentes intactos. 41 novos adicionados (23 query-engine + 12 snapshot-delta + 6 auto-refresh).
 - boot.js: import de startAutoRefresh + bloco try/catch no final — não bloqueia boot se falhar.
 - index.d.ts: 3 arquivos atualizados com novas declarações (domain, model, model).
+
+---
+
+## ADR-007: Error Handling Strategy (safe-cleanup pattern)
+
+**Contexto:** Auditoria enterprise identificou 31 empty catch blocks (`catch {}` / `catch (e) {}`). Big tech exige que todo catch vazio tenha comentário explícito explicando POR QUE o erro é intencionalmente ignorado.
+
+**Escolha:** Criar `src/ui/safe-cleanup.js` com 7 funções utilitárias (`safeDestroy`, `safeDisconnect`, `safeCall`, `safeUpdate`, `safeUpdateSeries`, `safeRemove`, `safeFocus`). Cada uma centraliza a lógica de catch-and-ignore com comentário único no módulo. Views/importadores usam as utils em vez de `try/catch` inline. Catches restantes (localStorage, JSON.parse) recebem comentário `/* noop: reason */` inline.
+
+**Trade-off aceito:** Adiciona 1 import por arquivo (~18 arquivos tocados). Leve aumento de LOC por import, mas elimina duplicação de lógica de cleanup e garante rastreabilidade.
+
+**Gatilho de revisão:** Se safe-cleanup.js crescer além de 10 funções, avaliar se a responsabilidade está correta ou se precisa ser dividida.
+
+---
+
+## ADR-008: Content-Security-Policy (CSP)
+
+**Contexto:** Deploy em Cloudflare Pages sem CSP permite inline scripts, eval, e conexões externas sem restrição. Risco de XSS em produção.
+
+**Escolha:** CSP restritiva no `public/_headers`:
+- `default-src 'self'` — nada carrega de fora por padrão
+- `script-src 'self'` — só scripts do bundle Vite (zero CDN scripts)
+- `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com` — ApexCharts exige inline styles; Google Fonts CSS
+- `font-src 'self' https://fonts.gstatic.com` — font files do Google
+- `img-src 'self' data: blob:` — SVG inline + possível blob URLs
+- `connect-src 'self'` — zero APIs externas (dados são mock/snapshot)
+- `frame-ancestors 'none'` — proíbe iframe embedding
+- `base-uri 'self'; form-action 'self'` — previne base-tag injection
+
+Também adicionados: HSTS (1yr + preload), COOP (same-origin), CORP (same-origin).
+
+**Trade-off aceito:** `'unsafe-inline'` em style-src é necessário para ApexCharts (biblioteca injeta styles inline). Não é ideal, mas é o padrão do ApexCharts em produção.
+
+**Gatilho de revisão:** Se ApexCharts futuramente suportar nonce-based styles, remover `'unsafe-inline'` e usar `style-src 'self' 'nonce-xxx'`.
+
+---
+
+## ADR-009: Telemetry & Health Architecture
+
+**Contexto:** Zero telemetry em produção. Se o dashboard quebra no browser do usuário, ninguém sabe. Auditoria enterprise classificou observabilidade como 6/10.
+
+**Escolha:** Dois módulos leves (~80 LOC total):
+1. `src/model/telemetry.js` — instala `window.onerror` + `unhandledrejection`. Captura: message, source, lineno, colno, stack. Output: `console.error('[telemetry]', ...)` + emite evento `telemetry:error` no bus. Ring buffer de 50 entries. Exporta `recordError()` para captura manual.
+2. `src/model/health.js` — expõe `getHealth()` com `{ version, uptime, errors, lastError, viewsMounted, timestamp }`. Formatado como string legível via `getHealthReport()` para UI.
+
+Integração: boot.js chama `initTelemetry()` e `initHealth()` ANTES de qualquer view. `window.__dashboard_health = getHealth` para acesso via console. Command palette inclui comando "Dashboard Health" que exibe report via toast.
+
+**Trade-off aceito:** Ring buffer de 50 entries perde erros antigos. Sem persistência (recarregar a página zera o log). Sem integração com Sentry/Datadog — mas a arquitetura com bus events facilita plugar um sink externo no futuro.
+
+**Gatilho de revisão:** Se precisar de persistência ou alertas em tempo real, conectar `telemetry:error` bus event a um endpoint HTTP ou serviço de APM (Sentry, LogRocket, etc).
+
+---
+
+## ADR-010: escape() Domain Placement (F2.1)
+
+**Contexto:** `domain/kpi.js` e `domain/filter.js` importavam `escape()` de `view/shared.js`. Violação de camada — domain não deve depender de view.
+
+**Escolha:** Mover `escape()` para `domain/escape.js`. `view/shared.js` re-exporta para backward compat. Todos os 14 importadores continuam funcionando — apenas os 2 arquivos domain/ agora importam do módulo correto.
+
+**Trade-off aceito:** view/shared.js re-exporta escape, criando um "indirection layer". Views que importam de shared.js não precisam mudar.
+
+**Gatilho de revisão:** Nenhum. Decisão puramente arquitetural.
+
+---
+
+## ADR-011: CSS Var Injection Pattern (F2.2)
+
+**Contexto:** `domain/chart.js` lia `getComputedStyle(document.documentElement)` diretamente — abstraction leak. Domain acessando DOM impede testabilidade.
+
+**Escolha:** Criar `domain/chart-theme.js` como a PONTE declarada entre CSS e domain. Este módulo lê CSS vars do DOM UMA VEZ via `readChartTheme()` e retorna um objeto plano. Builder functions (`getChartDefaults`, `getSequentialPalette`, `buildGaugeOptions`, etc.) aceitam `theme` opcional. Se não fornecido, lê do DOM (backward compat). `downloadCSV` movido de `domain/table.js` para `view/shared.js` (DOM access).
+
+**Trade-off aceito:** API das builder functions ganhou parâmetro `theme` opcional. Views existentes não precisam passar theme — backward compat preservada. Para testabilidade, testes podem injetar theme sem DOM.
+
+**Gatilho de revisão:** Se as builder functions crescerem para 10+ parâmetros, considerar agrupar theme+options em config object.
+
+---
+
+## ADR-012: Type Safety — checkJs + noUnusedLocals (F2.3)
+
+**Contexto:** `tsconfig.json` tinha `checkJs: false` e `strict: false`. Zero validação de tipos em produção.
+
+**Escolha:** Habilitar `checkJs: true` e `noUnusedLocals: true`. Corrigir todos os 65 erros revelados: BOM encoding, em-dashes em JSDoc, unused imports, type mismatches (Element vs HTMLElement), KPIDescriptor typedef loosened para aceitar optional fields, NavItem/Window types adicionados ao v8.d.ts.
+
+**Trade-off aceito:** KPIDescriptor typedef ficou mais permissivo (todos os campos opcionais exceto id). Isso reduz a segurança de tipos mas é pragmático para JSDoc sem TypeScript strict.
+
+**Gatilho de revisão:** Se projeto migrar para TypeScript (.ts), re-tighten KPIDescriptor com interfaces adequadas.
+
+---
+
+## ADR-013: CI/CD — GitHub Actions (F2.4)
+
+**Contexto:** Zero automação de CI. Tudo manual.
+
+**Escolha:** Criar `.github/workflows/ci.yml` (push + PR → tsc + vitest + audit + build) e `.github/workflows/deploy.yml` (push to main → build + deploy Cloudflare Pages). Node 20, cache npm.
+
+**Trade-off aceito:** Deploy.yml precisa de `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` secrets configurados no repositório GitHub.
+
+**Gatilho de revisão:** Se precisar de staging environment, adicionar workflow com preview deploy.

@@ -42,9 +42,9 @@ export function animateNumber(el, target, opts = {}) {
  * formatadores em `data-prefix`, `data-suffix`, `data-format` (full = BRL completo),
  * casas decimais opcionais via `data-decimals`.
  *
- * @param {HTMLElement} [root=document]
+ * @param {HTMLElement} [root]
  */
-export function initAnimatedValues(root = document) {
+export function initAnimatedValues(root) {
   const scope = root || document;
   scope.querySelectorAll('[data-animate-value]').forEach((el) => {
     const targetRaw = el.dataset.target ?? el.textContent;
@@ -80,6 +80,6 @@ export function initAnimatedValues(root = document) {
       el.textContent = formatter(target);
       return;
     }
-    animateNumber(el, target, { duration: 800, format: formatter });
+    animateNumber(/** @type {HTMLElement} */ (el), target, { duration: 800, format: formatter });
   });
 }

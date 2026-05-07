@@ -6,58 +6,18 @@ import { mountChart, tooltipInteger, tooltipPercent, getCSSVar } from '../domain
 import { VIEW_LABELS } from '../model/branding.js';
 import { initAnimatedValues } from '../ui/animate.js';
 import { initReveal } from '../ui/reveal.js';
+import { safeDestroy } from '../ui/safe-cleanup.js';
 import { escape, showToast } from './shared.js';
-
-// Dados estáticos (espelho V7 linhas 664–710)
-const TOWERS = [
-  { id: 'torre-a', label: 'Torre A', value: 78, suffix: '%', color: 'text-primary' },
-  { id: 'torre-b', label: 'Torre B', value: 64, suffix: '%', color: 'text-primary' },
-  { id: 'torre-c', label: 'Torre C', value: 29, suffix: '%', color: 'text-on-tertiary-container' },
-  { id: 'torre-d', label: 'Torre D', value: 55, suffix: '%', color: 'text-primary' }
-];
-
-const MATERIALS = [
-  { id: 'cimento', label: 'Cimento', value: 1247, suffix: ' t' },
-  { id: 'aco', label: 'Aço', value: 983, suffix: ' t' },
-  { id: 'concreto', label: 'Concreto', value: 4821, suffix: ' m³' },
-  { id: 'blocos', label: 'Blocos', value: 127400, suffix: ' un' }
-];
-
-const OPS = [
-  { id: 'dias-acidente', label: 'Dias s/ acidente', value: 47, suffix: '', color: 'text-green-700' },
-  { id: 'turnos', label: 'Turnos ativos', value: 3, suffix: '', color: 'text-primary' },
-  { id: 'equip', label: 'Equip. operação', value: 94, suffix: '%', color: 'text-primary' },
-  { id: 'qualidade', label: 'Qualidade', value: 97.3, suffix: '%', color: 'text-primary' }
-];
+import {
+  OPS_TOWERS, OPS_MATERIALS, OPS_KPIS,
+  OPS_HEATMAP_DAYS, OPS_HEATMAP_HOURS,
+  OPS_AVANCO_ATIVIDADE, OPS_TABLE_ROWS, OPS_ALERTS
+} from '../model/constants.js';
 
 // Heatmap data (espelho V7 — gerado proceduralmente)
-const HEATMAP_DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
-const HEATMAP_HOURS = ['06h', '08h', '10h', '12h', '14h', '16h', '18h'];
-const HEATMAP_SERIES = HEATMAP_DAYS.map(day => {
-  return { name: day, data: HEATMAP_HOURS.map(hour => ({ x: hour, y: Math.floor(Math.random() * 35) + 5 })) };
+const HEATMAP_SERIES = OPS_HEATMAP_DAYS.map(day => {
+  return { name: day, data: OPS_HEATMAP_HOURS.map(hour => ({ x: hour, y: Math.floor(Math.random() * 35) + 5 })) };
 });
-
-const AVANCO_ATIVIDADE = [
-  { atividade: 'Fundações', valor: 85 },
-  { atividade: 'Estrutura', valor: 62 },
-  { atividade: 'Alvenaria', valor: 40 },
-  { atividade: 'Acabamento', valor: 18 },
-  { atividade: 'Instalações', valor: 55 },
-  { atividade: 'Paisagismo', valor: 10 }
-];
-
-const TABLE_ROWS = [
-  { name: 'Fundação Torre A', progress: 78, person: 'João' },
-  { name: 'Alvenaria Torre B', progress: 64, person: 'Maria' },
-  { name: 'Infra Loteamento Parque', progress: 52, person: 'Carlos' },
-  { name: 'Pintura Torre A', progress: 41, person: 'Ana' }
-];
-
-const ALERTS = [
-  { type: 'critical', label: 'Alerta', message: 'Fornada atrasada 4h', bg: 'bg-red-50', border: 'border-red-200', text: 'text-error' },
-  { type: 'attention', label: 'Atenção', message: 'Estoque aço abaixo mínimo', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-on-tertiary-container' },
-  { type: 'info', label: 'Info', message: 'Entrega cimento amanhã', bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700' }
-];
 
 // Espelho V7: torres usam layout compacto (label + valor empilhados)
 // Materiais/OPS usam layout inline (label na mesma linha do pulse-dot)
@@ -80,12 +40,12 @@ function inlineCard(item) {
 
 function template() {
   const kpisHTML = [
-    ...TOWERS.map(t => towerCard(t)),
-    ...MATERIALS.map(m => inlineCard(m)),
-    ...OPS.map(o => inlineCard(o))
+    ...OPS_TOWERS.map(t => towerCard(t)),
+    ...OPS_MATERIALS.map(m => inlineCard(m)),
+    ...OPS_KPIS.map(o => inlineCard(o))
   ].join('');
 
-  const tableRowsHTML = TABLE_ROWS.map((r, idx) => `
+  const tableRowsHTML = OPS_TABLE_ROWS.map((r, idx) => `
     <tr class="border-t border-outline-variant hover:bg-surface-container-low transition-colors">
       <td class="px-3 py-2"><input type="checkbox" class="row-check" aria-label="Selecionar linha" data-idx="${idx}"></td>
       <td class="px-3 py-2">${escape(r.name)}</td>
@@ -93,7 +53,7 @@ function template() {
       <td class="px-3 py-2 text-right">${escape(r.person)}</td>
     </tr>`).join('');
 
-  const alertsHTML = ALERTS.map(a => `
+  const alertsHTML = OPS_ALERTS.map(a => `
     <div class="${a.bg} border ${a.border} rounded-xl p-3 relative" ${a.type === 'critical' ? 'role="alert"' : 'role="status"'} aria-label="Alerta ${a.type}">
       <span class="pulse-dot absolute top-2 right-2" aria-hidden="true"></span>
       <strong class="text-xs uppercase ${a.text}">${a.label}</strong>
@@ -151,11 +111,11 @@ function template() {
   </section>`;
 }
 
-export function mount(host, ctx) {
+export function mount(host, _ctx) {
   const charts = {};
 
   function destroyAll() {
-    Object.values(charts).forEach(c => { try { c.destroy(); } catch {} });
+    Object.values(charts).forEach(c => { safeDestroy(c); });
     Object.keys(charts).forEach(k => delete charts[k]);
   }
 
@@ -191,9 +151,9 @@ export function mount(host, ctx) {
     if (barEl) {
       charts.bar = mountChart(barEl, {
         chart: { type: 'bar', height: 180 },
-        series: [{ name: 'Progresso %', data: AVANCO_ATIVIDADE.map(a => a.valor) }],
-        plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '60%' } },
-        xaxis: { categories: AVANCO_ATIVIDADE.map(a => a.atividade), max: 100 },
+    series: [{ name: 'Progresso %', data: OPS_AVANCO_ATIVIDADE.map(a => a.valor) }],
+      plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '60%' } },
+      xaxis: { categories: OPS_AVANCO_ATIVIDADE.map(a => a.atividade), max: 100 },
         tooltip: { y: { formatter: tooltipPercent } }
       });
     }

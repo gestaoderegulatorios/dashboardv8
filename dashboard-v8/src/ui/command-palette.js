@@ -2,6 +2,7 @@
 // Registry global de comandos {label, hint, icon, action}.
 
 import { escape } from '../view/shared.js';
+import { safeFocus } from './safe-cleanup.js';
 
 let _commands = [];
 let _filtered = [];
@@ -36,7 +37,7 @@ export function closePalette() {
   overlay.classList.add('hidden');
   overlay.classList.remove('flex');
   if (_lastFocused && typeof _lastFocused.focus === 'function') {
-    try { _lastFocused.focus(); } catch {}
+    safeFocus(_lastFocused);
   }
 }
 

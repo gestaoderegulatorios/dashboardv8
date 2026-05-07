@@ -36,11 +36,13 @@ SkillDashboardHTML/
 │
 ├── etl_v8/                   # Pipeline ETL (este diretório)
 │   ├── SCHEMA.md             # Este documento
-│   ├── gerar_mock_xlsx.py    # Gerador de dados sintéticos (E2)
-│   ├── gerar_xlsx.bat        # Double-click para gerar XLSX
-│   ├── main.py               # ETL completo (E3 — em construção)
-│   ├── rodar_etl.bat         # Double-click para rodar ETL (E3)
-│   ├── requirements.txt
+│ ├── main.py # ETL completo
+│ ├── requirements.txt
+│ ├── config/ # Mapeamentos de cabecalho
+│ ├── scripts/
+│ │   ├── dev/ # Ferramentas de desenvolvimento
+│ │   │   ├── gerar_mock_xlsx.py # Gerador de dados sinteticos
+│ │   │   └── gerar_xlsx.bat # Double-click para gerar XLSX mock
 │   └── output/               # snapshot.json (gerado, NÃO vai pro git)
 │
 └── dashboard-v8/

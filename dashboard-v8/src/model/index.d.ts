@@ -65,3 +65,32 @@ export const STORAGE_KEY_THEME: string;
 // ─── snapshot-delta.js
 export function diff(prev: any | null, next: any): { added: any[]; modified: any[]; removed: any[]; unchanged: number; seriesChanged: boolean; next: any };
 export function hasChanges(delta: any): boolean;
+
+// ─── constants.js (F3.4 — UI/config magic numbers centralized)
+export const REFRESH_MIN_SEC: number;
+export const REFRESH_MAX_SEC: number;
+export const REFRESH_DEFAULT_SEC: number;
+export const BADGE_REFRESH_MS: number;
+export const BADGE_UPDATE_DELAY_MS: number;
+export const BADGE_INITIAL_DELAY_MS: number;
+export const GAUGE_WARN_THRESHOLD: number;
+export const GAUGE_GOOD_THRESHOLD: number;
+export const FINANCE_MARGEM_LIQUIDA_PCT: number;
+export const FINANCE_INADIMPLENCIA_PCT: number;
+export const FINANCE_FLUXO_CAIXA: number;
+export const FINANCE_META_MULTIPLIER: number;
+export const FINANCE_META_MINIMA: number;
+export const FINANCE_WATERFALL: any[];
+export const FINANCE_CUSTOS_TREEMAP: any[];
+export const FINANCE_RECEITA_ROWS: any[];
+export const FINANCE_CUSTOS_ROWS: any[];
+export const FINANCE_MARGEM_ROWS: any[];
+export const FINANCE_SPARK_MARGEM: number[];
+export const OPS_TOWERS: any[];
+export const OPS_MATERIALS: any[];
+export const OPS_KPIS: any[];
+export const OPS_HEATMAP_DAYS: string[];
+export const OPS_HEATMAP_HOURS: string[];
+export const OPS_AVANCO_ATIVIDADE: any[];
+export const OPS_TABLE_ROWS: any[];
+export const OPS_ALERTS: any[];

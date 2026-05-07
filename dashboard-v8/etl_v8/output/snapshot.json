@@ -1,7 +1,7 @@
 {
   "meta": {
     "versao_schema": "1.1",
-    "gerado_em": "2026-05-03T18:26:34",
+    "gerado_em": "2026-05-05T18:38:36",
     "total_obras": 14,
     "fonte": "etl_v8_real"
   },
@@ -24,7 +24,7 @@
       "executado": 4119999.99,
       "avanco": 45.9,
       "gap": 3.8,
-      "atrasoDias": 64
+      "atrasoDias": 66
     },
     {
       "nome": "Torre C",
@@ -34,7 +34,7 @@
       "executado": 3100000.01,
       "avanco": 33.0,
       "gap": -13.3,
-      "atrasoDias": 27
+      "atrasoDias": 29
     },
     {
       "nome": "Torre D",
@@ -64,7 +64,7 @@
       "executado": 2128000.0,
       "avanco": 40.5,
       "gap": 2.5,
-      "atrasoDias": 7
+      "atrasoDias": 9
     },
     {
       "nome": "Horizon Hills",
@@ -114,7 +114,7 @@
       "executado": 1798000.02,
       "avanco": 30.9,
       "gap": 1.9,
-      "atrasoDias": 25
+      "atrasoDias": 27
     },
     {
       "nome": "Galpao Logistico",
@@ -134,7 +134,7 @@
       "executado": 8602000.0,
       "avanco": 49.0,
       "gap": 3.0,
-      "atrasoDias": 1
+      "atrasoDias": 3
     },
     {
       "nome": "Estacao de Tratamento",

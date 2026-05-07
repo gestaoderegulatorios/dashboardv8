@@ -2,9 +2,9 @@
  * Filter + aggregate engine. Pure function, zero side-effects.
  *
  * @param {Object} input
- * @param {any[]} input.data — array of objects
- * @param {Object} [input.filters={}] — { field: <value>|<array>|{op,value}> }
- * @param {string} [input.groupBy] — field name to group by; if omitted, totals contains all aggregates
+ * @param {any[]} input.data -- array of objects
+ * @param {Object} [input.filters={}] -- { field: <value>|<array>|{op,value}> }
+ * @param {string} [input.groupBy] -- field name to group by; if omitted, totals contains all aggregates
  * @param {Array<{field:string, op:string, as?:string}>} [input.aggregates=[]]
  * @returns {{ rows: any[], totals: Object }}
  */

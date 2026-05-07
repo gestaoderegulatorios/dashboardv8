@@ -24,6 +24,14 @@
  */
 
 /** @param {any[]} data @param {ViewState} [view] */
+import { buildToolbar, buildTableHead, buildTableBody, buildPagination, wireTableEvents } from './table-fragments.js';
+
+/**
+ * Calcula a visão tabular com paginação e ordenação aplicadas.
+ * @param {any[]} data
+ * @param {ViewState} [view]
+ * @returns {{ rows: any[], total: number, page: number, pageSize: number, totalPages: number }}
+ */
 export function computeView(data, view = {}) {
   let rows = [...data];
 
@@ -56,6 +64,11 @@ const escapeHTML = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
 }[c]));
 
 /** Status badge V7. */
+/**
+ * Gera um badge HTML para um status de obra.
+ * @param {string} status
+ * @returns {string} HTML do badge
+ */
 export function statusBadge(status) {
   const s = String(status || '').toLowerCase();
   let cls = 'bg-surface-container text-on-surface-variant';
@@ -76,68 +89,32 @@ export function statusBadge(status) {
  *           onExportCSV?: () => void, onFullscreen?: () => void,
  *           tableId?: string }} [options]
  */
+/**
+ * Renderiza a tabela completa no container fornecido.
+ * @param {HTMLElement} container
+ * @param {ReturnType<typeof computeView>} view
+ * @param {Column[]} columns
+ * @param {{ title?: string, sortKey?: string, sortDir?: 'asc'|'desc',
+  *           onSortClick?: (key: string) => void, onPageChange?: (page: number) => void,
+  *           onExportCSV?: () => void, onFullscreen?: () => void,
+  *           tableId?: string }} [options]
+ */
 export function renderTable(container, view, columns, options = {}) {
   const { title, sortKey, sortDir, onSortClick, onPageChange, onExportCSV, onFullscreen, tableId } = options;
 
   const tableIdAttr = tableId ? ` id="${escapeHTML(tableId)}"` : '';
 
   // Toolbar: título + CSV + fullscreen
-  const toolbar = `
-    <div class="flex items-center justify-between p-4 border-b border-outline-variant">
-      <span class="text-sm font-bold text-on-surface-variant uppercase tracking-wider">${escapeHTML(title || 'Dados')}</span>
-      <div class="flex gap-2">
-        ${onExportCSV ? `<button type="button" data-action="csv" class="px-3 py-1.5 text-xs font-medium text-surface-tint hover:bg-surface-container-low rounded-lg transition-colors min-w-[44px] min-h-[36px] flex items-center" data-ripple aria-label="Exportar CSV"><span class="material-symbols-outlined text-sm align-middle mr-1" aria-hidden="true">download</span>CSV</button>` : ''}
-        ${onFullscreen ? `<button type="button" data-action="fullscreen" class="px-3 py-1.5 text-xs font-medium text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors min-w-[44px] min-h-[36px] flex items-center justify-center" aria-label="Tela cheia"><span class="material-symbols-outlined text-sm align-middle" aria-hidden="true">fullscreen</span></button>` : ''}
-      </div>
-    </div>`;
+  const toolbar = buildToolbar(title, onExportCSV, onFullscreen);
 
-  // Header row
-  const thead = `
-    <thead class="bg-surface-container-low">
-      <tr>${columns.map((c) => {
-        const align = c.align || 'left';
-        const isSorted = sortKey === c.key;
-        const sortIcon = isSorted
-          ? (sortDir === 'desc' ? 'arrow_downward' : 'arrow_upward')
-          : 'swap_vert';
-        const iconOpacity = isSorted ? '' : 'opacity-40';
-        const baseCls = `px-4 py-3 text-xs font-bold text-outline uppercase tracking-wider text-${align}`;
-        if (c.sortable === false) {
-          return `<th scope="col" class="${baseCls}">${escapeHTML(c.label)}</th>`;
-        }
-        const ariaSort = isSorted ? (sortDir === 'desc' ? 'descending' : 'ascending') : 'none';
-        return `<th scope="col" aria-sort="${ariaSort}" class="${baseCls} cursor-pointer select-none hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-surface-tint" tabindex="0" data-sort="${escapeHTML(c.key)}">${escapeHTML(c.label)} <span class="material-symbols-outlined text-xs sort-icon ${iconOpacity}" aria-hidden="true">${sortIcon}</span></th>`;
-      }).join('')}</tr>
-    </thead>`;
+  // Header row (delegated to fragment)
+  const thead = buildTableHead(columns, sortKey, sortDir);
 
   // Body
-  const tbody = view.rows.length === 0
-    ? `<tbody><tr><td colspan="${columns.length}" class="px-4 py-8 text-center text-sm text-on-surface-variant">Nenhum resultado.</td></tr></tbody>`
-    : `<tbody class="text-sm text-on-surface">${view.rows.map((row) => `
-        <tr class="border-t border-outline-variant hover:bg-surface-container-low transition-colors">
-          ${columns.map((c) => {
-            const v = row[c.key];
-            const align = c.align || 'left';
-            const cellCls = c.className ? c.className(v) : '';
-            const numericCls = align === 'right' ? ' tabular-nums' : '';
-            const inner = c.renderHTML ? c.renderHTML(v, row) : escapeHTML(c.format ? c.format(v, row) : (v ?? ''));
-            return `<td class="px-4 py-3 text-${align}${numericCls} ${cellCls}">${inner}</td>`;
-          }).join('')}
-        </tr>`).join('')}</tbody>`;
+  const tbody = buildTableBody(view, columns);
 
-  // Pagination footer (espelho V7: ← / N / X / →)
-  const pagBtnCls = 'px-2 py-1 rounded border border-outline-variant hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed text-on-surface-variant min-w-[36px]';
-  const start = view.total === 0 ? 0 : (view.page - 1) * view.pageSize + 1;
-  const end = Math.min(view.page * view.pageSize, view.total);
-  const pagination = `
-    <div class="flex items-center justify-between px-4 py-3 border-t border-outline-variant text-xs text-on-surface-variant">
-      <span aria-live="polite">${start}-${end} de ${view.total} registro${view.total === 1 ? '' : 's'}</span>
-      <div class="flex items-center gap-2">
-        <button type="button" data-page="prev" class="${pagBtnCls}" ${view.page <= 1 ? 'disabled' : ''} aria-label="Página anterior">←</button>
-        <span aria-live="polite">${view.page} / ${view.totalPages}</span>
-        <button type="button" data-page="next" class="${pagBtnCls}" ${view.page >= view.totalPages ? 'disabled' : ''} aria-label="Próxima página">→</button>
-      </div>
-    </div>`;
+  // Pagination footer (delegated to fragment)
+  const pagination = buildPagination(view);
 
   container.innerHTML = `
     <div${tableIdAttr} class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
@@ -152,32 +129,22 @@ export function renderTable(container, view, columns, options = {}) {
     </div>
   `;
 
-  // Listeners
-  if (onSortClick) {
-    container.querySelectorAll('th[data-sort]').forEach((th) => {
-      const fire = () => onSortClick(th.dataset.sort);
-      th.addEventListener('click', fire);
-      th.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); }
-      });
-    });
-  }
-  if (onPageChange) {
-    container.querySelectorAll('button[data-page]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const dir = btn.dataset.page;
-        const next = dir === 'next' ? Math.min(view.totalPages, view.page + 1) : Math.max(1, view.page - 1);
-        if (next !== view.page) onPageChange(next);
-      });
-    });
-  }
-  const csvBtn = container.querySelector('button[data-action="csv"]');
-  if (csvBtn && onExportCSV) csvBtn.addEventListener('click', onExportCSV);
-  const fsBtn = container.querySelector('button[data-action="fullscreen"]');
-  if (fsBtn && onFullscreen) fsBtn.addEventListener('click', onFullscreen);
+  // Event wiring via fragment helper (no inline logic here)
+  wireTableEvents(container, view, {
+    onSortClick,
+    onPageChange,
+    onExportCSV,
+    onFullscreen
+  });
 }
 
 /** Helper puro: clamp a página alvo. */
+/**
+ * Garante que a página alvo está dentro do range válido.
+ * @param {number} target
+ * @param {number} totalPages
+ * @returns {number}
+ */
 export function clampPage(target, totalPages) {
   if (!Number.isFinite(target) || target < 1) return 1;
   if (target > totalPages) return totalPages;
@@ -185,6 +152,12 @@ export function clampPage(target, totalPages) {
 }
 
 /** Toggle sort: mesma key asc→desc; desc→none; key nova→asc + page 1. */
+/**
+ * Alterna o estado de ordenação para uma coluna específica.
+ * @param {ViewState} view
+ * @param {string} key
+ * @returns {ViewState}
+ */
 export function toggleSort(view, key) {
   if (view.sortKey !== key) return { ...view, sortKey: key, sortDir: 'asc', page: 1 };
   if (view.sortDir === 'asc') return { ...view, sortDir: 'desc' };
@@ -213,15 +186,5 @@ function csvEscape(v) {
   return s;
 }
 
-/** Dispara download de CSV no browser. */
-export function downloadCSV(filename, csvText) {
-  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 0);
-}
+// downloadCSV moved to view/shared.js (F2.2 — DOM access doesn't belong in domain).
+// Consumers import downloadCSV from view/shared.js directly.

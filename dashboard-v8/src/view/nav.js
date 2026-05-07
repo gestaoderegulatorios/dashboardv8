@@ -1,6 +1,8 @@
 // Navegação entre views. Funciona como radio-group: uma view ativa por vez.
 // Cada view é um descriptor que sabe se montar e desmontar.
 
+import { safeCall } from '../ui/safe-cleanup.js';
+
 /**
  * @typedef {Object} ViewDescriptor
  * @property {string} id
@@ -58,10 +60,10 @@ export function createViewController(host, views, ctx) {
   }
 
   function destroy() {
-    if (currentUnmount) {
-      try { currentUnmount(); } catch (e) {}
-      currentUnmount = null;
-    }
+if (currentUnmount) {
+    safeCall(currentUnmount);
+    currentUnmount = null;
+  }
     currentId = null;
   }
 

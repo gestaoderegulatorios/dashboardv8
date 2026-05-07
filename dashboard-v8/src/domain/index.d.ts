@@ -2,17 +2,14 @@
 // These types document the public API surface for tree-shaking and IDE support.
 // Types are intentionally permissive — JSDoc code without TypeScript can't satisfy strict unions.
 
-// ─── chart.js ─────────────────────────────────────────────────────────────────
-export function getCSSVar(name: string, fallback?: string): string;
-export function getChartDefaults(): any;
+// ─── chart.js (core lifecycle + palette) ────────────────────────────────────
+export function getCSSVar(name: string, fallback?: string, theme?: any): string;
+export function getChartDefaults(theme?: any): any;
 export const borgChartDefaults: any;
 export function getChartConfig(chartId: string): any;
-export function getSequentialPalette(): string[];
-export function getDivergentPalette(): string[];
-export const tooltipBRL: (val: number | null) => string;
-export const tooltipPercent: (val: number | null) => string;
-export const tooltipInteger: (val: number | null) => string;
-export function getGaugeColor(v: number): string;
+export function getSequentialPalette(theme?: any): string[];
+export function getDivergentPalette(theme?: any): string[];
+export { readChartTheme, resolveCSSVar, isThemeDark, CSS_VAR_MAP } from './chart-theme.js';
 
 export interface ChartHandle {
   instance: any | null;
@@ -22,15 +19,20 @@ export interface ChartHandle {
   destroy(): void;
 }
 
-export function mountChart(container: HTMLElement, options: any): ChartHandle;
+export function mountChart(container: HTMLElement, options: any, theme?: any): ChartHandle;
 
-export function buildAvancoBarOptions(obras: any[]): any;
+// ─── chart-fragments.js (extracted builders) ────────────────────────────────
+export const tooltipBRL: (val: number | null) => string;
+export const tooltipPercent: (val: number | null) => string;
+export const tooltipInteger: (val: number | null) => string;
+export const getGaugeColor: (v: number, theme?: any) => string;
+export function buildAvancoBarOptions(obras: any[], theme?: any): any;
 export function buildComposicaoDonutOptions(composicao: any[]): any;
 export function buildReceitaAreaOptions(meses: string[], receitaMensal: number[]): any;
-export function buildGaugeOptions(percent: number, label?: string): any;
-export function buildSparklineOptions(data: number[], color?: string, type?: 'line' | 'area'): any;
+export function buildGaugeOptions(percent: number, label?: string, theme?: any): any;
+export function buildSparklineOptions(data: number[], color?: string, type?: 'line' | 'area', theme?: any): any;
 
-// ─── filter.js ─────────────────────────────────────────────────────────────────
+// ─── filter.js ──────────────────────────────────────────────────────────────
 export function applyFilters(obras: any[], state?: any): any[];
 export function listTipos(obras: any[]): string[];
 export function listStatuses(obras: any[]): string[];
@@ -64,4 +66,3 @@ export function renderTable(container: HTMLElement, view: any, columns: any[], o
 export function clampPage(target: number, totalPages: number): number;
 export function toggleSort(view: any, key: string): any;
 export function rowsToCSV(rows: any[], columns: any[]): string;
-export function downloadCSV(filename: string, csvText: string): void;

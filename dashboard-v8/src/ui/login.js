@@ -1,7 +1,7 @@
 // Login overlay — inline, usa design system tokens (theme.css).
 // Stub para P3 (RLS) e P8 (SaaS/JWT). Hoje: localStorage.
 
-import { login, isAuthenticated } from '../model/auth.js';
+import { login } from '../model/auth.js';
 import { SIDEBAR_LOGO_ICON, BRANDING_DEFAULTS } from '../model/branding.js';
 import { escape } from '../view/shared.js';
 
@@ -73,27 +73,29 @@ export function mountLogin(options = {}) {
   const handleLogin = () => {
     const email = emailInput.value;
     const password = passInput.value;
-    const result = login(email, password);
-    if (result.success) {
-      window.dispatchEvent(new CustomEvent('v8:auth-login', { detail: { user: result.user } }));
-      if (onSuccess) onSuccess();
-      hideLogin();
-    } else {
-      errorEl.textContent = result.error || 'Erro de autenticação';
-    }
+    login(email, password).then((result) => {
+      if (result.ok) {
+        window.dispatchEvent(new CustomEvent('v8:auth-login', { detail: { user: result.user } }));
+        if (onSuccess) onSuccess();
+        hideLogin();
+      } else {
+        errorEl.textContent = result.error || 'Erro de autenticação';
+      }
+    });
   };
 
   newSubmit.addEventListener('click', (e) => { e.preventDefault(); handleLogin(); });
   newGuest.addEventListener('click', (e) => {
     e.preventDefault();
-    const result = login('guest@dashboard.local', 'guest');
-    if (result.success) {
-      window.dispatchEvent(new CustomEvent('v8:auth-login', { detail: { user: result.user } }));
-      if (onSuccess) onSuccess();
-      hideLogin();
-    } else {
-      errorEl.textContent = result.error || 'Erro de autenticação';
-    }
+    login('guest@dashboard.local', 'guest').then((result) => {
+      if (result.ok) {
+        window.dispatchEvent(new CustomEvent('v8:auth-login', { detail: { user: result.user } }));
+        if (onSuccess) onSuccess();
+        hideLogin();
+      } else {
+        errorEl.textContent = result.error || 'Erro de autenticação';
+      }
+    });
   });
 
   // Enter key submits

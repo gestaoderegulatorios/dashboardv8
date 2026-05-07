@@ -1,6 +1,7 @@
 ﻿// Schema da entidade Obra. Não é "semantic layer" — é só schema + measures.
 // Cabe em uma cabeça, evolui sem cerimônia.
 
+/** Esquema da entidade Obra com campos, medidas e formatos. */
 export const obraSchema = {
   name: 'Obra',
   fields: {

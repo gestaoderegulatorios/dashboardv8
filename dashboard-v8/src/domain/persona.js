@@ -48,10 +48,12 @@ export const personas = {
   }
 };
 
+/** Retorna a persona pelo id, com fallback para managerial. */
 export function getPersona(id) {
   return personas[id] || personas.managerial;
 }
 
+/** Retorna os ids de todas as personas disponíveis. */
 export function listPersonas() {
   return Object.keys(personas);
 }
@@ -62,6 +64,7 @@ export function listPersonas() {
  * @param {Array<{id: string}>} kpis
  * @param {PersonaDescriptor} persona
  */
+/** Reordena KPIs pela ordem definida na persona. */
 export function orderKPIsByPersona(kpis, persona) {
   if (!persona || !persona.kpiOrder) return [...kpis];
   const indexMap = new Map(persona.kpiOrder.map((id, i) => [id, i]));

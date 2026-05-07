@@ -3,8 +3,8 @@ title Dashboard V8
 
 echo.
 echo ========================================
-echo Dashboard V8
-echo Iniciando servidor...
+echo  Dashboard V8
+echo  Iniciando servidor...
 echo ========================================
 echo.
 
@@ -12,8 +12,8 @@ echo.
 where node >nul 2>&1
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Node.js nao encontrado!
-    echo Instale em: https://nodejs.org/
-    echo Baixe a versao LTS e instale.
+    echo        Instale em: https://nodejs.org/
+    echo        Baixe a versao LTS e instale.
     echo.
     pause
     exit /b 1
@@ -24,7 +24,7 @@ echo.
 
 :: Verifica se node_modules existe, senao instala
 if not exist "node_modules\" (
-    echo [1/2] Instalando dependencias (primeira vez)...
+    echo [1/2] Instalando dependencias - primeira vez...
     call npm install
     if %ERRORLEVEL% neq 0 (
         echo [ERRO] Falha ao instalar dependencias.
@@ -40,7 +40,7 @@ if not exist "node_modules\" (
 
 :: Verifica se o build existe, senao compila
 if not exist "dist\index.html" (
-    echo [2/2] Compilando dashboard (primeira vez)...
+    echo [2/2] Compilando dashboard - primeira vez...
     call npm run build
     if %ERRORLEVEL% neq 0 (
         echo [ERRO] Falha ao compilar.

@@ -3,11 +3,10 @@
 // F9.4: ícone do dark-mode toggle inverte (light_mode quando em dark, dark_mode quando em light)
 
 import { NAV_ITEMS, SIDEBAR_LOGO_ICON } from '../model/branding.js';
+import { BADGE_REFRESH_MS, BADGE_UPDATE_DELAY_MS, BADGE_INITIAL_DELAY_MS } from '../model/constants.js';
 import { escape, showToast } from '../view/shared.js';
 import { on } from '../model/bus.js';
 import { getLastFetchTs, loadSnapshot } from '../model/snapshot.js';
-import * as mockData from '../model/mock.js';
-import { diff, hasChanges } from '../model/snapshot-delta.js';
 
 function isDarkMode() {
   if (typeof document === 'undefined') return false;
@@ -94,9 +93,9 @@ export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalett
     if (action === 'refresh-data') {
       if (_refreshing) return;
       _refreshing = true;
-      // Spin the icon
-      const icon = btn.querySelector('.material-symbols-outlined');
-      if (icon) icon.style.animation = 'spin 1s linear';
+// Spin the icon
+  const icon = btn.querySelector('.material-symbols-outlined');
+  if (icon) /** @type {HTMLElement} */ (icon).style.animation = 'spin 1s linear';
       try {
         if (onRefreshData) {
           await onRefreshData();
@@ -105,11 +104,11 @@ export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalett
           await loadSnapshot(true);
         }
         showToast('Dados atualizados', 'success');
-      } catch (err) {
+      } catch (_err) {
         showToast('Erro ao atualizar dados', 'error');
       } finally {
         _refreshing = false;
-        if (icon) icon.style.animation = '';
+        if (icon) /** @type {HTMLElement} */ (icon).style.animation = '';
       }
     }
   });
@@ -135,14 +134,14 @@ export function mountTopbar({ store, onToggleSidebar, onToggleDark, onOpenPalett
     if (!el) return;
     const ts = getLastFetchTs();
     if (!ts) { el.textContent = ''; return; }
-    const minAgo = Math.floor((Date.now() - ts) / 60000);
-    el.textContent = minAgo === 0 ? '• agora' : `• há ${minAgo}min`;
+  const minAgo = Math.floor((Date.now() - ts) / BADGE_REFRESH_MS);
+  el.textContent = minAgo === 0 ? '• agora' : `• há ${minAgo}min`;
   }
-  setInterval(_updateRefreshBadge, 60000);
+  setInterval(_updateRefreshBadge, BADGE_REFRESH_MS);
   on('v8:snapshot-updated', () => {
-    const el = document.getElementById('refresh-status');
-    if (el) el.textContent = '• atualizando...';
-    setTimeout(_updateRefreshBadge, 1500);
+  const el = document.getElementById('refresh-status');
+  if (el) el.textContent = '• atualizando...';
+  setTimeout(_updateRefreshBadge, BADGE_UPDATE_DELAY_MS);
   });
-  setTimeout(_updateRefreshBadge, 1000);
+  setTimeout(_updateRefreshBadge, BADGE_INITIAL_DELAY_MS);
 }

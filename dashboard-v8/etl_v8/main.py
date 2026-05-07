@@ -9,9 +9,9 @@ Saida:
     output/validation_report.json (apenas se houver erros/avisos)
 
 Pre-requisitos:
-    1. .venv criado (gerar_xlsx.bat ja fez isso)
-    2. dados_raw/ populado com XLSX (rode gerar_xlsx.bat para mock sintetico)
-    3. dados_raw/dim_obras.csv presente (master data)
+1. .venv criado (rode: python -m venv .venv && .venv/Scripts/pip install -r requirements.txt)
+2. dados_raw/ populado com XLSX (para mock: scripts/dev/gerar_xlsx.bat)
+3. dados_raw/dim_obras.csv presente (master data)
 """
 
 import json
@@ -350,7 +350,7 @@ def main():
     dim_path = DADOS_RAW / "dim_obras.csv"
     if not dim_path.exists():
         print(f"[ERRO] Master data nao encontrado: {dim_path}")
-        print(">> Rode primeiro: gerar_xlsx.bat")
+        print(">> Rode primeiro: scripts/dev/gerar_xlsx.bat (para mock) ou coloque XLSX reais em dados_raw/")
         return 1
 
     dim_obras = pd.read_csv(dim_path)
