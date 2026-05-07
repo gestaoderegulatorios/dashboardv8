@@ -48,7 +48,7 @@ export function startSession({ onTimeout, onWarning, timeoutMs = SESSION_TIMEOUT
 
     if (timeLeft <= 0) {
       timeoutListeners.forEach(cb => {
-        try { cb(); } catch {}
+        try { cb(); } catch { /* noop: listener threw, ignore to keep tick running */ }
       });
       onTimeout?.();
       return;
@@ -57,7 +57,7 @@ export function startSession({ onTimeout, onWarning, timeoutMs = SESSION_TIMEOUT
     // Avisar quando restar WARNING_BEFORE_MS
     if (timeLeft <= WARNING_BEFORE_MS) {
       warningListeners.forEach(cb => {
-        try { cb(timeLeft); } catch {}
+        try { cb(timeLeft); } catch { /* noop: listener threw, ignore to keep tick running */ }
       });
       onWarning?.(timeLeft);
     }
