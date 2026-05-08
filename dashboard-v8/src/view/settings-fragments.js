@@ -31,7 +31,7 @@ export const VISIBILITY_GROUPS = [
 
 // Rendered settings template extracted from the original view
 export function settingsTemplate(settings) {
-  const inputCls = 'w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm focus:border-surface-tint focus:ring-2 focus:ring-surface-tint/20 transition-colors';
+  const inputCls = 'w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm';
 
   const visibilityHTML = VISIBILITY_GROUPS.map(g => `
     <div class="p-4 border border-outline-variant rounded-lg">
@@ -58,8 +58,8 @@ export function settingsTemplate(settings) {
     <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Dados do Usuário">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Dados do Usuário</div>
       <div class="space-y-4">
-        <div><label for="setting-username" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Usuário</label><input type="text" id="setting-username" data-setting="username" value="${escape(settings.username)}" class="${inputCls}"></div>
-        <div><label for="setting-role" class="block text-xs font-semibold text-on-surface-variant mb-1">Cargo</label><input type="text" id="setting-role" data-setting="role" value="${escape(settings.role)}" class="${inputCls}"></div>
+        <div><label for="setting-username" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Usuário</label><input type="text" id="setting-username" data-setting="username" value="${escape(settings.username)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
+        <div><label for="setting-role" class="block text-xs font-semibold text-on-surface-variant mb-1">Cargo</label><input type="text" id="setting-role" data-setting="role" value="${escape(settings.role)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
       </div>
     </div>
 
@@ -67,8 +67,8 @@ export function settingsTemplate(settings) {
     <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Dados do Empreendimento">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Empreendimento</div>
       <div class="space-y-4">
-        <div><label for="setting-company" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome da Construtora</label><input type="text" id="setting-company" data-setting="companyName" value="${escape(settings.companyName)}" class="${inputCls}"></div>
-        <div><label for="setting-project" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Empreendimento</label><input type="text" id="setting-project" data-setting="projectName" value="${escape(settings.projectName)}" class="${inputCls}"></div>
+        <div><label for="setting-company" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome da Construtora</label><input type="text" id="setting-company" data-setting="companyName" value="${escape(settings.companyName)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
+        <div><label for="setting-project" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Empreendimento</label><input type="text" id="setting-project" data-setting="projectName" value="${escape(settings.projectName)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
       </div>
     </div>
 
