@@ -28,6 +28,15 @@ export {
 /** @type {Map<string, object>} chartId → options (salvo na criação) */
 const _chartConfigs = new Map();
 
+/** Configuração explícita de animações ApexCharts */
+const CHART_ANIMATIONS = {
+  enabled: true,
+  easing: 'easeinout',
+  speed: 800,
+  dynamicAnimation: { enabled: true, speed: 400 },
+  animateGradually: { enabled: true, delay: 150 }
+};
+
 /** Recupera as opções salvas de um chart (para openChartFullscreen). */
 export function getChartConfig(chartId) { return _chartConfigs.get(chartId); }
 
@@ -161,6 +170,8 @@ export function mountChart(container, options, theme) {
   }
 
   const merged = deepMerge(getChartDefaults(theme), options || {});
+  merged.chart = merged.chart || {};
+  merged.chart.animations = CHART_ANIMATIONS;
 
   // Salva config no registry (espelho V7 state.chartConfigs)
   if (container.id) _chartConfigs.set(container.id, merged);
