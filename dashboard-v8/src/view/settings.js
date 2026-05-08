@@ -3,7 +3,6 @@
 // Fase 3: Persistência via state/settings.js. View lê/escreve via store (única fonte).
 
 import { BRANDING_DEFAULTS, VIEW_LABELS } from '../model/branding.js';
-import { safeCall } from '../ui/safe-cleanup.js';
 import { settingsTemplate, restoreVisibility, wireSettingsEvents } from './settings-fragments.js';
 
 // Remove in-file template; the actual rendering is handled by settings-fragments.js
@@ -47,16 +46,13 @@ try {
   } catch { /* noop: IntersectionObserver unavailable — reveals stay hidden, non-critical */ }
   }
 
-  renderAll();
+renderAll();
 
-  let lastSettings = JSON.stringify(store.get().settings);
-  const unsubscribe = store.subscribe((s) => {
-    const cur = JSON.stringify(s.settings);
-    if (cur !== lastSettings) { lastSettings = cur; renderAll(); }
-  });
+  // Não re-renderiza a página a cada keystroke — só salva no store
+  // A página de configurações não precisa reagir a mudanças externas
 
   return function unmount() {
-    if (unsubscribe) { safeCall(unsubscribe); }
+    // cleanup se necessário
   };
 }
 
