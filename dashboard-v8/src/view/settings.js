@@ -1,7 +1,36 @@
-﻿// Settings View V8 - Exact V7 copy to bypass V8 architecture
+﻿// @ts-nocheck
+// Settings View V8 - Exact V7 copy with automatic diagnostics
 // This uses V7's exact approach: inline oninput handlers, localStorage, no store interaction
 
 export function mount(host) {
+  // Diagnostic: Setup monitoring
+  const diag = window._settingsDiag = {
+    mountTime: Date.now(),
+    inputEvents: [],
+    storeSetCalls: [],
+    domMutations: [],
+    localStorageCalls: [],
+    focusEvents: []
+  };
+  console.log('%c🔍 DIAGNÓSTICO: Settings mountado', 'color:#2196F3;font-weight:bold');
+
+  // Intercept localStorage.setItem for diagnostic
+  const originalSetItem = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function(key, value) {
+    if (key.startsWith('v8-')) {
+      diag.localStorageCalls.push({ key, value: String(value).substring(0,30), time: Date.now() });
+      console.log('📝 localStorage.setItem:', key, '=', String(value).substring(0,20));
+    }
+    return originalSetItem(key, value);
+  };
+
+  // MutationObserver to track DOM changes in host
+  const observer = new MutationObserver((mutations) => {
+    diag.domMutations.push({ count: mutations.length, time: Date.now() });
+    console.log('🔄 DOM Mutation:', mutations.length, 'alterações em', new Date().toISOString().substr(11,8));
+  });
+  observer.observe(host, { childList: true, subtree: true, attributes: true });
+
   // Exact V7 settings HTML with inline oninput handlers
   host.innerHTML = `
   <section class="view-section grid grid-cols-12 gap-6 p-5 lg:p-8" role="region" aria-label="Configurações">
@@ -31,6 +60,22 @@ export function mount(host) {
     </div>
   </section>`;
 
+  // Track input events
+  host.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', (e) => {
+      diag.inputEvents.push({ id: e.target.id, value: e.target.value.substring(0,20), time: Date.now() });
+      console.log('⌨️ Input event:', e.target.id, '=', e.target.value.substring(0,20));
+    });
+    input.addEventListener('focus', (e) => {
+      diag.focusEvents.push({ type: 'focus', id: e.target.id, time: Date.now() });
+      console.log('🔵 Focus IN:', e.target.id);
+    });
+    input.addEventListener('blur', (e) => {
+      diag.focusEvents.push({ type: 'blur', id: e.target.id, time: Date.now() });
+      console.log('🔴 Focus OUT:', e.target.id);
+    });
+  });
+
   // Save button - reads from localStorage and updates store ONCE
   const saveBtn = host.querySelector('#settings-save-btn');
   if (saveBtn) {
@@ -41,6 +86,7 @@ export function mount(host) {
         companyName: localStorage.getItem('v8-company') || 'Construtora Horizonte',
         projectName: localStorage.getItem('v8-project') || 'Horizonte Premium'
       };
+      console.log('💾 Save clicked, settings:', settings);
       // Update store once
       const event = new CustomEvent('v8:settings-save', { detail: settings });
       document.dispatchEvent(event);
@@ -54,7 +100,21 @@ export function mount(host) {
     });
   }
 
+  // Expose diagnostic function
+  window.getSettingsDiagnostics = function() {
+    console.log('%c📊 DIAGNÓSTICO RESULTS:', 'font-size:14px;font-weight:bold');
+    console.log('1. Mount time:', new Date(diag.mountTime).toISOString());
+    console.log('2. Input events:', diag.inputEvents.length, diag.inputEvents);
+    console.log('3. LocalStorage calls:', diag.localStorageCalls.length, diag.localStorageCalls);
+    console.log('4. DOM mutations:', diag.domMutations.length, diag.domMutations);
+    console.log('5. Focus events:', diag.focusEvents.length, diag.focusEvents);
+    console.log('6. Store set calls:', diag.storeSetCalls.length, diag.storeSetCalls);
+    return diag;
+  };
+
   return function unmount() {
+    console.log('🔻 Settings unmounted');
+    observer.disconnect();
     host.innerHTML = '';
   };
 }

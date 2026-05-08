@@ -157,8 +157,18 @@ export function mountChart(container, options, theme) {
     container.innerHTML = '<p class="text-xs text-on-surface-variant p-4">ApexCharts não carregado.</p>';
     return noopHandle();
   }
+
+  // DIAGNÓSTICO: Log reduced-motion
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  console.log('%c🔍 DIAGNÓSTICO CHART:', 'color:#4c5e86;font-weight:bold', container.id || 'unknown');
+  console.log('   prefers-reduced-motion:', reducedMotion);
+
   const merged = deepMerge(getChartDefaults(theme), options || {});
   if (container.id) _chartConfigs.set(container.id, merged);
+
+  // DIAGNÓSTICO: Log animation config
+  const animConfig = merged?.chart?.animations;
+  console.log('   chart.animations:', JSON.stringify(animConfig));
 
   let destroyed = false;
   let chart = null;
@@ -167,18 +177,34 @@ export function mountChart(container, options, theme) {
     series: staged.zeroSeries
   }) : merged;
 
+  // DIAGNÓSTICO: Log render start
+  const renderStartTime = Date.now();
+  console.log('   render starting at:', renderStartTime);
+
   requestAnimationFrame(() => {
     if (destroyed) return;
     chart = new window.ApexCharts(container, renderOptions);
     const rendered = chart.render();
-    if (staged && rendered && typeof rendered.then === 'function') {
+    
+    if (rendered && typeof rendered.then === 'function') {
       rendered.then(() => {
-        if (destroyed) return;
-        requestAnimationFrame(() => {
-          if (!destroyed && chart && typeof chart.updateSeries === 'function') {
-            chart.updateSeries(staged.realSeries, true);
-          }
-        });
+        const renderEndTime = Date.now();
+        console.log('   render completed at:', renderEndTime, '(took', renderEndTime - renderStartTime, 'ms)');
+        
+        if (staged && !destroyed) {
+          // DIAGNÓSTICO: Wait longer before updateSeries
+          console.log('   waiting before updateSeries...');
+          setTimeout(() => {
+            if (destroyed) return;
+            requestAnimationFrame(() => {
+              if (destroyed || !chart || typeof chart.updateSeries !== 'function') return;
+              const updateTime = Date.now();
+              console.log('   updateSeries called at:', updateTime, '(delta from render:', updateTime - renderEndTime, 'ms)');
+              chart.updateSeries(staged.realSeries, true);
+              console.log('   updateSeries completed, chart should animate now');
+            });
+          }, 200); // Wait 200ms to ensure render paint happened
+        }
       });
     }
   });
@@ -186,9 +212,12 @@ export function mountChart(container, options, theme) {
   return {
     get instance() { return chart; },
     update(opts) { safeUpdate(chart, opts); },
-    updateSeries(series) { safeUpdateSeries(chart, series, true); },
+    updateSeries(series) { 
+      console.log('   updateSeries called externally:', Date.now());
+      safeUpdateSeries(chart, series, true); 
+    },
     resize() { if (chart && typeof chart.resize === 'function') chart.resize(); },
-    destroy() { if (destroyed) return; destroyed = true; safeDestroy(chart); }
+    destroy() { if (destroyed) return; destroyed = true; console.log('   chart destroyed'); safeDestroy(chart); }
   };
 }
 
