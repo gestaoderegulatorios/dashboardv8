@@ -131,7 +131,9 @@ export function restoreVisibility(host, settings) {
 }
 
 export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, autosave, store }) {
-  // Local helper to persist visibility toggles
+  // V8 fix: NÃO faz store.set no input/blur — isso causa re-render da sidebar e flicker.
+  // Comportamento espelho V7: valores ficam no DOM, só são salvos no store ao clicar "Salvar".
+
   function sv() {
     const v = {};
     host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => { v[cb.dataset.toggle] = cb.checked; });
@@ -139,13 +141,13 @@ export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, aut
     autosave('visibilidade');
   }
 
+  // Checkboxes (animations): faz pushToStore imediato
   host.querySelectorAll('input[data-setting]').forEach((el) => {
     const key = el.dataset.setting;
     if (el.type === 'checkbox') {
       el.addEventListener('change', () => { pushToStore({ [key]: el.checked }); if (key === 'animations') applyAnimationsPref(el.checked); autosave(key); });
-    } else {
-      el.addEventListener('blur', () => { pushToStore({ [key]: el.value }); autosave(key); });
     }
+    // Text inputs: NÃO faz pushToStore — evita re-render da sidebar que causa flicker
   });
 
   host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => { cb.addEventListener('change', () => sv()); });
@@ -157,6 +159,13 @@ export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, aut
   const saveBtn = host.querySelector('button[data-action="save"]');
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
+      // Lê valores dos inputs e salva no store (só agora, não a cada keystroke)
+      const settings = {};
+      host.querySelectorAll('input[data-setting]').forEach((el) => {
+        const key = el.dataset.setting;
+        settings[key] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      pushToStore(settings);
       showToast('Configurações salvas com sucesso', 'success');
       const status = host.querySelector('#settings-save-status');
       if (status) { status.textContent = 'Salvo!'; status.className = 'text-success'; setTimeout(() => { if (status) { status.textContent = ''; status.className = ''; } }, 2000); }
