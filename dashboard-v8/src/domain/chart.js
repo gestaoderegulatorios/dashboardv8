@@ -164,8 +164,7 @@ export function mountChart(container, options, theme) {
   let chart = null;
   const staged = buildEntranceSeries(merged);
   const renderOptions = staged ? deepMerge(merged, {
-    series: staged.zeroSeries,
-    chart: { animations: { enabled: false } }
+    series: staged.zeroSeries
   }) : merged;
 
   requestAnimationFrame(() => {

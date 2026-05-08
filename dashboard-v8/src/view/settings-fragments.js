@@ -1,5 +1,5 @@
 import { isDarkMode, toggleDarkMode } from '../ui/dark-mode.js';
-import { escape, showToast } from './shared.js';
+import { escape } from './shared.js';
 
 export const VISIBILITY_GROUPS = [
   { view: 'Visão Geral', items: [
@@ -121,62 +121,34 @@ export function restoreVisibility(host, settings) {
   }
 }
 
-export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, autosave, store }) {
-  // NO store.set on input/blur - values stay in DOM until Save button clicked (like V7)
-  // Only handle animations checkbox immediately
+export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, store }) {
+  const lsMap = { username: 'v8-username', role: 'v8-role', companyName: 'v8-company', projectName: 'v8-project' };
   host.querySelectorAll('input[data-setting]').forEach((el) => {
-    const key = el.dataset.setting;
-    if (el.type === 'checkbox' && key === 'animations') {
-      el.addEventListener('change', () => {
-        pushToStore({ [key]: el.checked });
-        applyAnimationsPref(el.checked);
-      });
+    if (el.type === 'checkbox' && el.dataset.setting === 'animations') {
+      el.addEventListener('change', () => { pushToStore({ animations: el.checked }); applyAnimationsPref(el.checked); });
     }
-    // Text inputs: NO event listeners at all - no store.set, no autosave
   });
 
-  host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => {
+  host.querySelectorAll('#visibility-toggles input').forEach((cb) => {
     cb.addEventListener('change', () => {
       const v = {};
-      host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((c) => { v[c.dataset.toggle] = c.checked; });
+      host.querySelectorAll('#visibility-toggles input').forEach((c) => { v[c.dataset.toggle] = c.checked; });
       pushToStore({ visibility: JSON.stringify(v) });
     });
   });
 
   const darkBtn = host.querySelector('button[data-action="toggle-dark"]');
-  if (darkBtn) {
-    darkBtn.addEventListener('click', () => { toggleDarkMode(store); darkBtn.textContent = isDarkMode() ? 'Modo Claro' : 'Modo Escuro'; });
-  }
+  if (darkBtn) darkBtn.addEventListener('click', () => { toggleDarkMode(store); darkBtn.textContent = isDarkMode() ? 'Modo Claro' : 'Modo Escuro'; });
+
   const saveBtn = host.querySelector('button[data-action="save"]');
-  if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
-      const current = store.get().settings || {};
-      const settings = { ...current };
-      
-      // Read text inputs from localStorage (written by oninput)
-      const lsMap = { username: 'v8-username', role: 'v8-role', companyName: 'v8-company', projectName: 'v8-project' };
-      Object.entries(lsMap).forEach(([key, lsKey]) => {
-        const val = localStorage.getItem(lsKey);
-        if (val !== null) settings[key] = val;
-      });
-      
-      // Handle checkboxes (animations)
-      host.querySelectorAll('input[data-setting]').forEach((el) => {
-        const key = el.dataset.setting;
-        settings[key] = el.type === 'checkbox' ? el.checked : el.value;
-      });
-      
-      // Handle visibility toggles
-      const v = {};
-      host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((c) => { v[c.dataset.toggle] = c.checked; });
-      settings.visibility = JSON.stringify(v);
-      
-      pushToStore(settings);
-      // Clear temporary localStorage items
-      Object.values(lsMap).forEach(k => localStorage.removeItem(k));
-      showToast('Configurações salvas com sucesso', 'success');
-      const status = host.querySelector('#settings-save-status');
-      if (status) { status.textContent = 'Salvo!'; status.className = 'text-success'; setTimeout(() => { if (status) { status.textContent = ''; status.className = ''; } }, 2000); }
-    });
-  }
+  if (saveBtn) saveBtn.addEventListener('click', () => {
+    const settings = { ...(store.get().settings || {}) };
+    Object.entries(lsMap).forEach(([key, lsKey]) => { const v = localStorage.getItem(lsKey); if (v) settings[key] = v; });
+    host.querySelectorAll('input[data-setting]').forEach((el) => { settings[el.dataset.setting] = el.type === 'checkbox' ? el.checked : el.value; });
+    const v = {}; host.querySelectorAll('#visibility-toggles input').forEach((c) => { v[c.dataset.toggle] = c.checked; });
+    settings.visibility = JSON.stringify(v);
+    pushToStore(settings);
+    Object.values(lsMap).forEach(k => localStorage.removeItem(k));
+    const st = host.querySelector('#settings-save-status'); if (st) { st.textContent = 'Salvo!'; setTimeout(() => { if (st) st.textContent = ''; }, 2000); }
+  });
 }
