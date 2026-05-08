@@ -47,8 +47,9 @@ export function settingsTemplate(settings) {
     </div>
   `).join('');
 
-  return `
-  <section class="view-section grid grid-cols-12 gap-6 p-5 lg:p-8" role="region" aria-label="Configurações">
+  // Disable ALL transitions in settings page to prevent browser-induced repaints/flicker
+  return `<style>#settings-section * { transition: none !important; animation: none !important; }</style>
+  <section id="settings-section" class="view-section grid grid-cols-12 gap-6 p-5 lg:p-8" role="region" aria-label="Configurações">
     <div class="col-span-12">
       <h2 class="text-2xl font-extrabold text-primary mb-2">Configurações</h2>
       <p class="text-sm text-on-surface-variant mb-6">Personalize o dashboard e gerencie preferências do empreendimento.</p>
@@ -72,7 +73,7 @@ export function settingsTemplate(settings) {
       </div>
     </div>
 
-    <!-- Visibilidade de Componentes (espelho V7 linhas 1017–1066) -->
+    <!-- Visibilidade de Componentes -->
     <div class="col-span-12 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Visibilidade de Componentes">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Visibilidade de Componentes</div>
       <p class="text-xs text-on-surface-variant mb-4">Oculte ou exiba KPIs, gráficos e tabelas em cada view. Alterações são salvas automaticamente.</p>
@@ -87,7 +88,7 @@ export function settingsTemplate(settings) {
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-sm text-primary">Modo Escuro</span>
-          <button type="button" data-action="toggle-dark" class="px-3 py-1.5 text-xs font-medium bg-surface-tint text-white rounded-lg hover:opacity-90 transition-colors min-h-[36px]">${isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}</button>
+          <button type="button" data-action="toggle-dark" class="px-3 py-1.5 text-xs font-medium bg-surface-tint text-white rounded-lg min-h-[36px]">${isDarkMode() ? 'Modo Claro' : 'Modo Escuro'}</button>
         </div>
         <div class="flex items-center justify-between">
           <label for="setting-animations" class="text-sm text-primary">Animações</label>
@@ -110,7 +111,7 @@ export function settingsTemplate(settings) {
     <!-- Salvar -->
     <div class="col-span-12 flex items-center justify-end gap-3 pt-2">
       <span id="settings-save-status" class="text-xs text-on-surface-variant" aria-live="polite"></span>
-      <button type="button" data-action="save" class="px-6 py-2.5 bg-surface-tint text-white rounded-lg text-sm font-bold hover:opacity-90 transition-colors shadow-sm min-h-[44px] flex items-center" aria-label="Salvar modificações">
+      <button type="button" data-action="save" class="px-6 py-2.5 bg-surface-tint text-white rounded-lg text-sm font-bold shadow-sm min-h-[44px] flex items-center" aria-label="Salvar modificações">
         <span class="material-symbols-outlined text-sm align-middle mr-1" aria-hidden="true">save</span>Salvar Modificações
       </button>
     </div>
