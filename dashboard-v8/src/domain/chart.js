@@ -168,12 +168,10 @@ export function mountChart(container, options, theme) {
 function createChartHandle(container, merged, staged) {
   let destroyed = false;
   let chart = null;
-  let revealObserver = null;
-  let revealTimer = null;
+  let revealPoller = null;
 
   function cleanupPendingReveal() {
-    if (revealObserver) { revealObserver.disconnect(); revealObserver = null; }
-    if (revealTimer) { clearTimeout(revealTimer); revealTimer = null; }
+    if (revealPoller) { clearInterval(revealPoller); revealPoller = null; }
   }
 
   function renderWhenReady() {
@@ -191,9 +189,15 @@ function createChartHandle(container, merged, staged) {
 
   const revealHost = container.closest('.reveal');
   if (revealHost && !revealHost.classList.contains('revealed')) {
-    revealObserver = new MutationObserver(() => { if (revealHost.classList.contains('revealed')) renderWhenReady(); });
-    revealObserver.observe(revealHost, { attributes: true, attributeFilter: ['class'] });
-    revealTimer = setTimeout(renderWhenReady, 700);
+    let polls = 0;
+    revealPoller = setInterval(() => {
+      if (revealHost.classList.contains('revealed') || polls > 20) {
+        clearInterval(revealPoller);
+        revealPoller = null;
+        renderWhenReady();
+      }
+      polls++;
+    }, 50);
   } else {
     renderWhenReady();
   }
