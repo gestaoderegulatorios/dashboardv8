@@ -44,11 +44,13 @@ export function openChartFullscreen(chartId, title) {
     fc.chart.width = dims.width;
     fc.chart.redrawOnParentResize = false;
     // Forçar animação no clone (barras crescendo, linha desenhando, etc)
-    fc.chart.animations = fc.chart.animations || {};
-    fc.chart.animations.enabled = true;
-    fc.chart.animations.easing = fc.chart.animations.easing || 'easeinout';
-    fc.chart.animations.speed = fc.chart.animations.speed || 800;
-    fc.chart.animations.dynamicAnimation = fc.chart.animations.dynamicAnimation || { enabled: true, speed: 400 };
+    fc.chart.animations = {
+      enabled: true,
+      easing: 'easeinout',
+      speed: 1200,
+      dynamicAnimation: { enabled: true, speed: 550 },
+      animateGradually: { enabled: true, delay: 150 }
+    };
 
     activeModal = mountChart(document.getElementById('modal-chart'), fc);
 

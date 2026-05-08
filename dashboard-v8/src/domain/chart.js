@@ -32,8 +32,8 @@ const _chartConfigs = new Map();
 const CHART_ANIMATIONS = {
   enabled: true,
   easing: 'easeinout',
-  speed: 800,
-  dynamicAnimation: { enabled: true, speed: 400 },
+  speed: 1200,
+  dynamicAnimation: { enabled: true, speed: 550 },
   animateGradually: { enabled: true, delay: 150 }
 };
 
