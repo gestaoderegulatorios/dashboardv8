@@ -164,14 +164,24 @@ export function mountChart(container, options, theme) {
   let destroyed = false;
   let chart = null;
 
+  // Force reflow and wait for next frame
+  container.style.display = 'none';
   requestAnimationFrame(() => {
     if (destroyed) return;
-    chart = new window.ApexCharts(container, merged);
-    chart.render();
-    if (typeof window.ResizeObserver !== 'undefined') {
-      observer = new window.ResizeObserver(() => safeUpdate(chart, {}, false, false));
-      observer.observe(container);
-    }
+    container.style.display = '';
+    
+    // Force reflow
+    void container.offsetWidth;
+    
+    requestAnimationFrame(() => {
+      if (destroyed) return;
+      chart = new window.ApexCharts(container, merged);
+      chart.render();
+      if (typeof window.ResizeObserver !== 'undefined') {
+        observer = new window.ResizeObserver(() => safeUpdate(chart, {}, false, false));
+        observer.observe(container);
+      }
+    });
   });
 
   return {

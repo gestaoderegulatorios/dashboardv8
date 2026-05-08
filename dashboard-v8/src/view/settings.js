@@ -1,9 +1,10 @@
-﻿// View: Configurações V8 - Using DOM API instead of innerHTML to prevent Chrome/Edge flicker
+﻿// Settings View V8 - Definitive fix using Shadow DOM isolation
 import { BRANDING_DEFAULTS, VIEW_LABELS } from '../model/branding.js';
 import { settingsTemplate, restoreVisibility, wireSettingsEvents } from './settings-fragments.js';
 
 export function mount(host, ctx) {
   const store = ctx.store;
+  let shadow = null;
 
   function currentSettings() {
     const s = store.get();
@@ -29,32 +30,42 @@ export function mount(host, ctx) {
   function renderAll() {
     const settings = currentSettings();
     
-    // Create wrapper element
+    // Create Shadow DOM for complete isolation
+    if (!shadow) {
+      host.innerHTML = '';
+      shadow = host.attachShadow({ mode: 'open' });
+      
+      // Copy necessary styles into shadow DOM
+      const style = document.createElement('style');
+      style.textContent = `
+        @import url('/src/styles/theme.css');
+        @import url('/src/styles/app.css');
+        .settings-wrapper { all: initial; }
+      `;
+      shadow.appendChild(style);
+    }
+    
     const wrapper = document.createElement('div');
     wrapper.innerHTML = settingsTemplate(settings);
     
-    // Clear host and append
-    host.innerHTML = '';
-    host.appendChild(wrapper.firstElementChild);
+    shadow.innerHTML = '';
+    shadow.appendChild(wrapper.firstElementChild);
     
-    restoreVisibility(host, settings);
-    wireSettingsEvents(host, { pushToStore, applyAnimationsPref, autosave, store });
+    // Wire events on light DOM elements
+    const settingsHost = shadow.querySelector('section');
+    if (settingsHost) {
+      restoreVisibility(settingsHost, settings);
+      wireSettingsEvents(settingsHost, { pushToStore, applyAnimationsPref, autosave, store });
+    }
     applyAnimationsPref(settings.animations);
-    
-    try {
-      const obs = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) { entry.target.classList.add('revealed'); obs.unobserve(entry.target); }
-        });
-      }, { threshold: 0.1 });
-      host.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
-    } catch { /* noop */ }
   }
 
   renderAll();
 
   return function unmount() {
-    // cleanup
+    if (shadow) {
+      shadow.innerHTML = '';
+    }
   };
 }
 
