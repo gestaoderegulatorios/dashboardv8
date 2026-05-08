@@ -1,11 +1,7 @@
-﻿// View: Configurações. Espelho V7 — Dados do Usuário, Empreendimento,
-// Visibilidade de Componentes, Aparência (dark mode + animações), Sobre o Sistema, Salvar.
-// Fase 3: Persistência via state/settings.js. View lê/escreve via store (única fonte).
-
+﻿// View: Configurações V8 - Using DOM API instead of innerHTML to prevent Chrome/Edge flicker
 import { BRANDING_DEFAULTS, VIEW_LABELS } from '../model/branding.js';
 import { settingsTemplate, restoreVisibility, wireSettingsEvents } from './settings-fragments.js';
 
-// Remove in-file template; the actual rendering is handled by settings-fragments.js
 export function mount(host, ctx) {
   const store = ctx.store;
 
@@ -32,27 +28,33 @@ export function mount(host, ctx) {
 
   function renderAll() {
     const settings = currentSettings();
-    host.innerHTML = settingsTemplate(settings);
+    
+    // Create wrapper element
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = settingsTemplate(settings);
+    
+    // Clear host and append
+    host.innerHTML = '';
+    host.appendChild(wrapper.firstElementChild);
+    
     restoreVisibility(host, settings);
     wireSettingsEvents(host, { pushToStore, applyAnimationsPref, autosave, store });
     applyAnimationsPref(settings.animations);
-try {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) { entry.target.classList.add('revealed'); obs.unobserve(entry.target); }
-      });
-    }, { threshold: 0.1 });
-    host.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
-  } catch { /* noop: IntersectionObserver unavailable — reveals stay hidden, non-critical */ }
+    
+    try {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) { entry.target.classList.add('revealed'); obs.unobserve(entry.target); }
+        });
+      }, { threshold: 0.1 });
+      host.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
+    } catch { /* noop */ }
   }
 
-renderAll();
-
-  // Não re-renderiza a página a cada keystroke — só salva no store
-  // A página de configurações não precisa reagir a mudanças externas
+  renderAll();
 
   return function unmount() {
-    // cleanup se necessário
+    // cleanup
   };
 }
 
