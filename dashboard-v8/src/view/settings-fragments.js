@@ -1,7 +1,6 @@
 import { isDarkMode, toggleDarkMode } from '../ui/dark-mode.js';
 import { escape, showToast } from './shared.js';
 
-// Component visibility groups (moved from settings.js)
 export const VISIBILITY_GROUPS = [
   { view: 'Visão Geral', items: [
     { id: 'kpi-receita', label: 'KPI Receita Mensal' },
@@ -29,7 +28,6 @@ export const VISIBILITY_GROUPS = [
   ]}
 ];
 
-// Rendered settings template extracted from the original view
 export function settingsTemplate(settings) {
   const inputCls = 'w-full px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-sm';
 
@@ -47,34 +45,30 @@ export function settingsTemplate(settings) {
     </div>
   `).join('');
 
-  // Disable ALL transitions in settings page to prevent browser-induced repaints/flicker
-  return `<style>#settings-section * { transition: none !important; animation: none !important; }</style>
-  <section id="settings-section" class="view-section grid grid-cols-12 gap-6 p-5 lg:p-8" role="region" aria-label="Configurações">
+  return `
+  <section class="view-section grid grid-cols-12 gap-6 p-5 lg:p-8" role="region" aria-label="Configurações">
     <div class="col-span-12">
       <h2 class="text-2xl font-extrabold text-primary mb-2">Configurações</h2>
       <p class="text-sm text-on-surface-variant mb-6">Personalize o dashboard e gerencie preferências do empreendimento.</p>
     </div>
 
-    <!-- Usuário -->
-    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Dados do Usuário">
+    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Dados do Usuário">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Dados do Usuário</div>
       <div class="space-y-4">
-        <div><label for="setting-username" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Usuário</label><input type="text" id="setting-username" data-setting="username" value="${escape(settings.username)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
-        <div><label for="setting-role" class="block text-xs font-semibold text-on-surface-variant mb-1">Cargo</label><input type="text" id="setting-role" data-setting="role" value="${escape(settings.role)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
+        <div><label for="setting-username" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Usuário</label><input type="text" id="setting-username" data-setting="username" value="${escape(settings.username)}" class="${inputCls}"></div>
+        <div><label for="setting-role" class="block text-xs font-semibold text-on-surface-variant mb-1">Cargo</label><input type="text" id="setting-role" data-setting="role" value="${escape(settings.role)}" class="${inputCls}"></div>
       </div>
     </div>
 
-    <!-- Empreendimento -->
-    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Dados do Empreendimento">
+    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Dados do Empreendimento">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Empreendimento</div>
       <div class="space-y-4">
-        <div><label for="setting-company" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome da Construtora</label><input type="text" id="setting-company" data-setting="companyName" value="${escape(settings.companyName)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
-        <div><label for="setting-project" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Empreendimento</label><input type="text" id="setting-project" data-setting="projectName" value="${escape(settings.projectName)}" class="${inputCls}" autocomplete="off" spellcheck="false"></div>
+        <div><label for="setting-company" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome da Construtora</label><input type="text" id="setting-company" data-setting="companyName" value="${escape(settings.companyName)}" class="${inputCls}"></div>
+        <div><label for="setting-project" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Empreendimento</label><input type="text" id="setting-project" data-setting="projectName" value="${escape(settings.projectName)}" class="${inputCls}"></div>
       </div>
     </div>
 
-    <!-- Visibilidade de Componentes -->
-    <div class="col-span-12 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Visibilidade de Componentes">
+    <div class="col-span-12 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Visibilidade de Componentes">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Visibilidade de Componentes</div>
       <p class="text-xs text-on-surface-variant mb-4">Oculte ou exiba KPIs, gráficos e tabelas em cada view. Alterações são salvas automaticamente.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="visibility-toggles">
@@ -82,8 +76,7 @@ export function settingsTemplate(settings) {
       </div>
     </div>
 
-    <!-- Aparência -->
-    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Aparência">
+    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Aparência">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Aparência</div>
       <div class="space-y-4">
         <div class="flex items-center justify-between">
@@ -97,8 +90,7 @@ export function settingsTemplate(settings) {
       </div>
     </div>
 
-    <!-- Sobre -->
-    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm reveal" aria-label="Sobre o Sistema">
+    <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Sobre o Sistema">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Sobre o Sistema</div>
       <div class="text-xs text-on-surface-variant space-y-1">
         <p>Borgonovi Design System V8</p>
@@ -108,7 +100,6 @@ export function settingsTemplate(settings) {
       </div>
     </div>
 
-    <!-- Salvar -->
     <div class="col-span-12 flex items-center justify-end gap-3 pt-2">
       <span id="settings-save-status" class="text-xs text-on-surface-variant" aria-live="polite"></span>
       <button type="button" data-action="save" class="px-6 py-2.5 bg-surface-tint text-white rounded-lg text-sm font-bold shadow-sm min-h-[44px] flex items-center" aria-label="Salvar modificações">
@@ -118,7 +109,6 @@ export function settingsTemplate(settings) {
   </section>`;
 }
 
-// Restore visibility state and wire events -- these are delegated to the fragment helpers
 export function restoreVisibility(host, settings) {
   if (settings && settings.visibility) {
     try {
@@ -127,31 +117,31 @@ export function restoreVisibility(host, settings) {
         const cb = host.querySelector(`#visibility-toggles input[data-toggle="${key}"]`);
         if (cb) cb.checked = val;
       });
-    } catch { /* noop: corrupted visibility JSON — defaults apply */ }
+    } catch { /* noop */ }
   }
 }
 
 export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, autosave, store }) {
-  // V8 fix: NÃO faz store.set no input/blur — isso causa re-render da sidebar e flicker.
-  // Comportamento espelho V7: valores ficam no DOM, só são salvos no store ao clicar "Salvar".
-
-  function sv() {
-    const v = {};
-    host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => { v[cb.dataset.toggle] = cb.checked; });
-    pushToStore({ visibility: JSON.stringify(v) });
-    autosave('visibilidade');
-  }
-
-  // Checkboxes (animations): faz pushToStore imediato
+  // NO store.set on input/blur - values stay in DOM until Save button clicked (like V7)
+  // Only handle animations checkbox immediately
   host.querySelectorAll('input[data-setting]').forEach((el) => {
     const key = el.dataset.setting;
-    if (el.type === 'checkbox') {
-      el.addEventListener('change', () => { pushToStore({ [key]: el.checked }); if (key === 'animations') applyAnimationsPref(el.checked); autosave(key); });
+    if (el.type === 'checkbox' && key === 'animations') {
+      el.addEventListener('change', () => {
+        pushToStore({ [key]: el.checked });
+        applyAnimationsPref(el.checked);
+      });
     }
-    // Text inputs: NÃO faz pushToStore — evita re-render da sidebar que causa flicker
+    // Text inputs: NO event listeners at all - no store.set, no autosave
   });
 
-  host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => { cb.addEventListener('change', () => sv()); });
+  host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      const v = {};
+      host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((c) => { v[c.dataset.toggle] = c.checked; });
+      pushToStore({ visibility: JSON.stringify(v) });
+    });
+  });
 
   const darkBtn = host.querySelector('button[data-action="toggle-dark"]');
   if (darkBtn) {
@@ -160,7 +150,6 @@ export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, aut
   const saveBtn = host.querySelector('button[data-action="save"]');
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
-      // Lê valores dos inputs e salva no store (só agora, não a cada keystroke)
       const settings = {};
       host.querySelectorAll('input[data-setting]').forEach((el) => {
         const key = el.dataset.setting;
