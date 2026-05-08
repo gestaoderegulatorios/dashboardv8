@@ -115,15 +115,13 @@ export function mountSidebar({ store }) {
     }
   });
 
-  // Re-render quando view ativa OU settings mudam (Princípio 7: store = única fonte).
+  // Re-render quando view ativa muda (Princípio 7: store = única fonte).
+  // NÃO re-renderiza em mudanças de settings — evita piscar tela inteira ao editar config.
   let lastView = s0.activeView;
-  let lastSettingsJSON = JSON.stringify(s0.settings);
   store.subscribe((s) => {
-    const settingsJSON = JSON.stringify(s.settings);
-    if (s.activeView !== lastView || settingsJSON !== lastSettingsJSON) {
+    if (s.activeView !== lastView) {
       renderSidebar({ activeView: s.activeView, settings: s.settings });
       lastView = s.activeView;
-      lastSettingsJSON = settingsJSON;
     }
   });
 }

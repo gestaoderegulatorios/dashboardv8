@@ -54,7 +54,7 @@ export function getChartDefaults(theme) {
       fontFamily: 'Inter, sans-serif',
       toolbar: { show: false },
       background: 'transparent',
-      animations: { enabled: true, easing: 'easeinout', speed: 1200, dynamicAnimation: { enabled: true, speed: 550 }, animateGradually: { enabled: true, delay: 150 } },
+      animations: { enabled: true, easing: 'easeinout', speed: 5000, dynamicAnimation: { enabled: true, speed: 1000 }, animateGradually: { enabled: true, delay: 300 } },
       theme: { mode: isDark ? 'dark' : 'light' }
     },
 colors: [

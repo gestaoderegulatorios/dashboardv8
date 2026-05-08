@@ -89,13 +89,16 @@ html { scroll-behavior: smooth; }
 @keyframes staggerIn { to { opacity: 1; transform: translateY(0); } }
 
 /* ===== CHART CONTAINER ===== */
-[id^="chart-"], [id^="spark-"] { width: 100% !important; min-height: 0 !important; overflow: hidden; }
+[id^="chart-"] { width: 100% !important; min-height: 320px !important; overflow: hidden; }
+[id^="spark-"] { width: 100% !important; min-height: 0 !important; overflow: hidden; }
 .chart-container { position: relative; width: 100%; overflow: hidden; }
 .chart-container .apexcharts-canvas { max-width: 100% !important; }
 
-/* ===== VIEW TRANSITION ===== */
-.view-section { animation: viewEnter var(--dur-medium) var(--ease-emphasized); }
-@keyframes viewEnter { from { opacity: 0; transform: translateY(12px) scale(0.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+/* ===== CHART CONTAINER ===== */
+[id^="chart-"] { width: 100% !important; min-height: 320px !important; overflow: hidden; }
+[id^="spark-"] { width: 100% !important; min-height: 0 !important; overflow: hidden; }
+.chart-container { position: relative; width: 100%; overflow: hidden; }
+.chart-container .apexcharts-canvas { max-width: 100% !important; }
 
 /* ===== MODAL ENTRANCE — scale + fade (espelho V7 reveal-scale) ===== */
 #modal-inner { opacity: 0; transform: scale(0.96); transition: opacity var(--dur-medium) var(--ease-decelerate), transform var(--dur-medium) var(--ease-decelerate); }

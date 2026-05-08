@@ -120,54 +120,40 @@ export function settingsTemplate(settings) {
 // Restore visibility state and wire events -- these are delegated to the fragment helpers
 export function restoreVisibility(host, settings) {
   if (settings && settings.visibility) {
-try {
-    const vis = JSON.parse(settings.visibility);
-    Object.entries(vis).forEach(([key, val]) => {
-      const cb = host.querySelector(`#visibility-toggles input[data-toggle="${key}"]`);
-      if (cb) cb.checked = val;
-    });
-  } catch { /* noop: corrupted visibility JSON — defaults apply */ }
+    try {
+      const vis = JSON.parse(settings.visibility);
+      Object.entries(vis).forEach(([key, val]) => {
+        const cb = host.querySelector(`#visibility-toggles input[data-toggle="${key}"]`);
+        if (cb) cb.checked = val;
+      });
+    } catch { /* noop: corrupted visibility JSON — defaults apply */ }
   }
 }
 
 export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, autosave, store }) {
   // Local helper to persist visibility toggles
-  function saveVisibility() {
-    const visibility = {};
-    host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => {
-      visibility[cb.dataset.toggle] = cb.checked;
-    });
-    pushToStore({ visibility: JSON.stringify(visibility) });
+  function sv() {
+    const v = {};
+    host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => { v[cb.dataset.toggle] = cb.checked; });
+    pushToStore({ visibility: JSON.stringify(v) });
     autosave('visibilidade');
   }
 
-  // Text inputs + checkbox → store
   host.querySelectorAll('input[data-setting]').forEach((el) => {
     const key = el.dataset.setting;
-    const evt = el.type === 'checkbox' ? 'change' : 'input';
-    el.addEventListener(evt, () => {
-      const value = el.type === 'checkbox' ? el.checked : el.value;
-      pushToStore({ [key]: value });
-      if (key === 'animations') applyAnimationsPref(el.checked);
-      autosave(key);
-    });
+    if (el.type === 'checkbox') {
+      el.addEventListener('change', () => { pushToStore({ [key]: el.checked }); if (key === 'animations') applyAnimationsPref(el.checked); autosave(key); });
+    } else {
+      el.addEventListener('blur', () => { pushToStore({ [key]: el.value }); autosave(key); });
+    }
   });
 
-  // Visibility checkboxes → store
-  host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => {
-    cb.addEventListener('change', () => saveVisibility());
-  });
+  host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((cb) => { cb.addEventListener('change', () => sv()); });
 
-  // Toggle dark
   const darkBtn = host.querySelector('button[data-action="toggle-dark"]');
   if (darkBtn) {
-    darkBtn.addEventListener('click', () => {
-      toggleDarkMode(store);
-      darkBtn.textContent = isDarkMode() ? 'Modo Claro' : 'Modo Escuro';
-    });
+    darkBtn.addEventListener('click', () => { toggleDarkMode(store); darkBtn.textContent = isDarkMode() ? 'Modo Claro' : 'Modo Escuro'; });
   }
-
-  // Save (feedback visual)
   const saveBtn = host.querySelector('button[data-action="save"]');
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
