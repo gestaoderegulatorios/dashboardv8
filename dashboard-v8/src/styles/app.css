@@ -11,6 +11,12 @@
 /* app.css only overrides them for prefers-reduced-motion and .motion-reduced */
 
 body { font-family: 'Inter', sans-serif; }
+/* Prevent any repaints on input - try to eliminate flicker */
+input, textarea, select { 
+  transform: translateZ(0); 
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
 
 /* Scrollbar */
