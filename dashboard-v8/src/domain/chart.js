@@ -28,15 +28,6 @@ export {
 /** @type {Map<string, object>} chartId → options (salvo na criação) */
 const _chartConfigs = new Map();
 
-/** Configuração explícita de animações ApexCharts */
-const CHART_ANIMATIONS = {
-  enabled: true,
-  easing: 'easeinout',
-  speed: 1200,
-  dynamicAnimation: { enabled: true, speed: 550 },
-  animateGradually: { enabled: true, delay: 150 }
-};
-
 /** Recupera as opções salvas de um chart (para openChartFullscreen). */
 export function getChartConfig(chartId) { return _chartConfigs.get(chartId); }
 
@@ -63,9 +54,7 @@ export function getChartDefaults(theme) {
       fontFamily: 'Inter, sans-serif',
       toolbar: { show: false },
       background: 'transparent',
-      animations: { enabled: true, easing: 'easeinout', speed: 800, dynamicAnimation: { enabled: true, speed: 400 } },
-      redrawOnParentResize: false,
-      redrawOnWindowResize: false,
+      animations: { enabled: true, easing: 'easeinout', speed: 1200, dynamicAnimation: { enabled: true, speed: 550 }, animateGradually: { enabled: true, delay: 150 } },
       theme: { mode: isDark ? 'dark' : 'light' }
     },
 colors: [
@@ -168,47 +157,29 @@ export function mountChart(container, options, theme) {
     container.innerHTML = '<p class="text-xs text-on-surface-variant p-4">ApexCharts não carregado.</p>';
     return noopHandle();
   }
-
   const merged = deepMerge(getChartDefaults(theme), options || {});
-  merged.chart = merged.chart || {};
-  merged.chart.animations = CHART_ANIMATIONS;
-
-  // Salva config no registry (espelho V7 state.chartConfigs)
   if (container.id) _chartConfigs.set(container.id, merged);
 
-  const chart = new window.ApexCharts(container, merged);
-  chart.render();
-
   let observer = null;
-  if (typeof window.ResizeObserver !== 'undefined') {
-    observer = new window.ResizeObserver(() => {
-      safeUpdate(chart, {}, false, false);
-    });
-    observer.observe(container);
-  }
-
   let destroyed = false;
+  let chart = null;
+
+  requestAnimationFrame(() => {
+    if (destroyed) return;
+    chart = new window.ApexCharts(container, merged);
+    chart.render();
+    if (typeof window.ResizeObserver !== 'undefined') {
+      observer = new window.ResizeObserver(() => safeUpdate(chart, {}, false, false));
+      observer.observe(container);
+    }
+  });
+
   return {
     instance: chart,
-    update(newOptions) {
-      if (destroyed) return;
-      safeUpdate(chart, newOptions, false, true);
-    },
-    updateSeries(series) {
-      if (destroyed) return;
-      safeUpdateSeries(chart, series, true);
-    },
-    resize() {
-      if (destroyed) return;
-      safeUpdate(chart, {}, false, false);
-    },
-    destroy() {
-      if (destroyed) return;
-      destroyed = true;
-      safeDisconnect(observer);
-      observer = null;
-      safeDestroy(chart);
-    }
+    update(newOptions) { if (destroyed) return; safeUpdate(chart, newOptions, false, true); },
+    updateSeries(series) { if (destroyed) return; safeUpdateSeries(chart, series, true); },
+    resize() { if (destroyed) return; safeUpdate(chart, {}, false, false); },
+    destroy() { if (destroyed) return; destroyed = true; safeDisconnect(observer); observer = null; safeDestroy(chart); }
   };
 }
 

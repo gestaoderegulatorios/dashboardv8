@@ -93,15 +93,6 @@ html { scroll-behavior: smooth; }
 .chart-container { position: relative; width: 100%; overflow: hidden; }
 .chart-container .apexcharts-canvas { max-width: 100% !important; }
 
-/* Chart entrance animation (fade + slide) */
-.apexcharts-canvas {
-  animation: chartEnter 0.8s ease-out forwards;
-}
-@keyframes chartEnter {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* ===== VIEW TRANSITION ===== */
 .view-section { animation: viewEnter var(--dur-medium) var(--ease-emphasized); }
 @keyframes viewEnter { from { opacity: 0; transform: translateY(12px) scale(0.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
