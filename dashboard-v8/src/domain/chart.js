@@ -12,7 +12,7 @@
 // Registry: salva as opções de cada chart (espelho V7 state.chartConfigs)
 // para que openChartFullscreen possa clonar via JSON.parse(JSON.stringify()).
 
-import { safeDestroy, safeDisconnect, safeUpdate, safeUpdateSeries } from '../ui/safe-cleanup.js';
+import { safeDestroy, safeUpdate, safeUpdateSeries } from '../ui/safe-cleanup.js';
 import { resolveCSSVar, isThemeDark, readChartTheme } from './chart-theme.js';
 
 // Re-export for consumers that need theme injection
@@ -162,27 +162,33 @@ export function mountChart(container, options, theme) {
 
   let destroyed = false;
   let chart = null;
+  const staged = buildEntranceSeries(merged);
+  const renderOptions = staged ? deepMerge(merged, {
+    series: staged.zeroSeries,
+    chart: { animations: { enabled: false } }
+  }) : merged;
 
-  // Force reflow and render once, like V7
-  container.style.display = 'none';
   requestAnimationFrame(() => {
     if (destroyed) return;
-    container.style.display = '';
-    void container.offsetWidth; // Force reflow
-    
-    requestAnimationFrame(() => {
-      if (destroyed) return;
-      chart = new window.ApexCharts(container, merged);
-      chart.render();
-      // No ResizeObserver, no updates - render once like V7
-    });
+    chart = new window.ApexCharts(container, renderOptions);
+    const rendered = chart.render();
+    if (staged && rendered && typeof rendered.then === 'function') {
+      rendered.then(() => {
+        if (destroyed) return;
+        requestAnimationFrame(() => {
+          if (!destroyed && chart && typeof chart.updateSeries === 'function') {
+            chart.updateSeries(staged.realSeries, true);
+          }
+        });
+      });
+    }
   });
 
   return {
-    instance: chart,
-    update() { /* noop, like V7 */ },
-    updateSeries() { /* noop */ },
-    resize() { /* noop */ },
+    get instance() { return chart; },
+    update(opts) { safeUpdate(chart, opts); },
+    updateSeries(series) { safeUpdateSeries(chart, series, true); },
+    resize() { if (chart && typeof chart.resize === 'function') chart.resize(); },
     destroy() { if (destroyed) return; destroyed = true; safeDestroy(chart); }
   };
 }
@@ -208,4 +214,36 @@ function deepMerge(a, b) {
     }
   }
   return out;
+}
+
+function buildEntranceSeries(options) {
+  const type = options && options.chart && options.chart.type;
+  if (!['bar', 'line', 'area', 'radialBar'].includes(type)) return null;
+  if (!Array.isArray(options.series) || options.series.length === 0) return null;
+
+  const realSeries = clone(options.series);
+  const zeroSeries = realSeries.map(zeroSeriesEntry);
+  return { realSeries, zeroSeries };
+}
+
+function zeroSeriesEntry(entry) {
+  if (typeof entry === 'number') return 0;
+  if (Array.isArray(entry)) return entry.map(zeroSeriesEntry);
+  if (!entry || typeof entry !== 'object') return entry;
+  if (Array.isArray(entry.data)) return { ...entry, data: entry.data.map(zeroDatum) };
+  if (typeof entry.y === 'number') return { ...entry, y: 0 };
+  return entry;
+}
+
+function zeroDatum(value) {
+  if (typeof value === 'number') return 0;
+  if (Array.isArray(value)) return value.map(zeroDatum);
+  if (!value || typeof value !== 'object') return value;
+  if (typeof value.y === 'number') return { ...value, y: 0 };
+  return value;
+}
+
+function clone(value) {
+  if (typeof structuredClone === 'function') return structuredClone(value);
+  return JSON.parse(JSON.stringify(value));
 }

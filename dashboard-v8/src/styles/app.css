@@ -11,12 +11,6 @@
 /* app.css only overrides them for prefers-reduced-motion and .motion-reduced */
 
 body { font-family: 'Inter', sans-serif; }
-/* Prevent any repaints on input - try to eliminate flicker */
-input, textarea, select { 
-  transform: translateZ(0); 
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
-}
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
 
 /* Scrollbar */
@@ -124,7 +118,12 @@ input[data-setting]:hover { transition: none !important; }
 /* ===== REDUCED MOTION (OS preference) ===== */
 @media (prefers-reduced-motion: reduce) {
   :root { --dur-instant: 0ms; --dur-fast: 0ms; --dur-base: 0ms; --dur-medium: 0ms; --dur-slow: 0ms; --dur-deliberate: 0ms; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  html { scroll-behavior: auto !important; }
+  .reveal, .reveal.revealed, .reveal-scale, .reveal-scale.visible, .stagger > *, [data-animate-value], .ripple-wave, .toast-animate {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
   .pulse-dot::before { display: none; } .border-glow { animation: none; } .animate-shimmer-pro { animation: none; } .animate-shimmer { animation: none !important; }
 }
 
@@ -212,10 +211,13 @@ body[data-density="high"] .density-pad { padding: 0.875rem; }
   --dur-medium: 0ms; --dur-slow: 0ms; --dur-deliberate: 0ms;
 }
 .motion-reduced *, .motion-reduced *::before, .motion-reduced *::after {
+  scroll-behavior: auto !important;
+}
+.motion-reduced .reveal, .motion-reduced .reveal.revealed, .motion-reduced .reveal-scale, .motion-reduced .reveal-scale.visible,
+.motion-reduced .stagger > *, .motion-reduced [data-animate-value], .motion-reduced .ripple-wave, .motion-reduced .toast-animate {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
 }
 .motion-reduced .pulse-dot::before { display: none; }
 .motion-reduced .border-glow { animation: none; }
