@@ -55,16 +55,16 @@ export function settingsTemplate(settings) {
     <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Dados do Usuário">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Dados do Usuário</div>
       <div class="space-y-4">
-        <div><label for="setting-username" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Usuário</label><input type="text" id="setting-username" data-setting="username" value="${escape(settings.username)}" class="${inputCls}"></div>
-        <div><label for="setting-role" class="block text-xs font-semibold text-on-surface-variant mb-1">Cargo</label><input type="text" id="setting-role" data-setting="role" value="${escape(settings.role)}" class="${inputCls}"></div>
+        <div><label for="setting-username" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Usuário</label><input type="text" id="setting-username" value="${escape(settings.username)}" oninput="localStorage.setItem('v8-username', this.value)" class="${inputCls}"></div>
+        <div><label for="setting-role" class="block text-xs font-semibold text-on-surface-variant mb-1">Cargo</label><input type="text" id="setting-role" value="${escape(settings.role)}" oninput="localStorage.setItem('v8-role', this.value)" class="${inputCls}"></div>
       </div>
     </div>
 
     <div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm" aria-label="Dados do Empreendimento">
       <div class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">Empreendimento</div>
       <div class="space-y-4">
-        <div><label for="setting-company" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome da Construtora</label><input type="text" id="setting-company" data-setting="companyName" value="${escape(settings.companyName)}" class="${inputCls}"></div>
-        <div><label for="setting-project" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Empreendimento</label><input type="text" id="setting-project" data-setting="projectName" value="${escape(settings.projectName)}" class="${inputCls}"></div>
+        <div><label for="setting-company" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome da Construtora</label><input type="text" id="setting-company" value="${escape(settings.companyName)}" oninput="localStorage.setItem('v8-company', this.value)" class="${inputCls}"></div>
+        <div><label for="setting-project" class="block text-xs font-semibold text-on-surface-variant mb-1">Nome do Empreendimento</label><input type="text" id="setting-project" value="${escape(settings.projectName)}" oninput="localStorage.setItem('v8-project', this.value)" class="${inputCls}"></div>
       </div>
     </div>
 
@@ -150,12 +150,30 @@ export function wireSettingsEvents(host, { pushToStore, applyAnimationsPref, aut
   const saveBtn = host.querySelector('button[data-action="save"]');
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
-      const settings = {};
+      const current = store.get().settings || {};
+      const settings = { ...current };
+      
+      // Read text inputs from localStorage (written by oninput)
+      const lsMap = { username: 'v8-username', role: 'v8-role', companyName: 'v8-company', projectName: 'v8-project' };
+      Object.entries(lsMap).forEach(([key, lsKey]) => {
+        const val = localStorage.getItem(lsKey);
+        if (val !== null) settings[key] = val;
+      });
+      
+      // Handle checkboxes (animations)
       host.querySelectorAll('input[data-setting]').forEach((el) => {
         const key = el.dataset.setting;
         settings[key] = el.type === 'checkbox' ? el.checked : el.value;
       });
+      
+      // Handle visibility toggles
+      const v = {};
+      host.querySelectorAll('#visibility-toggles input[type="checkbox"]').forEach((c) => { v[c.dataset.toggle] = c.checked; });
+      settings.visibility = JSON.stringify(v);
+      
       pushToStore(settings);
+      // Clear temporary localStorage items
+      Object.values(lsMap).forEach(k => localStorage.removeItem(k));
       showToast('Configurações salvas com sucesso', 'success');
       const status = host.querySelector('#settings-save-status');
       if (status) { status.textContent = 'Salvo!'; status.className = 'text-success'; setTimeout(() => { if (status) { status.textContent = ''; status.className = ''; } }, 2000); }

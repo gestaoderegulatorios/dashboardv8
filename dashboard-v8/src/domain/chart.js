@@ -160,36 +160,30 @@ export function mountChart(container, options, theme) {
   const merged = deepMerge(getChartDefaults(theme), options || {});
   if (container.id) _chartConfigs.set(container.id, merged);
 
-  let observer = null;
   let destroyed = false;
   let chart = null;
 
-  // Force reflow and wait for next frame
+  // Force reflow and render once, like V7
   container.style.display = 'none';
   requestAnimationFrame(() => {
     if (destroyed) return;
     container.style.display = '';
-    
-    // Force reflow
-    void container.offsetWidth;
+    void container.offsetWidth; // Force reflow
     
     requestAnimationFrame(() => {
       if (destroyed) return;
       chart = new window.ApexCharts(container, merged);
       chart.render();
-      if (typeof window.ResizeObserver !== 'undefined') {
-        observer = new window.ResizeObserver(() => safeUpdate(chart, {}, false, false));
-        observer.observe(container);
-      }
+      // No ResizeObserver, no updates - render once like V7
     });
   });
 
   return {
     instance: chart,
-    update(newOptions) { if (destroyed) return; safeUpdate(chart, newOptions, false, true); },
-    updateSeries(series) { if (destroyed) return; safeUpdateSeries(chart, series, true); },
-    resize() { if (destroyed) return; safeUpdate(chart, {}, false, false); },
-    destroy() { if (destroyed) return; destroyed = true; safeDisconnect(observer); observer = null; safeDestroy(chart); }
+    update() { /* noop, like V7 */ },
+    updateSeries() { /* noop */ },
+    resize() { /* noop */ },
+    destroy() { if (destroyed) return; destroyed = true; safeDestroy(chart); }
   };
 }
 
