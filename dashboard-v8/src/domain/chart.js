@@ -54,7 +54,7 @@ export function getChartDefaults(theme) {
       fontFamily: 'Inter, sans-serif',
       toolbar: { show: false },
       background: 'transparent',
-      animations: { enabled: true, easing: 'easeinout', speed: 800 },
+      animations: { enabled: true, easing: 'easeinout', speed: 800, animateGradually: { enabled: true, delay: 150 }, dynamicAnimation: { enabled: true, speed: 800 } },
       theme: { mode: isDark ? 'dark' : 'light' }
     },
 colors: [
@@ -158,67 +158,72 @@ export function mountChart(container, options, theme) {
     return noopHandle();
   }
 
-  // DIAGNÓSTICO: Log reduced-motion
-  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-  console.log('%c🔍 DIAGNÓSTICO CHART:', 'color:#4c5e86;font-weight:bold', container.id || 'unknown');
-  console.log('   prefers-reduced-motion:', reducedMotion);
-
   const merged = deepMerge(getChartDefaults(theme), options || {});
   if (container.id) _chartConfigs.set(container.id, merged);
 
-  // DIAGNÓSTICO: Log animation config
-  const animConfig = merged?.chart?.animations;
-  console.log('   chart.animations:', JSON.stringify(animConfig));
+  const staged = buildEntranceSeries(merged);
+  return createChartHandle(container, merged, staged);
+}
 
+function createChartHandle(container, merged, staged) {
   let destroyed = false;
   let chart = null;
-  const staged = buildEntranceSeries(merged);
-  const renderOptions = staged ? deepMerge(merged, {
-    series: staged.zeroSeries
-  }) : merged;
+  let revealObserver = null;
+  let revealTimer = null;
 
-  // DIAGNÓSTICO: Log render start
-  const renderStartTime = Date.now();
-  console.log('   render starting at:', renderStartTime);
+  function cleanupPendingReveal() {
+    if (revealObserver) { revealObserver.disconnect(); revealObserver = null; }
+    if (revealTimer) { clearTimeout(revealTimer); revealTimer = null; }
+  }
 
-  requestAnimationFrame(() => {
-    if (destroyed) return;
-    chart = new window.ApexCharts(container, renderOptions);
-    const rendered = chart.render();
-    
-    if (rendered && typeof rendered.then === 'function') {
-      rendered.then(() => {
-        const renderEndTime = Date.now();
-        console.log('   render completed at:', renderEndTime, '(took', renderEndTime - renderStartTime, 'ms)');
-        
-        if (staged && !destroyed) {
-          // DIAGNÓSTICO: Wait longer before updateSeries
-          console.log('   waiting before updateSeries...');
-          setTimeout(() => {
-            if (destroyed) return;
-            requestAnimationFrame(() => {
-              if (destroyed || !chart || typeof chart.updateSeries !== 'function') return;
-              const updateTime = Date.now();
-              console.log('   updateSeries called at:', updateTime, '(delta from render:', updateTime - renderEndTime, 'ms)');
-              chart.updateSeries(staged.realSeries, true);
-              console.log('   updateSeries completed, chart should animate now');
-            });
-          }, 200); // Wait 200ms to ensure render paint happened
-        }
+  function renderWhenReady() {
+    cleanupPendingReveal();
+    const opts = staged ? deepMerge(merged, { series: staged.zeroSeries }) : merged;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (destroyed) return;
+        chart = new window.ApexCharts(container, opts);
+        const rendered = chart.render();
+        Promise.resolve(rendered).then(() => scheduleEntranceUpdate({ chart, staged, isDestroyed: () => destroyed }));
       });
-    }
-  });
+    });
+  }
+
+  const revealHost = container.closest('.reveal');
+  if (revealHost && !revealHost.classList.contains('revealed')) {
+    revealObserver = new MutationObserver(() => { if (revealHost.classList.contains('revealed')) renderWhenReady(); });
+    revealObserver.observe(revealHost, { attributes: true, attributeFilter: ['class'] });
+    revealTimer = setTimeout(renderWhenReady, 700);
+  } else {
+    renderWhenReady();
+  }
 
   return {
     get instance() { return chart; },
     update(opts) { safeUpdate(chart, opts); },
-    updateSeries(series) { 
-      console.log('   updateSeries called externally:', Date.now());
-      safeUpdateSeries(chart, series, true); 
-    },
+    updateSeries(series) { safeUpdateSeries(chart, series, true); },
     resize() { if (chart && typeof chart.resize === 'function') chart.resize(); },
-    destroy() { if (destroyed) return; destroyed = true; console.log('   chart destroyed'); safeDestroy(chart); }
+    destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      cleanupPendingReveal();
+      safeDestroy(chart);
+    }
   };
+}
+
+function scheduleEntranceUpdate({ chart, staged, isDestroyed }) {
+  if (!staged || isDestroyed()) return;
+  // Dois paints + atraso curto garantem que o usuário veja o estado zero antes do update animado.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (!isDestroyed() && chart && typeof chart.updateSeries === 'function') {
+          chart.updateSeries(staged.realSeries, true);
+        }
+      }, 120);
+    });
+  });
 }
 
 function noopHandle() {
